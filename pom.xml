@@ -4,19 +4,19 @@
    http://maven.apache.org/xsd/maven-4.0.0.xsd">
    <modelVersion>4.0.0</modelVersion>
 
-   <groupId>SySoft</groupId>
-   <artifactId>SofSystem</artifactId>
+   <groupId>EVLib</groupId>
+   <artifactId>EVLib</artifactId>
    <version>1.0</version>
  
    <packaging>jar</packaging>
-   <name>SofSystem</name>
+   <name>EVLib</name>
 	
    <properties>
        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
    </properties>
 	
    <build>
-	   <finalName>SofSystem</finalName>
+	   <finalName>EVLib</finalName>
        <plugins>
            <plugin>
                <artifactId>maven-compiler-plugin</artifactId>
