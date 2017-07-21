@@ -19,6 +19,16 @@ Similarly to a charging event, a discharging event first demands the pre-process
 ### Battery Exchange: 
 The pre-processing phase requires for a battery with enough range to be available in the charging station. If such a battery is found, the execution function can be called and the battery is swapped into the EV.
 
+## Extra Functions
+The library also supports a number of secondary functions: The creation of a charging station, as well as the
+creation and integration of a charger, dis-charger or battery swapper in the station. Additional operations are the
+recharging of batteries which are later to be swapped into EVs, as well as the ability to add new batteries to the storage
+in order seamless operation of the battery exchange process to be achieved. The total cost of the charging, dis-
+charging and battery swapping can be calculated based on a series of costs (e.g., energy cost) defined by the user.
+During the creation of the charging station, 4 waiting lists are created. A list for the charging events which want fast
+charging, a list for the charging events which want slow charging, a list for the discharging events, and a list for the
+vehicles waiting for battery exchange.
+
 ## Examples
 ```
   String[] kinds = new string[4] { "slow", "fast", "fast", "slow" };
