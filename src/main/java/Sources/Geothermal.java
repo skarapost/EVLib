@@ -5,53 +5,36 @@ package Sources;
  * @author Sotiris Karapostolakis
  */
 import Station.ChargingStation;
-import EV.*;
 import java.util.ArrayList;
 
 public class Geothermal extends EnergySource
 {
     private ArrayList<Float> energyAmount;
 
-    /**
-     * Constructor of Geothermal class.
-     * @param id The id of Geothermal.
-     * @param station The ChargingStation the Geothermal belongs.
-     * @param energyAmoun The array with the energies to be given to the ChargingStation
-     * of Geothermal source.
-     */
-    public Geothermal(int id,ChargingStation station,float[] energyAmoun)
-    {
-        super(id,station);
-        energyAmount = new ArrayList<Float>();
-        for(int i=0;i<energyAmoun.length;i++)
+    public Geothermal(int id, ChargingStation station, float[] energyAmoun)
         {
-            energyAmount.add(i, energyAmoun[i]);
+            super(id, station);
+            energyAmount = new ArrayList<Float>();
+            for(int i=0; i<energyAmoun.length; i++)
+            energyAmount.add(energyAmoun[i]);
         }
+
+    public Geothermal(int id, ChargingStation station)
+    {
+        super(id, station);
+        energyAmount = new ArrayList<Float>();
     }
 
-    /**
-     * Constructor of Geothermal class.
-     * @param id The id of Geothermal.
-     * @param station The ChargingStation the Geothermal belongs.
-     */
-    public Geothermal(int id,ChargingStation station)
+    public float popAmount()
     {
-        super(id,station);
-        energyAmount = new ArrayList<Float>();
-    }
-    @Override
-    public final float reAmount(int num)
-    {
-        if ((energyAmount == null)||(energyAmount.size() <= num))
+        if ((energyAmount == null)||(energyAmount.size() == 0))
             return 0;
         else
-            return energyAmount.get(num);
+            return energyAmount.get(0);
     }
-    @Override
-    public final void modifySpecificAmount(int num, float am)
+
+    public void insertAmount(float am)
     {
-        if (energyAmount.size() > num)
-            energyAmount.remove(num);
-        energyAmount.add(num,am);
+        energyAmount.add(am);
     }
 }

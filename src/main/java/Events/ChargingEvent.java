@@ -4,313 +4,236 @@ package Events;
  *
  * @author Sotiris Karapostolakis
  */
-import Station.ChargingStation;
-import EV.ElectricVehicle;
-import java.util.Date;
 
-public class ChargingEvent 
+import EV.ElectricVehicle;
+import Station.ChargingStation;
+
+public class ChargingEvent
 {
     private ChargingStation station;
     private float amEnerg;
     private String kindOfCharging;
-    private float waitingTime;
+    private long waitingTime;
     private ElectricVehicle vehicle;
-    private int chargingTime;
-    private int mode; 
+    private long chargingTime;
+    private String condition;
     private int chargerId;
     private int numberOfBattery;
     private float energyToBeReceived;
-    private Date date;
-    private int dateArrival;
+    private long dateArrival;
     private float stock;
+    private long maxWaitingTime;
     private long startTime;
-    private int maxWaitingTime;
 
-    /**
-     * Constructor of ChargingEvent class.
-     * @param station The ChargingStation the ChargingEvent visited.
-     * @param vehicle The Vehicle that is going to be charged.
-     * @param amEnerg The energy the Vehicle is asking for.
-     * @param kindOfCharging The kind of charging that is asking the Vehicle.
-     */
-    public ChargingEvent(ChargingStation station,ElectricVehicle vehicle,float amEnerg,String kindOfCharging)
+    public ChargingEvent(ChargingStation station, ElectricVehicle vehicle, float amEnerg, String kindOfCharging)
     {
         this.station = station;
         this.amEnerg = amEnerg;
         this.kindOfCharging = kindOfCharging;
-        chargerId = -1;
+        this.chargerId = -1;
         this.vehicle = vehicle;
-        mode = 1;
-        energyToBeReceived = 0;
-        date = new Date();
+        this.condition = "arrived";
+        this.energyToBeReceived = 0;
         if ("fast".equals(kindOfCharging))
-            chargingTime = (int) (amEnerg/station.reChargingRatioFast()) + 1;
+            this.chargingTime = (long) (amEnerg/station.reChargingRatioFast());
         else
-            chargingTime = (int) (amEnerg/station.reChargingRatioSlow()) + 1;
-        dateArrival =(int) (date.getTime()/1000);
-        stock = station.reTotalEnergy();
+            this.chargingTime = (long) (amEnerg/station.reChargingRatioSlow());
+        this.dateArrival = station.getTime();
+        this.startTime = 0;
+        this.stock = station.reTotalEnergy();
     }
 
-    /**
-     * Constructor of ChargingEvent class.
-     * @param station The ChargingStation object the ChargingEvent visited.
-     * @param vehicle The Vehicle object that is going to be charged.
-     * @param kindOfCharging The kind of charging that is asking the Vehicle.
-     * @param money The money for which the Vehicle is asking for the respectively energy.
-     */
-    public ChargingEvent(ChargingStation station,ElectricVehicle vehicle,String kindOfCharging,float money)
+    public ChargingEvent(ChargingStation station, ElectricVehicle vehicle, String kindOfCharging, float money)
     {
         this.station = station;
         this.vehicle = vehicle;
         this.kindOfCharging = kindOfCharging;
-        chargerId = -1;
-        energyToBeReceived = 0;
-        date = new Date();
-        dateArrival = (int) (date.getTime()/1000);
-        stock = station.reTotalEnergy();
-        mode = 1;
+        this.chargerId = -1;
+        this.condition = "arrived";
+        this.energyToBeReceived = 0;
+        this.startTime = 0;
+        this.dateArrival = station.getTime();
+        this.stock = station.reTotalEnergy();
         if (money/station.reUnitPrice() <= station.reTotalEnergy())
-            amEnerg = money/station.reUnitPrice();
+            this.amEnerg = money/station.reUnitPrice();
         else
-            amEnerg = station.reTotalEnergy();
+            this.amEnerg = station.reTotalEnergy();
         if ("fast".equals(kindOfCharging))
-            chargingTime = (int) (amEnerg/station.reChargingRatioFast()) + 1;
+            this.chargingTime = (long) (amEnerg/station.reChargingRatioFast());
         else
-            chargingTime = (int) (amEnerg/station.reChargingRatioSlow()) + 1;
+            this.chargingTime = (long) (amEnerg/station.reChargingRatioSlow());
     }
 
-    /**
-     * Constructor of ChargingEvent class. It is used for a battery exchange.
-     * @param station The ChargingStation the ChargingEvent visited.
-     * @param vehicle The Vehicle object is going to be charged.
-     * @param kindOfCharging The kind of charging that is asking the Vehicle.
-     */
-    public ChargingEvent(ChargingStation station, ElectricVehicle vehicle,String kindOfCharging)
+    public ChargingEvent(ChargingStation station, ElectricVehicle vehicle, String kindOfCharging)
     {
         this.station = station;
         this.kindOfCharging = kindOfCharging;
-        chargerId = -1;
+        this.chargerId = -1;
+        this.startTime = 0;
         this.vehicle = vehicle;
-        chargingTime = station.reTimeOfExchange();
-        date = new Date();
-        mode = 1;
-        energyToBeReceived = 0;
-        dateArrival = (int) (date.getTime()/1000);
-        stock = station.reTotalEnergy();
+        this.chargingTime = station.reTimeOfExchange();
+        this.condition = "arrived";
+        this.energyToBeReceived = 0;
+        this.dateArrival = station.getTime();
+        this.stock = station.reTotalEnergy();
     }
 
     /**
-     * Executes the pre-proccessing method. Checks for any Charger or exchange slot, 
-     * calculates the energy to be given to the Vehicle 
-     * and calculates the charging time. If there is not any empty Charger or exchange 
-     * slot the ChargingEvent is inserted in the respectively list.
+     * Executes the pre-proccessing method. Checks for any Charger or exchange slot,
+     * calculates the energy to be given to the Vehicle
+     * and calculates the charging time. If there is not any empty Charger or exchange
+     * slot the ChargingEvent is inserted in the respectively waiting list.
      */
-    public final void preProcessing()
+    public void preProcessing()
     {
-        if ((mode == 1)||(mode == 3))
+        if ((condition.equals("arrived"))||(condition.equals("wait")))
         {
             if (!"exchange".equals(kindOfCharging))
             {
                 int qwe = station.checkChargers(kindOfCharging);
-                if (qwe != -1)
+                if ((qwe != -1)&&(qwe != -753159))
                 {
                     chargerId = qwe;
                     station.searchCharger(chargerId).setChargingEvent(this);
-                    setMode(2);
+                    setCondition("ready");
                     station.searchCharger(chargerId).changeSituation();
                     if (amEnerg < station.reTotalEnergy())
                     {
                         if (amEnerg <= (vehicle.reBattery().reBatteryCapacity() - vehicle.reBattery().reRemAmount()))
                             energyToBeReceived = amEnerg;
-                        else 
+                        else
                             energyToBeReceived = vehicle.reBattery().reBatteryCapacity() - vehicle.reBattery().reRemAmount();
                         station.setTotalEnergy(energyToBeReceived);
                         if ("fast".equals(kindOfCharging))
-                            chargingTime = (int) ((energyToBeReceived)/station.reChargingRatioFast()) + 1;
+                            chargingTime = (long) ((energyToBeReceived)/station.reChargingRatioFast());
                         else
-                            chargingTime = (int) (energyToBeReceived/station.reChargingRatioSlow()) + 1;
+                            chargingTime = (long) (energyToBeReceived/station.reChargingRatioSlow());
                     }
                     else
                     {
-                        station.reChargingStationHandler().energyDistribution(startTime);
+                        station.energyDistribution(dateArrival);
                         station.setTotalEnergy(station.reTotalEnergy());
                         if (energyToBeReceived == 0)
                         {
                             station.searchCharger(chargerId).changeSituation();
-                            setMode(5);
+                            station.searchCharger (chargerId).setChargingEvent (null);
+                            setCondition("nonExecutable");
                         }
                     }
                 }
+                else if (qwe == -753159)
+                    setCondition("nonExecutable");
                 else
                 {
-                    int time = station.reChargingStationHandler().calWaitingTime(this);
+                    long time = station.calWaitingTime(this);
                     maxWaitingTime = time;
                     if (time < waitingTime)
                     {
-                        if (mode != 3)
+                        if (!condition.equals("wait"))
                             station.updateQueue(this);
-                        setMode(3);
+                        setCondition("wait");
                     }
                     else
-                        setMode(5);
+                        setCondition("nonExecutable");
                 }
             }
             else
             {
-                int qwe = station.checkExchangeSlots();
+                int qwe = station.checkExchangeHandlers();
                 if ((qwe != -1)&&(qwe != -753159))
                 {
-                    setMode(2);
                     chargerId = qwe;
-                    station.reExchangeHandler(qwe).joinChargingEvent(this);
+                    station.searchExchangeHandler(chargerId).joinChargingEvent(this);
+                    setCondition("ready");
+                    station.searchExchangeHandler(chargerId).changeSituation();
                     int state2 = station.checkBatteries();
                     if ((state2 != -1)&&(state2 != -753159))
                     {
-                        setMode(2);
+                        setCondition("ready");
                         numberOfBattery = state2;
-                        station.setExchangeSlot(qwe, true);
                     }
                     else if(state2 == -1)
                     {
-                        if (station.reChargingStationHandler().calWaitingTime(this) < waitingTime)
+                        if (station.calWaitingTime(this) < waitingTime)
                         {
-                            if (mode != 3)
+                            if (!condition.equals("wait"))
                                 station.updateQueue(this);
-                            setMode(3);
+                            setCondition("wait");
                         }
                         else
-                            setMode(5);
+                            setCondition("nonExecutable");
                     }
                     else
-                        setMode(5);
+                        setCondition("nonExecutable");
                 }
                 else if (qwe == -753159)
-                {
-                    setMode(5);
-                }
+                    setCondition("nonExecutable");
                 else
                 {
-                    int time = station.reChargingStationHandler().calWaitingTime(this);
+                    long time = station.calWaitingTime(this);
                     maxWaitingTime = time;
                     if (time < waitingTime)
                     {
-                        setMode(3);
+                        setCondition("wait");
                         station.updateQueue(this);
                     }
                     else
-                        setMode(5);
+                        setCondition("nonExecutable");
                 }
             }
         }
     }
 
     /**
-     * It starts the execution of the ChargingEvent. 
-     * The function modifies the table depends the kind of function that is going to be 
-     * executed(charging, exchange). Checks if there needs to become any update storage. 
-     * Starts the charging. If the ChargingEvent was in the list, then this 
+     * It starts the execution of the ChargingEvent.
+     * The function modifies the table depends the kind of function that is going to be
+     * executed(charging, exchange). Checks if there needs to become any update storage.
+     * Starts the charging. If the ChargingEvent was in the waiting list, then this
      * method does not do anything.
      */
-    public final void execution()
+    public void execution()
     {
-        if (mode == 2)
+        if (condition.equals("ready"))
         {
             if (!"exchange".equals(kindOfCharging))
             {
-                Date now = new Date();
-                long now1 =  now.getTime()/1000;
-                startTime = now1;
-                long diff = (now1-station.reCreationDate())/station.reTimeMoment();
-                long l;
-                float x1;
-                x1 = ((float)(now1 - station.reCreationDate())/(float) station.reTimeMoment()) + (float) chargingTime/(float) station.reTimeMoment();
-                int x2 = (int) x1;
-                if (x1/x2 != 1)
-                {
-                    x1 = x2 + 1;
-                }
-                if (station.reTimeMoment() != 1)
-                {
-                    l = (long) x1;
-                }
-                else
-                    l = diff + chargingTime/station.reTimeMoment();
-                for(long i = diff;i<l;i++)
-                {
-                    station.reChargingStationHandler().modifyChargingArray(station.searchChargerPlace(chargerId),(int) i);
-                }
-                if (station.reUpdateMode() == 0)
-                    station.reChargingStationHandler().checkUpdatePredefinedSpace();
-                else
-                    station.reChargingStationHandler().checkUpdateMadeSpace();
+                station.checkForUpdate();
                 station.searchCharger(chargerId).setCommitTime(chargingTime);
-                station.searchCharger(chargerId).executeChargingEvent(this);
+                setStartTime (station.getTime());
+                station.searchCharger(chargerId).executeChargingEvent();
             }
             else
             {
-                Date now = new Date();
-                long now1 =  now.getTime()/1000;
-                startTime = now1;
-                long diff = (now1-station.reCreationDate())/station.reTimeMoment();
-                long l;
-                float x1;
-                x1 = ((float)(now1 - station.reCreationDate())/(float) station.reTimeMoment()) + (float) chargingTime/(float) station.reTimeMoment();
-                int x2 = (int) x1;
-                if (x1/x2 != 1)
-                {
-                    x1 = x2 + 1;
-                }
-                if (station.reTimeMoment() != 1)
-                {
-                    l = (long) x1;
-                }
-                else
-                    l = diff + chargingTime/station.reTimeMoment();
-                for(long i = diff;i<l;i++)
-                {
-                    station.reChargingStationHandler().modifyExchangeArray(chargerId,(int) i);
-                }
-                if (station.reUpdateMode() == 0)
-                    station.reChargingStationHandler().checkUpdatePredefinedSpace();
-                else
-                    station.reChargingStationHandler().checkUpdateMadeSpace();
-                station.reExchangeHandler(chargerId).executeExchange(numberOfBattery);
+                station.checkForUpdate();
+                setStartTime (station.getTime());
+                station.searchExchangeHandler(chargerId).executeExchange(numberOfBattery);
             }
         }
-    }
-
-    /**
-     * Returns the time the ChargingEvent starts charging.
-     * @return The start time.
-     */
-    public final long reStartTime()
-    {
-        return startTime;
     }
 
     /**
      * Returns the ElectricVehicle that is going to be charged.
-     * @return The ElectricVehicle.
+     * @return The ElectricVehicle object.
      */
-    public final ElectricVehicle reElectricVehicle()
+    public ElectricVehicle reElectricVehicle()
     {
         return vehicle;
     }
 
     /**
-     * Sets the mode of ChargingEvent.
-     * @param h Value of the mode.
+     * Sets the condition of ChargingEvent.
+     * @param condition Value of the condition.
      */
-    public void setMode(int h)
+    public void setCondition(String condition)
     {
-        mode = h;
+        this.condition = condition;
     }
 
     /**
      * Returns the kind of charging the ChargingEvent wants.
      * @return The kind of charging of ChargingEvent.
      */
-    public final String reKind()
+    public String reKind()
     {
         return kindOfCharging;
     }
@@ -319,7 +242,7 @@ public class ChargingEvent
      * Returns the ChargingStation the ChargingEvent visited.
      * @return The ChargingStation.
      */
-    public final ChargingStation reStation()
+    public ChargingStation reStation()
     {
         return station;
     }
@@ -328,7 +251,7 @@ public class ChargingEvent
      * Returns the energy that is going to be received by the ElectricVehicle.
      * @return The energy to be received by ElectricVehicle.
      */
-    public final float reEnergyToBeReceived()
+    public float reEnergyToBeReceived()
     {
         return energyToBeReceived;
     }
@@ -337,7 +260,7 @@ public class ChargingEvent
      * Sets the value of e, as the energy to be given in the ElectricVehicle.
      * @param e Energy to be set.
      */
-    public final void setEnergyToBeReceived(float e)
+    public void setEnergyToBeReceived(float e)
     {
         energyToBeReceived = e;
     }
@@ -346,7 +269,7 @@ public class ChargingEvent
      * Returns the amount of energy the ElectricVehicle asks.
      * @return The amount of energy the ElectricVehicle asks.
      */
-    public final float reEnergyAmount()
+    public float reEnergyAmount()
     {
         return amEnerg;
     }
@@ -355,16 +278,16 @@ public class ChargingEvent
      * Sets the waiting time the Driver is able to wait.
      * @param w The waiting time.
      */
-    public final void setWaitingTime(float w)
+    public void setWaitingTime(long w)
     {
-        waitingTime = w;
+        this.waitingTime = w;
     }
 
     /**
      * Returns the waiting time the Driver of the ElectricVehicle can wait.
      * @return The waiting time.
      */
-    public final float reWaitingTime()
+    public long reWaitingTime()
     {
         return waitingTime;
     }
@@ -373,7 +296,7 @@ public class ChargingEvent
      * Returns the time that the charging is going to take place.
      * @return The charging time of the ChargingEvent.
      */
-    public final int reChargingTime()
+    public long reChargingTime()
     {
         return chargingTime;
     }
@@ -382,16 +305,16 @@ public class ChargingEvent
      * Sets the charging time of the ChargingEvent.
      * @param time The charging time.
      */
-    public final void setChargingTime(int time)
+    public void setChargingTime(int time)
     {
-        chargingTime = time;
+        this.chargingTime = time;
     }
 
     /**
      * Sets the id of the Charger the ChargingEvent is going to be executed.
      * @param id The id of Charger.
      */
-    public final void setChargerId(int id)
+    public void setChargerId(int id)
     {
         chargerId = id;
     }
@@ -400,43 +323,53 @@ public class ChargingEvent
      * Returns the time the ElectricVehicle arrived.
      * @return The the time that the ChargingEvent created.
      */
-    public final int reDateArrival()
+    public long reDateArrival()
     {
         return dateArrival;
+    }
+
+    public void setStartTime(long time)
+    {
+        startTime = time;
+    }
+
+    public long reStartTime()
+    {
+        return startTime;
     }
 
     /**
      * Returns the amount of energy there was in the ChargingStation when the ChargingEvent created.
      * @return The amount of energy the ChargingStation has.
      */
-    public final float reStock()
+    public float reStock()
     {
         return stock;
     }
 
     /**
-     * Returns the mode of the ChargingEvent.
-     * @return The mode of ChargingEvent.
+     * Returns the condition of the ChargingEvent.
+     * @return The condition of ChargingEvent.
      */
-    public final int reMode()
+    public String reCondition()
     {
-        return mode;
+        return condition;
     }
 
     /**
      * Sets the time the ElectricVehicle have to wait to be charged, in case it was inserted in the list.
      * @param time The maximum time that is going to wait until an inserted ChargingEvent is going to be charged.
      */
-    public final void setMaxWaitingTime(int time)
+    public void setMaxWaitingTime(long time)
     {
-        maxWaitingTime = time;
+        this.maxWaitingTime = time;
     }
 
     /**
      * Returns the maximum time an ElectricVehicle has to wait until it can be charged.
      * @return The maximum wait time.
      */
-    public final int reMaxWaitingTime()
+    public long reMaxWaitingTime()
     {
         return maxWaitingTime;
     }

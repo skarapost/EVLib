@@ -4,106 +4,92 @@ package Station;
  *
  * @author Sotiris Karapostolakis
  */
-import Station.ChargingStation;
+
 import Events.ChargingEvent;
-import java.util.Date;
+import org.apache.commons.lang3.time.StopWatch;
+
+import java.util.HashMap;
 
 public class Charger
 {
-    private final int id;
-    private final String kindOfCharging;
+    private int id;
+    private String kindOfCharging;
     private boolean busy;
-    private int commitTime;
-    private ChargingEvent event;
+    private long commitTime;
+    private ChargingEvent e;
     private ChargingStation station;
 
-    /**
-     * Constructor of Charger class.
-     * @param id Id of the Charger.
-     * @param station The ChargingStation in which the Charger belongs.
-     * @param kindOfCharging The kind of charging the Charger supports.
-     */
-    public Charger(int id,ChargingStation station,String kindOfCharging)
+    public Charger(int id, ChargingStation station, String kindOfCharging)
     {
         this.id = id;
         this.kindOfCharging = kindOfCharging;
-        busy = false;
-        commitTime = 0;
+        this.busy = false;
+        this.commitTime = 0;
         this.station = station;
-        event = null;
+        this.e = null;
     }
 
     /**
-     * Executes the ChargingEvent. It lasts as much as ChargingEvent's charging time demands. 
+     * Executes the ChargingEvent. It lasts as much as ChargingEvent's charging time demands.
      * The energy that the ChargingEvent needs is subtracted from the total energy of the ChargingStation.
-     * The mode of charging event gets 4. At the end if the automatic queue's handling is activated, 
-     * the Charger checks the list.
-     * @param ev The ChargingEvent that is going to be executed.
+     * The condition of charging event gets finished. At the end if the automatic queue's handling is activated,
+     * the Charger checks the waiting list.
      */
-    public final void executeChargingEvent(ChargingEvent ev)
+    public void executeChargingEvent()
     {
-        new Thread()
+        new Thread (() ->
         {
-        @Override
-        public void run(){
-        float sdf;
-        Date d1 = new Date();
-        int st = (int) (d1.getTime()/1000);
-        int en;
-        sdf = ev.reEnergyToBeReceived();
-        ev.reElectricVehicle().reBattery().setRemAmount(sdf + ev.reElectricVehicle().reBattery().reRemAmount());
-        if (ev.reElectricVehicle().reDriver() != null)
-        {
-            ev.reElectricVehicle().reDriver().setDebt(ev.reElectricVehicle().reDriver().reDebt() + station.reChargingStationHandler().calculatePrice(ev));
-        }
-        for (int i = 0; i < ev.reStation().reSources().length; i++)
-        {
-            if (ev.reEnergyToBeReceived() < ev.reStation().reMap().get(ev.reStation().reSource(i)))
+            float sdf;
+            long en;
+            sdf = e.reEnergyToBeReceived();
+            e.reElectricVehicle().reBattery().setRemAmount(sdf + e.reElectricVehicle().reBattery().reRemAmount());
+            if (e.reElectricVehicle().reDriver() != null)
+                e.reElectricVehicle().reDriver().setDebt(e.reElectricVehicle().reDriver().reDebt() + station.calculatePrice(e));
+            HashMap<String, Float> keys = new HashMap<String, Float>(station.reMap());
+            for(HashMap.Entry<String, Float> energy : keys.entrySet())
             {
-                float ert = ev.reStation().reMap().get(ev.reStation().reSource(i)) - sdf;
-                ev.reStation().setSpecificAmount(ev.reStation().reSource(i), ert);
-                break;
+                if (e.reEnergyToBeReceived() < station.reMap().get(energy.getKey()))
+                {
+                    float ert = station.reMap().get(energy.getKey()) - sdf;
+                    e.reStation().setSpecificAmount(energy.getKey(), ert);
+                    break;
+                }
+                else
+                {
+                    sdf = e.reEnergyToBeReceived() - station.reMap().get(energy);
+                    e.reStation().setSpecificAmount(energy.getKey(), 0);
+                }
             }
-            else
+            StopWatch d2 = new StopWatch();
+            d2.start();
+            do
             {
-                sdf = ev.reEnergyToBeReceived() - ev.reStation().reMap().get(ev.reStation().reSource(i));
-                ev.reStation().setSpecificAmount(ev.reStation().reSource(i), 0);
-            }
-        }
-        do
-        {
-            Date d2 = new Date();
-            en = (int) (d2.getTime()/1000);
-        }while(en-st<ev.reChargingTime());
-        ev.setMode(4);
-        if (station.reUpdateMode() == 0)
-            station.reChargingStationHandler().checkUpdatePredefinedSpace();
-        else
-            station.reChargingStationHandler().checkUpdateMadeSpace();
-        changeSituation();
-        System.out.println("The charging took place successfully");
-        setChargingEvent(null);
-        if (station.reQueueHandling())
-        {
-            handleQueueEvents();
-        }
-            }
-                }.start();
+                en = d2.getTime();
+            }while(en < e.reChargingTime());
+            System.out.println ("The charging took place succesfully");
+            e.setCondition("finished");
+            station.checkForUpdate();
+            changeSituation();
+            setChargingEvent(null);
+            if (station.reQueueHandling())
+                handleQueueEvents();
+        }).start();
     }
+
 
     /**
      * Changes the situation of the Charger.
      */
-    public final void changeSituation()
+    public void changeSituation()
     {
-        busy = !busy;
+        this.busy = !busy;
     }
 
     /**
      * Returns the situation of the Charger.
      * @return True if it is busy, false if it is not busy.
      */
-    public final boolean reBusy()
+    public boolean reBusy()
     {
         return busy;
     }
@@ -112,7 +98,7 @@ public class Charger
      * Returns the kind of charging.
      * @return The kind of charging the Charger supports.
      */
-    public final String reKind()
+    public String reKind()
     {
         return kindOfCharging;
     }
@@ -121,22 +107,22 @@ public class Charger
      * Sets a ChargingEvent in the Charger.
      * @param ev The ChargingEvent to be linked with the Charger.
      */
-    public final void setChargingEvent(ChargingEvent ev)
+    public void setChargingEvent(ChargingEvent ev)
     {
-        event = ev;
+        this.e = ev;
     }
 
     /**
      * Handles the list. It executes (if any) the first element of the list.
      */
-    public final void handleQueueEvents()
+    public void handleQueueEvents()
     {
         if ("fast".equals(reKind()))
         {
             if (station.reFast().reSize() != 0)
             {
                 station.reFast().takeFirst().preProcessing();
-                if (station.reFast().takeFirst().reMode() == 2)
+                if (station.reFast().takeFirst().reCondition().equals("ready"))
                     station.reFast().removeFirst().execution();
             }
         }
@@ -145,7 +131,7 @@ public class Charger
             if (station.reSlow().reSize() != 0)
             {
                 station.reSlow().takeFirst().preProcessing();
-                if (station.reSlow().takeFirst().reMode() == 2)
+                if (station.reSlow().takeFirst().reCondition().equals("ready"))
                     station.reSlow().removeFirst().execution();
             }
         }
@@ -155,16 +141,16 @@ public class Charger
      * Returns the ChargingEvent of the Charger.
      * @return The ChargingEvent which is linked with the Charger.
      */
-    public final ChargingEvent reChargingEvent()
+    public ChargingEvent reChargingEvent()
     {
-        return event;
+        return e;
     }
 
     /**
      * Returns the amount of time the Charger is going to be busy.
      * @return The time that the Charger is going to be busy.
      */
-    public final long reCommitTime()
+    public long reCommitTime()
     {
         return commitTime;
     }
@@ -173,7 +159,7 @@ public class Charger
      * Sets the time the Charger is going to be busy.
      * @param time The commit time.
      */
-    public final void setCommitTime(int time)
+    public void setCommitTime(long time)
     {
         commitTime = time;
     }
@@ -182,7 +168,7 @@ public class Charger
      * Returns the id of the Charger.
      * @return The id of Charger.
      */
-    public final int reId()
+    public int reId()
     {
         return id;
     }

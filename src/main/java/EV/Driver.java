@@ -4,27 +4,20 @@ package EV;
  *
  * @author Sotiris Karapostolakis
  */
-public class Driver {
+
+public class Driver
+{
     private int id;
     private String name;
     private float debt;
     private float profit;
 
-    /**
-     * Constructor of Driver.
-     * @param id The id of the Driver.
-     * @param name The name of the Driver.
-     */
     public Driver(int id,String name)
     {
         this.id = id;
         this.name = name;
     }
 
-    /**
-     * Constructor of Driver class.
-     * @param id The id of Driver.
-     */
     public Driver(int id)
     {
         this.id = id;
@@ -35,16 +28,16 @@ public class Driver {
      * Sets a profit for the Driver.
      * @param profit The profit the Driver has.
      */
-    public final void setProfit(float profit)
+    public void setProfit(float profit)
     {
         this.profit = profit;
     }
 
     /**
-     * Returns the profit of the Driver. 
+     * Returns the profit of the Driver.
      * @return The profit.
      */
-    public final float reProfit()
+    public float reProfit()
     {
         return profit;
     }
@@ -53,7 +46,7 @@ public class Driver {
      * Sets the debt a Driver has.
      * @param debt The debt.
      */
-    public final void setDebt(float debt)
+    public void setDebt(float debt)
     {
         this.debt = debt;
     }
@@ -62,7 +55,7 @@ public class Driver {
      * Returns the debt of the Driver.
      * @return The debt.
      */
-    public final float reDebt()
+    public float reDebt()
     {
         return debt;
     }

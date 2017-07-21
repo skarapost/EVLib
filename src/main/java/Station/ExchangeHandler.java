@@ -1,9 +1,8 @@
 package Station;
 
 import EV.Battery;
-import Station.ChargingStation;
 import Events.ChargingEvent;
-import java.util.Date;
+import org.apache.commons.lang3.time.StopWatch;
 
 /**
  *
@@ -12,94 +11,100 @@ import java.util.Date;
 public class ExchangeHandler
 {
     private int id;
-    private final ChargingStation station;
-    private ChargingEvent event;
+    private ChargingStation station;
+    private ChargingEvent e;
+    private boolean busy;
 
-    /**
-     * Constructor of ExchangeHandler class.
-     * @param id The id of ExchangeHandler.
-     * @param station The ChargingStation of the ExchangeHandler.
-     */
-    public ExchangeHandler(int id,ChargingStation station)
+    public ExchangeHandler(int id, ChargingStation station)
     {
         this.id = id;
         this.station = station;
-        event = null;
+        e = null;
+    }
+
+
+    public int reId()
+    {
+        return id;
     }
 
     /**
      * Links a ChargingEvent with the ExchangeHandler.
-     * @param event The ChargingEvent to be linked.
+     * @param e The ChargingEvent to be linked.
      */
-    public final void joinChargingEvent(ChargingEvent event)
+    public void joinChargingEvent(ChargingEvent e)
     {
-        this.event = event;
+        this.e = e;
     }
 
     /**
      * Returns the ChargingEvent of the ExchangeHandler.
      * @return The ChargingEvent of the ExchangeHandler.
      */
-    public final ChargingEvent reChargingEvent()
+    public ChargingEvent reChargingEvent()
     {
-        return event;
+        return e;
     }
 
-     /**
+    /**
      * Executes the ChargingEvent(exchange of battery). It lasts as much as ChargingEvent's
-     * exchange time demands. Removes the Battery of the ElectricVehicle and it adds to the 
-     * batteries linked with the ChargingStation. Takes the st2 Battery from those which are linked 
+     * exchange time demands. Removes the Battery of the ElectricVehicle and it adds to the
+     * batteries linked with the ChargingStation. Takes the st2 Battery from those which are linked
      * with the ChargingStation in the ArrayList structure and puts in the ElectricVehicle.
-     * The mode of ChargingEvent gets 4. At the end if the automatic queue's handling 
+     * The condition of ChargingEvent gets "finished". In the end if the automatic queue's handling
      * is activated, the ExchangeHandler checks the list.
      * @param st2 The slot of the Battery in the ArrayList structure with the batteries
      * that is going to be used.
      */
-    public final void executeExchange(int st2)
+    public void executeExchange(int st2)
     {
-        new Thread()
-        {
-            @Override
-            public void run(){
-        Date d1 = new Date();
-        int st = (int) (d1.getTime()/1000);
-        int en;
-        Battery temp = null;
-        temp = event.reElectricVehicle().reBattery();
-        event.reElectricVehicle().vehicleJoinBattery(station.reBatteries().get(st2));
-        station.reBatteries().remove(st2);
-        station.joinBattery(temp);
-        event.reElectricVehicle().reDriver().setDebt(event.reElectricVehicle().reDriver().reDebt() + station.reChargingStationHandler().calculatePrice(event));
-        do{
-            Date d2 = new Date();
-            en = (int) (d2.getTime()/1000);
-        }while(en-st<event.reChargingTime());
-        event.setMode(4);
-        station.setExchangeSlot(id, false);
-        if (station.reUpdateMode() == 0)
-            station.reChargingStationHandler().checkUpdatePredefinedSpace();
-        else
-            station.reChargingStationHandler().checkUpdateMadeSpace();
-        System.out.println("The exchange function took place successfully.");
-        joinChargingEvent(null);
-        if (station.reQueueHandling())
-        {
-            handleQueue();
-        }
-            }
-        }.start();
+        new Thread (() -> {
+            StopWatch d1 = new StopWatch();
+            d1.start ();
+            long st = d1.getTime();
+            long en;
+            Battery temp = null;
+            temp = e.reElectricVehicle().reBattery();
+            e.reElectricVehicle().vehicleJoinBattery(station.reBatteries().get(st2));
+            station.reBatteries().remove(st2);
+            station.joinBattery(temp);
+            e.reElectricVehicle().reDriver().setDebt(e.reElectricVehicle().reDriver().reDebt() + station.calculatePrice(e));
+            StopWatch d2 = new StopWatch();
+            d2.start();
+            do
+            {
+                en = d2.getTime();
+            }while(en - st < e.reChargingTime());
+            System.out.println ("The exchange took place successfully");
+            e.setCondition("finished");
+            station.checkForUpdate();
+            changeSituation();
+            joinChargingEvent(null);
+            if (station.reQueueHandling())
+                handleQueue();
+        }).start ();
     }
 
     /**
      * Handles the list. It executes the first(if any) element of the list.
      */
-    public final void handleQueue()
+    public void handleQueue()
     {
         if (station.reExchange().reSize() != 0)
         {
             station.reExchange().takeFirst().preProcessing();
-            if (station.reExchange().takeFirst().reMode() == 2)
+            if (station.reExchange().takeFirst().reCondition().equals("ready"))
                 station.reExchange().removeFirst().execution();
         }
+    }
+
+    public boolean reBusy()
+    {
+        return busy;
+    }
+
+    public void changeSituation()
+    {
+        busy = !busy;
     }
 }

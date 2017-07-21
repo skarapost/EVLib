@@ -12,46 +12,30 @@ public class Wind extends EnergySource
 {
     private ArrayList<Float> energyAmount;
 
-    /**
-     * Constructor of Wind class.
-     * @param id The id of Wind.
-     * @param station The ChargingStation the Wind belongs.
-     * @param energyAmoun The array with the energies to be given to the ChargingStation
-     * of Wind source.
-     */
-    public Wind(int id,ChargingStation station,float[] energyAmoun)
+    public Wind(int id, ChargingStation station, float[] energyAmoun)
     {
-        super(id,station);
+        super(id, station);
         energyAmount = new ArrayList<Float>();
-        for(int i=0;i<energyAmoun.length;i++)
-        {
-            energyAmount.add(i, energyAmoun[i]);
-        }
+        for(int i=0; i<energyAmoun.length; i++)
+            energyAmount.add(energyAmoun[i]);
     }
 
-    /**
-     * Constructor of Wind class.
-     * @param id The id of Wind.
-     * @param station The ChargingStation the Wind belongs.
-     */
-    public Wind(int id,ChargingStation station)
+    public Wind(int id, ChargingStation station)
     {
-        super(id,station);
-        energyAmount = new ArrayList<Float>();
+        super(id, station);
+        energyAmount = new ArrayList<>();
     }
-    @Override
-    public final float reAmount(int num)
+
+    public float popAmount()
     {
-        if ((energyAmount == null)||(energyAmount.size() <= num))
+        if ((energyAmount == null)||(energyAmount.size() == 0))
             return 0;
         else
-            return energyAmount.get(num);
+            return energyAmount.get(0);
     }
-    @Override
-    public final void modifySpecificAmount(int num, float am)
+
+    public void insertAmount(float am)
     {
-        if (energyAmount.size() > num)
-            energyAmount.remove(num);
-        energyAmount.add(num,am);
+        energyAmount.add(am);
     }
 }
