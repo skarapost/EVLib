@@ -6,10 +6,10 @@ The library has to be compiled using Maven.
 ## Main Functions
 
 ### Charging: 
-There are 2 types of charging depending on the charging time, namely the fast and the slow charging. The execution of a charging event requires first the pre-processing phase where a quest for an empty charger and available energy is performed. If the pre-processing phase is successful, the execution phase begins.
+There are 2 types of charging depending on the charging time, namely the fast and the slow charging. The execution of a charging event requires first the pre-processing phase where a quest for an empty charger and available energy is performed. If the pre-processing phase is successful, the execution phase can be run.
 
 ### DisCharging: 
-Similarly to a charging event, a discharging event first demands the pre-processing phase where a quest for an empty dis-charger is made. If this phase is successful then the execution begins.
+Similarly to a charging event, a discharging event first demands the pre-processing phase where a quest for an empty dis-charger is made. If this phase is successful then the execution can be run.
 
 ### Battery Exchange: 
 The pre-processing phase requires for a battery with enough range to be available in the charging station. If such a battery is found, the execution function can be called and the battery is swapped into the EV.
