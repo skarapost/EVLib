@@ -22,90 +22,86 @@ The pre-processing phase requires for a battery with enough range to be availabl
 ## Examples
 ```
   String[] kinds = new string[4] { "slow", "fast", "fast", "slow" };
-	String[] sources = new string[4] { "geothermal", "nonrenewable", "wind", "wave" };
-	float[][] energyAm = new float[4][ 5];
-
-	for (int i = 0; i<4; i++)
-		for (int j = 0; j<5; j++)
-			energyAm [i][j] = 150;
+  String[] sources = new string[4] { "geothermal", "nonrenewable", "wind", "wave" };
+  float[][] energyAm = new float[4][ 5];
+  for (int i = 0; i<4; i++)
+      for (int j = 0; j<5; j++)
+        energyAm [i][j] = 150;
   
   ChargingStation station = new ChargingStation(1, "Miami", kinds, sources, energyAm);
-
-	DisCharger dsc = new DisCharger(7, station);
-
-	ExchangeHandler handler = new ExchangeHandler(5, station);
+  DisCharger dsc = new DisCharger(7, station);
+  ExchangeHandler handler = new ExchangeHandler(5, station);
 	
   station.insertExchangeHandler(handler);
 
-	station.insertDisCharger(dsc);
-	
+  station.insertDisCharger(dsc);
+
   //Sets the space between every update in milliseconds.
   station.setUpdateSpace(10000);
   
-	station.setChargingRatioFast(0.01);
-	station.setDisChargingRatio(0.1);
-	
+  station.setChargingRatioFast(0.01);
+  station.setDisChargingRatio(0.1);
+
   //Sets the duration of a battery exchange in milliseconds
   station.setTimeofExchange(5000);
 
-	Driver a = new Driver(4, "Tom");
+  Driver a = new Driver(4, "Tom");
 
-	ElectricVehicle vec1 = new ElectricVehicle(1, "Honda", 1950);
-	ElectricVehicle vec2 = new ElectricVehicle(2, "Toyota", 1400);
-	ElectricVehicle vec3 = new ElectricVehicle(3, "Mitsubishi", 1500);
-	ElectricVehicle vec4 = new ElectricVehicle(4, "Fiat", 1600);
+  ElectricVehicle vec1 = new ElectricVehicle(1, "Honda", 1950);
+  ElectricVehicle vec2 = new ElectricVehicle(2, "Toyota", 1400);
+  ElectricVehicle vec3 = new ElectricVehicle(3, "Mitsubishi", 1500);
+  ElectricVehicle vec4 = new ElectricVehicle(4, "Fiat", 1600);
 
-	Battery bat1 = new Battery(8, 1500, 5000);
-	Battery bat2 = new Battery(9, 2000, 6000);
-	Battery bat3 = new Battery(10, 2500, 6000);
-	Battery bat4 = new Battery(82, 800, 3000);
-	Battery bat5 = new Battery(7, 0, 800);
-	
+  Battery bat1 = new Battery(8, 1500, 5000);
+  Battery bat2 = new Battery(9, 2000, 6000);
+  Battery bat3 = new Battery(10, 2500, 6000);
+  Battery bat4 = new Battery(82, 800, 3000);
+  Battery bat5 = new Battery(7, 0, 800);
+
   //Links a battery with a charging station for the exchange battery function
   station.joinBattery(bat4);
-	
+
   vec1.setDriver(a);
-	vec1.vehicleJoinBattery(bat1);
-	vec2.setDriver(a);
-	vec2.vehicleJoinBattery(bat2);
-	vec3.setDriver(a);
-	vec3.vehicleJoinBattery(bat3);
-	vec4.setDriver(a);
-	vec4.vehicleJoinBattery(bat5);
+  vec1.vehicleJoinBattery(bat1);
+  vec2.setDriver(a);
+  vec2.vehicleJoinBattery(bat2);
+  vec3.setDriver(a);
+  vec3.vehicleJoinBattery(bat3);
+  vec4.setDriver(a);
+  vec4.vehicleJoinBattery(bat5);
 
-	ChargingEvent ev1 = new ChargingEvent(station, vec1, 300, "fast");
-	ChargingEvent ev2 = new ChargingEvent(station, vec2, 600, "fast");
-	ChargingEvent ev3 = new ChargingEvent(station, vec3, 200, "fast");
-	ChargingEvent ev5 = new ChargingEvent(station, vec1, 300, "fast");
+  ChargingEvent ev1 = new ChargingEvent(station, vec1, 300, "fast");
+  ChargingEvent ev2 = new ChargingEvent(station, vec2, 600, "fast");
+  ChargingEvent ev3 = new ChargingEvent(station, vec3, 200, "fast");
+  ChargingEvent ev5 = new ChargingEvent(station, vec1, 300, "fast");
+  ChargingEvent ev7 = new ChargingEvent(station, vec4, "exchange");
 
-	ChargingEvent ev7 = new ChargingEvent(station, vec4, "exchange");
-
-	DisChargingEvent ev4 = new DisChargingEvent(station, vec1, 500);
-	DisChargingEvent ev6 = new DisChargingEvent(station, vec1, 800);
+  DisChargingEvent ev4 = new DisChargingEvent(station, vec1, 500);
+  DisChargingEvent ev6 = new DisChargingEvent(station, vec1, 800);
 
   //Sets the maximum time a vehicle can wait in milliseconds
-	ev3.setWaitingTime(50000);
-	ev5.setWaitingTime(120000);
-	ev6.setWaitingTime(450000);
+  ev3.setWaitingTime(50000);
+  ev5.setWaitingTime(120000);
+  ev6.setWaitingTime(450000);
 
-	ev1.preProcessing();
-	ev1.execution();
+  ev1.preProcessing();
+  ev1.execution();
 
-	ev2.preProcessing();
-	ev2.execution();
+  ev2.preProcessing();
+  ev2.execution();
 
-	ev3.preProcessing();
-	ev3.execution();
+  ev3.preProcessing();
+  ev3.execution();
 
-	ev4.preProcessing();
-	ev4.execution();
+  ev4.preProcessing();
+  ev4.execution();
 
-	ev5.preProcessing();
-	ev5.execution();
+  ev5.preProcessing();
+  ev5.execution();
 
-	ev6.preProcessing();
-	ev6.execution();
+  ev6.preProcessing();
+  ev6.execution();
 
-	ev7.preProcessing();
-	ev7.execution();
+  ev7.preProcessing();
+  ev7.execution();
 ```
