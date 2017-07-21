@@ -4,6 +4,7 @@ package EV;
  *
  * @author Sotiris Karapostolakis
  */
+
 public abstract class Vehicle 
 {
     private int id;
