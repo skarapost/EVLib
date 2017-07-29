@@ -26,9 +26,9 @@ The library also supports a number of secondary functions: The creation of a cha
       for (int j = 0; j<5; j++)
         energyAm [i][j] = 150;
   
-  ChargingStation station = new ChargingStation(1, "Miami", kinds, sources, energyAm);
-  DisCharger dsc = new DisCharger(7, station);
-  ExchangeHandler handler = new ExchangeHandler(5, station);
+  ChargingStation station = new ChargingStation("Miami", kinds, sources, energyAm);
+  DisCharger dsc = new DisCharger(station);
+  ExchangeHandler handler = new ExchangeHandler(station);
 	
   station.insertExchangeHandler(handler);
 
@@ -43,18 +43,18 @@ The library also supports a number of secondary functions: The creation of a cha
   //Sets the duration of a battery exchange in milliseconds
   station.setTimeofExchange(5000);
 
-  Driver a = new Driver(4, "Tom");
+  Driver a = new Driver("Tom");
 
-  ElectricVehicle vec1 = new ElectricVehicle(1, "Honda", 1950);
-  ElectricVehicle vec2 = new ElectricVehicle(2, "Toyota", 1400);
-  ElectricVehicle vec3 = new ElectricVehicle(3, "Mitsubishi", 1500);
-  ElectricVehicle vec4 = new ElectricVehicle(4, "Fiat", 1600);
+  ElectricVehicle vec1 = new ElectricVehicle("Honda", 1950);
+  ElectricVehicle vec2 = new ElectricVehicle("Toyota", 1400);
+  ElectricVehicle vec3 = new ElectricVehicle("Mitsubishi", 1500);
+  ElectricVehicle vec4 = new ElectricVehicle("Fiat", 1600);
 
-  Battery bat1 = new Battery(8, 1500, 5000);
-  Battery bat2 = new Battery(9, 2000, 6000);
-  Battery bat3 = new Battery(10, 2500, 6000);
-  Battery bat4 = new Battery(82, 800, 3000);
-  Battery bat5 = new Battery(7, 0, 800);
+  Battery bat1 = new Battery(1500, 5000);
+  Battery bat2 = new Battery(2000, 6000);
+  Battery bat3 = new Battery(2500, 6000);
+  Battery bat4 = new Battery(800, 3000);
+  Battery bat5 = new Battery(0, 800);
 
   //Links a battery with a charging station for the exchange battery function
   station.joinBattery(bat4);
