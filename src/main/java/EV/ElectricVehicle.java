@@ -1,9 +1,5 @@
 package EV;
 
-/**
- *
- * @author Sotiris Karapostolakis
- */
 
 public class ElectricVehicle extends Vehicle
 {

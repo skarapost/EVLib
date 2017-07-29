@@ -1,15 +1,9 @@
 package Station;
 
-
 import Events.DisChargingEvent;
 import org.apache.commons.lang3.time.StopWatch;
 
 import java.util.concurrent.atomic.AtomicInteger;
-
-/**
- *
- * @author Sotiris Karapostolakis
- */
 
 public class DisCharger
 {

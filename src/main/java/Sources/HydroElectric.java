@@ -1,9 +1,5 @@
 package Sources;
 
-/**
- *
- * @author Sotiris Karapostolakis
- */
 import Station.ChargingStation;
 import java.util.ArrayList;
 

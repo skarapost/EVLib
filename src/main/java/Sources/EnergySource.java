@@ -1,14 +1,7 @@
 package Sources;
 
 import Station.ChargingStation;
-import EV.*;
-
 import java.util.concurrent.atomic.AtomicInteger;
-
-/**
- *
- * @author Sotiris Karapostolakis
- */
 
 public abstract class EnergySource
 {

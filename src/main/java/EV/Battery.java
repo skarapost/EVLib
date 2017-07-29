@@ -2,10 +2,6 @@ package EV;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- *
- * @author Sotiris Karapostolakis
- */
 public class Battery
 {
     private int id;

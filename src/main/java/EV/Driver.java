@@ -2,11 +2,6 @@ package EV;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- *
- * @author Sotiris Karapostolakis
- */
-
 public class Driver
 {
     private int id;

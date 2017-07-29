@@ -4,11 +4,6 @@ package Events;
 import EV.ElectricVehicle;
 import Station.ChargingStation;
 
-/**
- *
- * @author Sotiris Karapostolakis
- */
-
 public class DisChargingEvent
 {
     private ElectricVehicle vehicle;

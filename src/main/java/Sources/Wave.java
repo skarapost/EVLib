@@ -1,11 +1,6 @@
 package Sources;
 
-/**
- *
- * @author Sotiris Karapostolakis
- */
 import Station.ChargingStation;
-import EV.*;
 import java.util.ArrayList;
 
 public class Wave extends EnergySource

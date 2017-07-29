@@ -1,10 +1,5 @@
 package Station;
 
-/**
- *
- * @author Sotiris Karapostolakis
- */
-
 import Events.DisChargingEvent;
 import Events.ChargingEvent;
 import java.util.ArrayList;

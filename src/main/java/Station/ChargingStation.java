@@ -1,10 +1,5 @@
 package Station;
 
-/**
- *
- * @author Sotiris Karapostolakis
- */
-
 import Sources.*;
 import EV.Battery;
 import EV.ElectricVehicle;
