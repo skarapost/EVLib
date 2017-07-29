@@ -4,6 +4,8 @@ import EV.Battery;
 import Events.ChargingEvent;
 import org.apache.commons.lang3.time.StopWatch;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  *
  * @author Sotiris Karapostolakis
@@ -14,10 +16,11 @@ public class ExchangeHandler
     private ChargingStation station;
     private ChargingEvent e;
     private boolean busy;
+    private static AtomicInteger idGenerator = new AtomicInteger(0);
 
-    public ExchangeHandler(int id, ChargingStation station)
+    public ExchangeHandler(ChargingStation station)
     {
-        this.id = id;
+        this.id = idGenerator.getAndIncrement();
         this.station = station;
         e = null;
     }

@@ -1,10 +1,5 @@
 package Events;
 
-/**
- *
- * @author Sotiris Karapostolakis
- */
-
 import EV.ElectricVehicle;
 import Station.ChargingStation;
 
@@ -86,102 +81,82 @@ public class ChargingEvent
      */
     public void preProcessing()
     {
-        if ((condition.equals("arrived"))||(condition.equals("wait")))
-        {
-            if (!"exchange".equals(kindOfCharging))
-            {
-                int qwe = station.checkChargers(kindOfCharging);
-                if ((qwe != -1)&&(qwe != -753159))
-                {
-                    chargerId = qwe;
-                    station.searchCharger(chargerId).setChargingEvent(this);
-                    setCondition("ready");
-                    station.searchCharger(chargerId).changeSituation();
-                    if (amEnerg < station.reTotalEnergy())
-                    {
-                        if (amEnerg <= (vehicle.reBattery().reBatteryCapacity() - vehicle.reBattery().reRemAmount()))
-                            energyToBeReceived = amEnerg;
-                        else
-                            energyToBeReceived = vehicle.reBattery().reBatteryCapacity() - vehicle.reBattery().reRemAmount();
-                        station.setTotalEnergy(energyToBeReceived);
-                        if ("fast".equals(kindOfCharging))
-                            chargingTime = (long) ((energyToBeReceived)/station.reChargingRatioFast());
-                        else
-                            chargingTime = (long) (energyToBeReceived/station.reChargingRatioSlow());
-                    }
-                    else
-                    {
-                        station.energyDistribution(dateArrival);
-                        station.setTotalEnergy(station.reTotalEnergy());
-                        if (energyToBeReceived == 0)
-                        {
-                            station.searchCharger(chargerId).changeSituation();
-                            station.searchCharger (chargerId).setChargingEvent (null);
-                            setCondition("nonExecutable");
-                        }
-                    }
-                }
-                else if (qwe == -753159)
-                    setCondition("nonExecutable");
-                else
-                {
-                    long time = station.calWaitingTime(this);
-                    maxWaitingTime = time;
-                    if (time < waitingTime)
-                    {
-                        if (!condition.equals("wait"))
-                            station.updateQueue(this);
-                        setCondition("wait");
-                    }
-                    else
-                        setCondition("nonExecutable");
-                }
-            }
-            else
-            {
-                int qwe = station.checkExchangeHandlers();
-                if ((qwe != -1)&&(qwe != -753159))
-                {
-                    chargerId = qwe;
-                    station.searchExchangeHandler(chargerId).joinChargingEvent(this);
-                    setCondition("ready");
-                    station.searchExchangeHandler(chargerId).changeSituation();
-                    int state2 = station.checkBatteries();
-                    if ((state2 != -1)&&(state2 != -753159))
-                    {
+        if (reElectricVehicle().reBattery().reActive()) {
+            if ((condition.equals("arrived")) || (condition.equals("wait"))) {
+                if (!"exchange".equals(kindOfCharging)) {
+                    int qwe = station.checkChargers(kindOfCharging);
+                    if ((qwe != -1) && (qwe != -2)) {
+                        chargerId = qwe;
+                        station.searchCharger(chargerId).setChargingEvent(this);
                         setCondition("ready");
-                        numberOfBattery = state2;
-                    }
-                    else if(state2 == -1)
-                    {
-                        if (station.calWaitingTime(this) < waitingTime)
-                        {
+                        station.searchCharger(chargerId).changeSituation();
+                        if (amEnerg < station.reTotalEnergy()) {
+                            if (amEnerg <= (vehicle.reBattery().reBatteryCapacity() - vehicle.reBattery().reRemAmount()))
+                                energyToBeReceived = amEnerg;
+                            else
+                                energyToBeReceived = vehicle.reBattery().reBatteryCapacity() - vehicle.reBattery().reRemAmount();
+                            station.setTotalEnergy(energyToBeReceived);
+                            if ("fast".equals(kindOfCharging))
+                                chargingTime = (long) ((energyToBeReceived) / station.reChargingRatioFast());
+                            else
+                                chargingTime = (long) (energyToBeReceived / station.reChargingRatioSlow());
+                        } else {
+                            station.energyDistribution(dateArrival);
+                            station.setTotalEnergy(station.reTotalEnergy());
+                            if (energyToBeReceived == 0) {
+                                station.searchCharger(chargerId).changeSituation();
+                                station.searchCharger(chargerId).setChargingEvent(null);
+                                setCondition("nonExecutable");
+                            }
+                        }
+                    } else if (qwe == -2)
+                        setCondition("nonExecutable");
+                    else {
+                        long time = station.calWaitingTime(this);
+                        maxWaitingTime = time;
+                        if (time < waitingTime) {
                             if (!condition.equals("wait"))
                                 station.updateQueue(this);
                             setCondition("wait");
-                        }
-                        else
+                        } else
                             setCondition("nonExecutable");
                     }
-                    else
+                } else {
+                    int qwe = station.checkExchangeHandlers();
+                    if ((qwe != -1) && (qwe != -2)) {
+                        chargerId = qwe;
+                        station.searchExchangeHandler(chargerId).joinChargingEvent(this);
+                        setCondition("ready");
+                        station.searchExchangeHandler(chargerId).changeSituation();
+                        int state2 = station.checkBatteries();
+                        if ((state2 != -1) && (state2 != -2)) {
+                            setCondition("ready");
+                            numberOfBattery = state2;
+                        } else if (state2 == -1) {
+                            if (station.calWaitingTime(this) < waitingTime) {
+                                if (!condition.equals("wait"))
+                                    station.updateQueue(this);
+                                setCondition("wait");
+                            } else
+                                setCondition("nonExecutable");
+                        } else
+                            setCondition("nonExecutable");
+                    } else if (qwe == -2)
                         setCondition("nonExecutable");
-                }
-                else if (qwe == -753159)
-                    setCondition("nonExecutable");
-                else
-                {
-                    long time = station.calWaitingTime(this);
-                    maxWaitingTime = time;
-                    if (time < waitingTime)
-                    {
-                        setCondition("wait");
-                        station.updateQueue(this);
+                    else {
+                        long time = station.calWaitingTime(this);
+                        maxWaitingTime = time;
+                        if (time < waitingTime) {
+                            setCondition("wait");
+                            station.updateQueue(this);
+                        } else
+                            setCondition("nonExecutable");
                     }
-                    else
-                        setCondition("nonExecutable");
                 }
             }
         }
+        else
+            setCondition("nonExecutable");
     }
 
     /**

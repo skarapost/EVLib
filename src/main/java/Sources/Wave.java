@@ -12,17 +12,17 @@ public class Wave extends EnergySource
 {
     private ArrayList<Float> energyAmount;
 
-    public Wave(int id, ChargingStation station, float[] energyAmoun)
+    public Wave(ChargingStation station, float[] energyAmoun)
     {
-        super(id, station);
+        super(station);
         energyAmount = new ArrayList<Float>();
         for(int i=0; i<energyAmoun.length; i++)
             energyAmount.add(energyAmoun[i]);
     }
 
-    public Wave(int id, ChargingStation station)
+    public Wave(ChargingStation station)
     {
-        super(id, station);
+        super(station);
         energyAmount = new ArrayList<Float>();
     }
 

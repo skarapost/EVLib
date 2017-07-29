@@ -4,6 +4,8 @@ package Station;
 import Events.DisChargingEvent;
 import org.apache.commons.lang3.time.StopWatch;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  *
  * @author Sotiris Karapostolakis
@@ -16,10 +18,11 @@ public class DisCharger
     private DisChargingEvent e;
     private boolean busy;
     private long busyTime;
+    private static AtomicInteger idGenerator = new AtomicInteger(0);
 
-    public DisCharger(int id, ChargingStation station)
+    public DisCharger(ChargingStation station)
     {
-        this.id = id;
+        this.id = idGenerator.getAndIncrement();
         this.busy = false;
         this.busyTime = 0;
         this.station = station;

@@ -78,37 +78,37 @@ public class ChargingStation
         {
             if (source[i].equals("solar"))
             {
-                c = new Solar(i, this, energAm[i]);
+                c = new Solar(this, energAm[i]);
                 n.add(i, c);
                 amounts.put("solar", 0f);
             }
             else if (source[i].equals("wind"))
             {
-                c = new Wind(i, this, energAm[i]);
+                c = new Wind(this, energAm[i]);
                 n.add(i, c);
                 amounts.put("wind", 0f);
             }
             else if (source[i].equals("geothermal"))
             {
-                c = new Geothermal(i, this, energAm[i]);
+                c = new Geothermal(this, energAm[i]);
                 n.add(i, c);
                 amounts.put("geothermal", 0f);
             }
             else if (source[i].equals("wave"))
             {
-                c = new Wave(i,this, energAm[i]);
+                c = new Wave(this, energAm[i]);
                 n.add(i, c);
                 amounts.put("wave", 0f);
             }
             else if (source[i].equals("hydroelectric"))
             {
-                c = new HydroElectric(i, this, energAm[i]);
+                c = new HydroElectric(this, energAm[i]);
                 n.add(i, c);
                 amounts.put("hydroelectric", 0f);
             }
             else if (source[i].equals("nonrenewable"))
             {
-                c = new NonRenewable(i, this, energAm[i]);
+                c = new NonRenewable(this, energAm[i]);
                 n.add(i, c);
                 amounts.put("nonrenewable", 0f);
             }
@@ -117,7 +117,7 @@ public class ChargingStation
         {
             if (!kinds[i].equals("exchange"))
             {
-                r = new Charger(i,this, kinds[i]);
+                r = new Charger(this, kinds[i]);
                 chargers.add(i, r);
             }
         }
@@ -158,37 +158,37 @@ public class ChargingStation
         {
             if (source[i].equals("solar"))
             {
-                c = new Solar(i,this);
+                c = new Solar(this);
                 n.add(i, c);
                 amounts.put("solar",0f);
             }
             else if (source[i].equals("wind"))
             {
-                c = new Wind(i,this);
+                c = new Wind(this);
                 n.add(i, c);
                 amounts.put("wind", 0f);
             }
             else if (source[i].equals("geothermal"))
             {
-                c = new Geothermal(i,this);
+                c = new Geothermal(this);
                 n.add(i, c);
                 amounts.put("geothermal", 0f);
             }
             else if (source[i].equals("wave"))
             {
-                c = new Wave(i,this);
+                c = new Wave(this);
                 n.add(i, c);
                 amounts.put("wave",0f);
             }
             else if (source[i].equals("hydroelectric"))
             {
-                c = new HydroElectric(i,this);
+                c = new HydroElectric(this);
                 n.add(i, c);
                 amounts.put("hydroelectric",0f);
             }
             else if (source[i].equals("nonrenewable"))
             {
-                c = new NonRenewable(i,this);
+                c = new NonRenewable(this);
                 n.add(i, c);
                 amounts.put("nonrenewable", 0f);
             }
@@ -197,7 +197,7 @@ public class ChargingStation
         {
             if (!kinds[i].equals("exchange"))
             {
-                r = new Charger(i,this,kinds[i]);
+                r = new Charger(this,kinds[i]);
                 chargers.add(i, r);
             }
         }
@@ -316,7 +316,7 @@ public class ChargingStation
      * Checks for empty Charger according to the kind that is given.
      * @param k The kind of Charger that is asked.
      * @return Returns the id of the Charger in case there is any empty Charger
-     * object, -753159 if the charging station is not linked with any Charger object or -1 if all the Charger are busy.
+     * object, -2 if the charging station is not linked with any Charger object or -1 if all the Charger are busy.
      */
     public int checkChargers(String k)
     {
@@ -327,14 +327,14 @@ public class ChargingStation
                     return reChargers()[i].reId();
         }
         if (reChargers().length == 0)
-            return -753159;
+            return -2;
         return -1;
     }
 
     /**
      * Checks for any empty Discharger.
      * @return The id of the empty DisCharger, or -1 if there is not any empty, 
-     * or -753159 if the charging station is not linked with any DisCharger object
+     * or -2 if the charging station is not linked with any DisCharger object
      */
     public int checkDisChargers()
     {
@@ -344,14 +344,14 @@ public class ChargingStation
                 return reDisChargers()[i].reId();
         }
         if (reDisChargers().length == 0)
-            return -753159;
+            return -2;
         return -1;
     }
 
     /**
      * Checks for any empty exchange slot.
      * @return The number of the slot, or -1 if there is not any empty slot, 
-     * or -753159 if the charging station is not linked with any ExchangeHandler object.
+     * or -2 if the charging station is not linked with any ExchangeHandler object.
      */
     public int checkExchangeHandlers()
     {
@@ -361,7 +361,7 @@ public class ChargingStation
                 return reExchangeHandlers()[i].reId();
         }
         if (reExchangeHandlers().length == 0)
-            return -753159;
+            return -2;
         return -1;
     }
 
@@ -377,7 +377,7 @@ public class ChargingStation
                 return i;
         }
         if (reBatteries().size() == 0)
-            return -753159;
+            return -2;
         return -1;
     }
 
@@ -885,7 +885,7 @@ public class ChargingStation
         for(int i=0; i<batteries.size(); i++)
             if (batteries.get(i).reRemAmount() < batteries.get(i).reBatteryCapacity())
             {
-                r = new ElectricVehicle(1, null,0);
+                r = new ElectricVehicle(null, 0);
                 r.vehicleJoinBattery(batteries.get(i));
                 e = new ChargingEvent(this, r, batteries.get(i).reBatteryCapacity() - batteries.get(i).reRemAmount(), kind);
                 if (checkChargers(e.reKind()) != -1)

@@ -1,9 +1,5 @@
 package Sources;
 
-/**
- *
- * @author Sotiris Karapostolakis
- */
 import Station.ChargingStation;
 import java.util.ArrayList;
 
@@ -11,18 +7,18 @@ public class Solar extends EnergySource
 {
     private ArrayList<Float> energyAmount;
 
-    public Solar(int id, ChargingStation station, float[] energyAmoun)
+    public Solar(ChargingStation station, float[] energyAmoun)
     {
-        super(id, station);
-        energyAmount = new ArrayList<Float>();
-            for (int i=0; i<energyAmoun.length; i++)
-        energyAmount.add(energyAmoun[i]);
+        super(station);
+        energyAmount = new ArrayList<>();
+        for (float anEnergyAmoun : energyAmoun)
+            energyAmount.add(anEnergyAmoun);
     }
 
-    public Solar(int id, ChargingStation station)
+    public Solar(ChargingStation station)
     {
-        super(id, station);
-        energyAmount = new ArrayList<Float>();
+        super(station);
+        energyAmount = new ArrayList<>();
     }
 
     public float popAmount()

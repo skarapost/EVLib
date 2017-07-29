@@ -1,5 +1,7 @@
 package EV;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  *
  * @author Sotiris Karapostolakis
@@ -11,16 +13,17 @@ public class Driver
     private String name;
     private float debt;
     private float profit;
+    private static AtomicInteger idGenerator = new AtomicInteger(0);
 
-    public Driver(int id,String name)
+    public Driver(String name)
     {
-        this.id = id;
+        this.id = idGenerator.getAndIncrement();
         this.name = name;
     }
 
-    public Driver(int id)
+    public Driver()
     {
-        this.id = id;
+        this.id = idGenerator.getAndIncrement();
         name = "Unknown Driver";
     }
 

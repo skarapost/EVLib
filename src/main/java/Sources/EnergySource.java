@@ -3,6 +3,8 @@ package Sources;
 import Station.ChargingStation;
 import EV.*;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  *
  * @author Sotiris Karapostolakis
@@ -12,10 +14,11 @@ public abstract class EnergySource
 {
     private int id;
     private ChargingStation station;
+    private static AtomicInteger idGenerator = new AtomicInteger(0);
 
-    public EnergySource(int id, ChargingStation station)
+    public EnergySource(ChargingStation station)
     {
-        this.id = id;
+        this.id = idGenerator.getAndIncrement();
         this.station = station;
     }
 

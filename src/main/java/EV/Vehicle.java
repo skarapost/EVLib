@@ -1,5 +1,7 @@
 package EV;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  *
  * @author Sotiris Karapostolakis
@@ -10,17 +12,17 @@ public abstract class Vehicle
     private int id;
     private String brand;
     private int cubism;
+    private static AtomicInteger idGenerator = new AtomicInteger(0);
 
     /**
      * Constructor of Vehicle class.
-     * @param id The id of the Vehicle.
      * @param brand The brand of the Vehicle.
      * @param cubism The cubism of the Vehicle.
      */
 
-    public Vehicle(int id,String brand,int cubism)
+    public Vehicle(String brand,int cubism)
     {
-        this.id = id;
+        this.id = idGenerator.getAndIncrement();
         this.brand = brand;
         this.cubism = cubism;
     }

@@ -86,34 +86,32 @@ public class DisChargingEvent
      */
     public void preProcessing()
     {
-        if ((condition.equals("arrived"))||(condition.equals("wait")))
-        {
-            int qwe = station.checkDisChargers();
-            if ((qwe != -1)&&(qwe != -753159))
-            {
-                setCondition("ready");
-                disChargerId = qwe;
-                station.searchDischarger(disChargerId).setDisChargingEvent(this);
-                station.searchDischarger(disChargerId).changeSituation();
-                station.setTotalEnergy(-amEnerg);
-                disChargingTime = (int) (amEnerg/station.reDisChargingRatio());
-            }
-            else if (qwe == -753159)
-                setCondition("nonExecutable");
-            else
-            {
-                long time = station.calDisWaitingTime();
-                maxWaitingTime = time;
-                if (time < waitingTime)
-                {
-                    if (!condition.equals("wait"))
-                        station.updateDisChargingQueue(this);
-                    setCondition("wait");
-                }
-                else
+        if (reElectricVehicle().reBattery().reActive()) {
+            if ((condition.equals("arrived")) || (condition.equals("wait"))) {
+                int qwe = station.checkDisChargers();
+                if ((qwe != -1) && (qwe != -2)) {
+                    setCondition("ready");
+                    disChargerId = qwe;
+                    station.searchDischarger(disChargerId).setDisChargingEvent(this);
+                    station.searchDischarger(disChargerId).changeSituation();
+                    station.setTotalEnergy(-amEnerg);
+                    disChargingTime = (int) (amEnerg / station.reDisChargingRatio());
+                } else if (qwe == -2)
                     setCondition("nonExecutable");
+                else {
+                    long time = station.calDisWaitingTime();
+                    maxWaitingTime = time;
+                    if (time < waitingTime) {
+                        if (!condition.equals("wait"))
+                            station.updateDisChargingQueue(this);
+                        setCondition("wait");
+                    } else
+                        setCondition("nonExecutable");
+                }
             }
         }
+        else
+            setCondition("nonExecutable");
     }
 
     /**

@@ -10,9 +10,9 @@ public class ElectricVehicle extends Vehicle
     private Battery battery;
     private Driver driver;
 
-    public ElectricVehicle(int id, String brand, int cubism)
+    public ElectricVehicle(String brand, int cubism)
     {
-        super(id, brand, cubism);
+        super(brand, cubism);
         battery = null;
         driver = null;
     }

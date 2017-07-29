@@ -1,9 +1,5 @@
 package Sources;
 
-/**
- *
- * @author Sotiris Karapostolakis
- */
 import Station.ChargingStation;
 import EV.*;
 import java.util.ArrayList;
@@ -12,17 +8,17 @@ public class Wind extends EnergySource
 {
     private ArrayList<Float> energyAmount;
 
-    public Wind(int id, ChargingStation station, float[] energyAmoun)
+    public Wind(ChargingStation station, float[] energyAmoun)
     {
-        super(id, station);
-        energyAmount = new ArrayList<Float>();
-        for(int i=0; i<energyAmoun.length; i++)
-            energyAmount.add(energyAmoun[i]);
+        super(station);
+        energyAmount = new ArrayList<>();
+        for (float anEnergyAmoun : energyAmoun)
+            energyAmount.add(anEnergyAmoun);
     }
 
-    public Wind(int id, ChargingStation station)
+    public Wind(ChargingStation station)
     {
-        super(id, station);
+        super(station);
         energyAmount = new ArrayList<>();
     }
 
