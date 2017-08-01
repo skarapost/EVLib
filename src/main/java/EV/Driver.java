@@ -6,8 +6,8 @@ public class Driver
 {
     private int id;
     private String name;
-    private float debt;
-    private float profit;
+    private double debt;
+    private double profit;
     private static AtomicInteger idGenerator = new AtomicInteger(0);
 
     public Driver(String name)
@@ -26,7 +26,7 @@ public class Driver
      * Sets a profit for the Driver.
      * @param profit The profit the Driver has.
      */
-    public void setProfit(float profit)
+    public void setProfit(double profit)
     {
         this.profit = profit;
     }
@@ -35,7 +35,7 @@ public class Driver
      * Returns the profit of the Driver.
      * @return The profit.
      */
-    public float reProfit()
+    public double reProfit()
     {
         return profit;
     }
@@ -44,7 +44,7 @@ public class Driver
      * Sets the debt a Driver has.
      * @param debt The debt.
      */
-    public void setDebt(float debt)
+    public void setDebt(double debt)
     {
         this.debt = debt;
     }
@@ -53,7 +53,7 @@ public class Driver
      * Returns the debt of the Driver.
      * @return The debt.
      */
-    public float reDebt()
+    public double reDebt()
     {
         return debt;
     }

@@ -15,10 +15,10 @@ public abstract class EnergySource
         this.station = station;
     }
 
-    public abstract float popAmount();
+    public abstract double popAmount();
 
 
-    public abstract void insertAmount(float am);
+    public abstract void insertAmount(double am);
 
     /**
      * Returns the id of the EnergySource.

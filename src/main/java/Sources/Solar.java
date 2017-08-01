@@ -5,13 +5,13 @@ import java.util.ArrayList;
 
 public class Solar extends EnergySource
 {
-    private ArrayList<Float> energyAmount;
+    private ArrayList<Double> energyAmount;
 
-    public Solar(ChargingStation station, float[] energyAmoun)
+    public Solar(ChargingStation station, double[] energyAmoun)
     {
         super(station);
         energyAmount = new ArrayList<>();
-        for (float anEnergyAmoun : energyAmoun)
+        for (double anEnergyAmoun : energyAmoun)
             energyAmount.add(anEnergyAmoun);
     }
 
@@ -21,7 +21,7 @@ public class Solar extends EnergySource
         energyAmount = new ArrayList<>();
     }
 
-    public float popAmount()
+    public double popAmount()
     {
         if ((energyAmount == null)||(energyAmount.size() == 0))
             return 0;
@@ -29,7 +29,7 @@ public class Solar extends EnergySource
             return energyAmount.get(0);
     }
 
-    public void insertAmount(float am)
+    public void insertAmount(double am)
     {
         energyAmount.add(am);
     }

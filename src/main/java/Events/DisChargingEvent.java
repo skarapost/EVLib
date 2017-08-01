@@ -8,7 +8,7 @@ public class DisChargingEvent
 {
     private ElectricVehicle vehicle;
     private ChargingStation station;
-    private float amEnerg;
+    private double amEnerg;
     private long disChargingTime;
     private String condition;
     private int disChargerId;
@@ -17,7 +17,7 @@ public class DisChargingEvent
     private long maxWaitingTime;
     private long startTime;
 
-    public DisChargingEvent(ChargingStation station, ElectricVehicle vehicle, float amEnerg)
+    public DisChargingEvent(ChargingStation station, ElectricVehicle vehicle, double amEnerg)
     {
         this.amEnerg = amEnerg;
         this.station = station;
@@ -38,7 +38,6 @@ public class DisChargingEvent
     }
 
     /**
-     * Returns the time the ElectricVehicle can wait.
      * @return The time the ElectricVehicle can wait.
      */
     public long reWaitingTime()
@@ -47,7 +46,6 @@ public class DisChargingEvent
     }
 
     /**
-     * Returns the time the ElectricVehicle arrives to the ChargingStaion.
      * @return The time arrival.
      */
     public long reDateArrival()
@@ -66,7 +64,6 @@ public class DisChargingEvent
     }
 
     /**
-     * Returns the ElectricVehicle of the ChargingEvent.
      * @return The ElectricVehicle of the ChargingEvent.
      */
     public ElectricVehicle reElectricVehicle()
@@ -75,22 +72,28 @@ public class DisChargingEvent
     }
 
     /**
-     * Executes the pre-proccessing method. Checks for any DisCharger
+     * Executes the dis-charging phase. Checks for any DisCharger
      * and calculates the discharging time. If there is not any empty DisCharger
-     * the DisChargingEvent object is inserted in the waiting list.
+     * the DisChargingEvent object is inserted in the waiting list. In the end calls
+     * the executeDisChargingEvent() function of the assigned DisCharger object
+     * to implement the discharging.
      */
-    public void preProcessing()
+    public void execution()
     {
         if (reElectricVehicle().reBattery().reActive()) {
             if ((condition.equals("arrived")) || (condition.equals("wait"))) {
                 int qwe = station.checkDisChargers();
                 if ((qwe != -1) && (qwe != -2)) {
-                    setCondition("ready");
+                    station.setTotalEnergy(-amEnerg);
+                    setCondition("discharging");
+                    disChargingTime = (int) (amEnerg / station.reDisChargingRatio());
                     disChargerId = qwe;
+                    setStartTime (station.getTime());
                     station.searchDischarger(disChargerId).setDisChargingEvent(this);
                     station.searchDischarger(disChargerId).changeSituation();
-                    station.setTotalEnergy(-amEnerg);
-                    disChargingTime = (int) (amEnerg / station.reDisChargingRatio());
+                    station.checkForUpdate();
+                    station.searchDischarger(disChargerId).setBusyTime(disChargingTime);
+                    station.searchDischarger(disChargerId).executeDisChargingEvent();
                 } else if (qwe == -2)
                     setCondition("nonExecutable");
                 else {
@@ -110,23 +113,6 @@ public class DisChargingEvent
     }
 
     /**
-     * It starts the execution of the DisChargingEvent object. The function modifies
-     * the dischargingarray. Checks if there needs to become any update storage. Starts the
-     * discharging of the ElectricVehicle. If the DisChargingEvent object is in the waiting
-     * list then this method does not do anything.
-     */
-    public void execution()
-    {
-        if (condition.equals("ready"))
-        {
-            station.checkForUpdate();
-            station.searchDischarger(disChargerId).setBusyTime(disChargingTime);
-            setStartTime (station.getTime());
-            station.searchDischarger(disChargerId).executeDisChargingEvent();
-        }
-    }
-
-    /**
      * Sets a value to the condition of the DisChargingEvent.
      * @param condition The value of the condition.
      */
@@ -136,7 +122,6 @@ public class DisChargingEvent
     }
 
     /**
-     * Returns the ChargingStation the DisChargingEvent visited.
      * @return The ChargingStation object.
      */
     public ChargingStation reStation()
@@ -145,16 +130,14 @@ public class DisChargingEvent
     }
 
     /**
-     * Returns the amount of energy the ElectricVehicle gives.
      * @return The amount of energy to be given.
      */
-    public float reAmEnerg()
+    public double reAmEnerg()
     {
         return amEnerg;
     }
 
     /**
-     * Returns the condition of the DisChargingEvent.
      * @return The condition of the DisChargingEvent.
      */
     public String reCondition()
@@ -163,7 +146,6 @@ public class DisChargingEvent
     }
 
     /**
-     * Returns the discharging time.
      * @return The discharging time.
      */
     public long reDisChargingTime()
@@ -181,7 +163,6 @@ public class DisChargingEvent
     }
 
     /**
-     * Returns the amount of time the ElectricVehicle has to wait.
      * @return The waiting time.
      */
     public long reMaxWaitingTime()

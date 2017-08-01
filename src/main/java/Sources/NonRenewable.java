@@ -4,13 +4,13 @@ import Station.ChargingStation;
 import java.util.ArrayList;
 
 public class NonRenewable extends EnergySource{
-    private ArrayList<Float> energyAmount;
+    private ArrayList<Double> energyAmount;
 
-    public NonRenewable(ChargingStation station, float[] energyAmoun)
+    public NonRenewable(ChargingStation station, double[] energyAmoun)
     {
         super(station);
         energyAmount = new ArrayList<>();
-        for (float anEnergyAmoun : energyAmoun)
+        for (double anEnergyAmoun : energyAmoun)
             energyAmount.add(anEnergyAmoun);
     }
 
@@ -20,7 +20,7 @@ public class NonRenewable extends EnergySource{
         energyAmount = new ArrayList<>();
     }
 
-    public float popAmount()
+    public double popAmount()
     {
         if ((energyAmount == null)||(energyAmount.size() == 0))
             return 0;
@@ -28,7 +28,7 @@ public class NonRenewable extends EnergySource{
             return energyAmount.get(0);
     }
 
-    public void insertAmount(float am)
+    public void insertAmount(double am)
     {
         energyAmount.add(am);
     }

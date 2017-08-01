@@ -25,32 +25,6 @@ public class DisCharger
             station.setSpecificAmount("discharging", 0f);
     }
 
-    private void startRun()
-    {
-        StopWatch d1 = new StopWatch();
-        d1.start ();
-        long st = d1.getTime();
-        long en;
-        e.reElectricVehicle().reBattery().setRemAmount(e.reElectricVehicle().reBattery().reRemAmount() - e.reAmEnerg());
-        e.reElectricVehicle().reDriver().setProfit(e.reElectricVehicle().reDriver().reProfit() + e.reAmEnerg()*station.reDisUnitPrice());
-        float energy = (float) station.reMap().get("discharging") + e.reAmEnerg();
-        station.setSpecificAmount("discharging", energy);
-        StopWatch d2 = new StopWatch();
-        d2.start();
-        do
-        {
-            en = d2.getTime();
-        }while(en - st < e.reDisChargingTime());
-        System.out.println ("The discharging took place succesfully");
-        e.setCondition("finished");
-        station.checkForUpdate();
-        setBusyTime(busyTime);
-        changeSituation();
-        setDisChargingEvent(null);
-        if (station.reQueueHandling())
-            handleQueueEvents();
-    }
-
     /**
      * Executes the DisChargingEvent. It lasts as much as DisChargingEvent's
      * discharging time demands. The energy that the discharging event needs is
@@ -67,7 +41,7 @@ public class DisCharger
             long en;
             e.reElectricVehicle().reBattery().setRemAmount(e.reElectricVehicle().reBattery().reRemAmount() - e.reAmEnerg());
             e.reElectricVehicle().reDriver().setProfit(e.reElectricVehicle().reDriver().reProfit() + e.reAmEnerg() * station.reDisUnitPrice());
-            float energy = (float) station.reMap().get("discharging") + e.reAmEnerg();
+            double energy = station.reMap().get("discharging") + e.reAmEnerg();
             station.setSpecificAmount("discharging", energy);
             StopWatch d2 = new StopWatch();
             d2.start();
@@ -94,7 +68,6 @@ public class DisCharger
     }
 
     /**
-     * Returns the situation of the DisCharger.
      * @return Returns true if it is busy, false if it is not busy.
      */
     public boolean reBusy()
@@ -121,7 +94,6 @@ public class DisCharger
     }
 
     /**
-     * Returns the DisChargingEvent the DisCharger is linked with.
      * @return The DisChargingEvent od the DisCharger.
      */
     public DisChargingEvent reDisChargingEvent()
@@ -130,7 +102,6 @@ public class DisCharger
     }
 
     /**
-     * Returns the busy time.
      * @return The busy time.
      */
     public long reBusyTime()
@@ -139,7 +110,6 @@ public class DisCharger
     }
 
     /**
-     * Returns the id of the DisCharger.
      * @return The id of the DisCharger.
      */
     public int reId()
@@ -155,10 +125,6 @@ public class DisCharger
     public void handleQueueEvents()
     {
         if (station.reDischarging().rSize() != 0)
-        {
-            station.reDischarging().reFirst().preProcessing();
-            if (station.reDischarging().reFirst().reCondition().equals("ready"))
-                station.reDischarging().moveFirst().execution();
-        }
+            station.reDischarging().moveFirst().execution();
     }
 }

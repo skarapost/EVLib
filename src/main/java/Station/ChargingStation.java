@@ -1,5 +1,6 @@
 package Station;
 
+import Events.ParkingEvent;
 import Sources.*;
 import EV.Battery;
 import EV.ElectricVehicle;
@@ -7,6 +8,8 @@ import Events.DisChargingEvent;
 import Events.ChargingEvent;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.commons.lang3.time.StopWatch;
 
 public class ChargingStation
@@ -25,49 +28,49 @@ public class ChargingStation
     private ArrayList<DisCharger> dischargers;
     private ArrayList<Battery> batteries;
     private ArrayList<ExchangeHandler> exchangeHandlers;
+    private ArrayList<ParkingSlot> parkingSlots;
     private Charger r;
     private EnergySource  c;
-    private HashMap<String, Float> amounts;
-    private float totalEnergy;
+    private HashMap<String, Double> amounts;
+    private double totalEnergy;
     private ArrayList<String> sources;
-    private float unitPrice;
-    private float disUnitPrice;
-    private float exchangePrice;
+    private double unitPrice;
+    private double disUnitPrice;
+    private double exchangePrice;
     private boolean automaticQueueHandling;
     private int updateSpace;
     private long timeOfExchange;
     private StopWatch date;
     private long lastUpdate;
+    private double inductiveChargingRatio;
+    private static AtomicInteger idGenerator = new AtomicInteger(0);
 
-    public ChargingStation(int id, String name, String[] kinds, String[] source, float[][] energAm)
+    public ChargingStation(String name, String[] kinds, String[] source, double[][] energAm)
     {
         this.date = new StopWatch ();
         date.start ();
-        this.lastUpdate = 0;
-        this.amounts = new HashMap<String, Float> ();
-        this.id = id;
+        this.amounts = new HashMap<> ();
+        this.id = idGenerator.getAndIncrement();
         this.name = name;
         this.automaticQueueHandling = true;
         this.slow = new WaitList("charging");
         this.fast = new WaitList("charging");
         this.exchange = new WaitList("charging");
         this.discharging = new WaitList("discharging");
-        this.chargers = new ArrayList<Charger>();
-        this.dischargers = new ArrayList<DisCharger>();
-        this.exchangeHandlers = new ArrayList<ExchangeHandler>();
-        this.n = new ArrayList<EnergySource>();
-        this.sources = new ArrayList<String>();
+        this.chargers = new ArrayList<>();
+        this.dischargers = new ArrayList<>();
+        this.exchangeHandlers = new ArrayList<>();
+        this.parkingSlots = new ArrayList<>();
+        this.n = new ArrayList<>();
+        this.sources = new ArrayList<>();
         this.sources.add("discharging");
-        this.batteries = new ArrayList<Battery>();
+        this.batteries = new ArrayList<>();
         for (int q=0; q<source.length; q++)
             sources.add(q, source[q]);
-        this.totalEnergy = 0;
         this.chargingRatioSlow = 1;
         this.chargingRatioFast = 2;
         this.disChargingRatio = 1;
-        this.unitPrice = 0;
-        this.exchangePrice = 0;
-        this.disUnitPrice = 0;
+        this.inductiveChargingRatio = 0.5;
         this.updateSpace = 20;
         for (int i=0; i<source.length; i++)
         {
@@ -75,37 +78,37 @@ public class ChargingStation
             {
                 c = new Solar(this, energAm[i]);
                 n.add(i, c);
-                amounts.put("solar", 0f);
+                amounts.put("solar", 0.0);
             }
             else if (source[i].equals("wind"))
             {
                 c = new Wind(this, energAm[i]);
                 n.add(i, c);
-                amounts.put("wind", 0f);
+                amounts.put("wind", 0.0);
             }
             else if (source[i].equals("geothermal"))
             {
                 c = new Geothermal(this, energAm[i]);
                 n.add(i, c);
-                amounts.put("geothermal", 0f);
+                amounts.put("geothermal", 0.0);
             }
             else if (source[i].equals("wave"))
             {
                 c = new Wave(this, energAm[i]);
                 n.add(i, c);
-                amounts.put("wave", 0f);
+                amounts.put("wave", 0.0);
             }
             else if (source[i].equals("hydroelectric"))
             {
                 c = new HydroElectric(this, energAm[i]);
                 n.add(i, c);
-                amounts.put("hydroelectric", 0f);
+                amounts.put("hydroelectric", 0.0);
             }
             else if (source[i].equals("nonrenewable"))
             {
                 c = new NonRenewable(this, energAm[i]);
                 n.add(i, c);
-                amounts.put("nonrenewable", 0f);
+                amounts.put("nonrenewable", 0.0);
             }
         }
         for (int i=0; i<kinds.length; i++)
@@ -119,73 +122,70 @@ public class ChargingStation
         updateStorage ();
     }
 
-    public ChargingStation(int id, String name, String[] kinds, String[] source)
+    public ChargingStation(String name, String[] kinds, String[] source)
     {
         this.date = new StopWatch();
         date.start();
-        this.lastUpdate = 0;
         this.amounts = new HashMap<>();
-        this.id = id;
+        this.id = idGenerator.getAndIncrement();
         this.name = name;
         this.slow = new WaitList("charging");
         this.fast = new WaitList("charging");
         this.exchange = new WaitList("charging");
         this.discharging = new WaitList("discharging");
         this.automaticQueueHandling = true;
-        this.chargers = new ArrayList<Charger>();
-        this.dischargers = new ArrayList<DisCharger>();
-        this.batteries = new ArrayList<Battery>();
-        this.exchangeHandlers = new ArrayList<ExchangeHandler>();
-        this.n = new ArrayList<EnergySource>();
-        this.sources = new ArrayList<String>();
+        this.chargers = new ArrayList<>();
+        this.dischargers = new ArrayList<>();
+        this.batteries = new ArrayList<>();
+        this.exchangeHandlers = new ArrayList<>();
+        this.parkingSlots = new ArrayList<>();
+        this.n = new ArrayList<>();
+        this.sources = new ArrayList<>();
         this.sources.add("discharging");
         for (int q=0; q<source.length; q++)
             sources.add(q, source[q]);
-        this.totalEnergy = 0;
         this.chargingRatioSlow = 1;
         this.chargingRatioFast = 2;
         this.disChargingRatio = 1;
-        this.unitPrice = 0;
-        this.disUnitPrice = 0;
-        this.exchangePrice = 0;
         this.updateSpace = 20;
+        this.inductiveChargingRatio = 0.5;
         for (int i=0; i<source.length; i++)
         {
             if (source[i].equals("solar"))
             {
                 c = new Solar(this);
                 n.add(i, c);
-                amounts.put("solar",0f);
+                amounts.put("solar",0.0);
             }
             else if (source[i].equals("wind"))
             {
                 c = new Wind(this);
                 n.add(i, c);
-                amounts.put("wind", 0f);
+                amounts.put("wind", 0.0);
             }
             else if (source[i].equals("geothermal"))
             {
                 c = new Geothermal(this);
                 n.add(i, c);
-                amounts.put("geothermal", 0f);
+                amounts.put("geothermal", 0.0);
             }
             else if (source[i].equals("wave"))
             {
                 c = new Wave(this);
                 n.add(i, c);
-                amounts.put("wave",0f);
+                amounts.put("wave",0.0);
             }
             else if (source[i].equals("hydroelectric"))
             {
                 c = new HydroElectric(this);
                 n.add(i, c);
-                amounts.put("hydroelectric",0f);
+                amounts.put("hydroelectric",0.0);
             }
             else if (source[i].equals("nonrenewable"))
             {
                 c = new NonRenewable(this);
                 n.add(i, c);
-                amounts.put("nonrenewable", 0f);
+                amounts.put("nonrenewable", 0.0);
             }
         }
         for (int i=0; i<kinds.length; i++)
@@ -203,35 +203,41 @@ public class ChargingStation
     {
         this.date = new StopWatch();
         date.start();
-        this.lastUpdate = 0;
-        this.id = id;
+        this.id = idGenerator.getAndIncrement();
         this.name = name;
         this.slow = new WaitList("charging");
         this.fast = new WaitList("charging");
         this.exchange = new WaitList("charging");
         this.discharging = new WaitList("discharging");
-        this.amounts = new HashMap<String, Float>();
-        this.chargers = new ArrayList<Charger>();
-        this.dischargers = new ArrayList<DisCharger>();
-        this.batteries = new ArrayList<Battery>();
-        this.exchangeHandlers = new ArrayList<ExchangeHandler>();
-        this.dischargers = new ArrayList<DisCharger> ();
-        this.n = new ArrayList<EnergySource>();
-        this.sources = new ArrayList<String>();
+        this.parkingSlots = new ArrayList<>();
+        this.amounts = new HashMap<>();
+        this.chargers = new ArrayList<>();
+        this.dischargers = new ArrayList<>();
+        this.batteries = new ArrayList<>();
+        this.exchangeHandlers = new ArrayList<>();
+        this.dischargers = new ArrayList<> ();
+        this.n = new ArrayList<>();
+        this.sources = new ArrayList<>();
         this.sources.add("discharging");
         this.automaticQueueHandling = true;
         this.chargingRatioSlow = 1;
         this.chargingRatioFast = 2;
         this.disChargingRatio = 1;
-        this.unitPrice = 0;
-        this.exchangePrice = 0;
-        this.disUnitPrice = 0;
         this.updateSpace = 20;
+        this.inductiveChargingRatio = 0.5;
     }
 
     /**
-     * Returns the elapsed time since the charging station started.
-     * @return The elapsed time
+     * @return The id of the ChargingStation object
+     */
+    public int reId()
+    {
+        return this.id;
+    }
+
+
+    /**
+     * @return The elapsed time since the start of the charging station
      */
 
     public long getTime()
@@ -240,7 +246,7 @@ public class ChargingStation
     }
 
     /**
-     * adds a ChargingEvent in the corresponding waiting ArrayList. 
+     * Adds a ChargingEvent in the corresponding waiting ArrayList.
      * @param y The ChargingEvent that is going to be added.
      */
     public void updateQueue(ChargingEvent y)
@@ -263,7 +269,7 @@ public class ChargingStation
     }
 
     /**
-     * adds a DisChargingEvent in the waiting ArrayList.
+     * Adds a DisChargingEvent in the waiting ArrayList.
      * @param d The DisChargingEvent that is going to be added.
      */
     public void updateDisChargingQueue(DisChargingEvent d)
@@ -272,7 +278,6 @@ public class ChargingStation
     }
 
     /**
-     * Returns the waiting ArrayList for the fast charging.
      * @return The WaitngArrayList object for the fast charging.
      */
     public WaitList reFast()
@@ -281,7 +286,6 @@ public class ChargingStation
     }
 
     /**
-     * Returns the waiting ArrayList for the slow charging.
      * @return The WaitingArrayList object for the slow charging.
      */
     public WaitList reSlow()
@@ -290,7 +294,6 @@ public class ChargingStation
     }
 
     /**
-     * Returns the waiting ArrayList for the exchange battery.
      * @return The WaitingArrayList object for the exchange battery.
      */
     public WaitList reExchange()
@@ -299,7 +302,6 @@ public class ChargingStation
     }
 
     /**
-     * Returns the waiting ArrayList for the discharging.
      * @return The WaitingArrayList object for the discharging.
      */
     public WaitList reDischarging()
@@ -361,7 +363,21 @@ public class ChargingStation
     }
 
     /**
-     * Checks for any Battery that is not completely empty.
+     *
+     */
+    public int checkParkingSlots()
+    {
+        for(ParkingSlot p: reParkingSlots())
+        {
+            if (!p.reBusy())
+                return p.reId();
+        }
+        if (parkingSlots.size() == 0)
+            return -2;
+        return -1;
+    }
+
+    /**
      * @return Returns the position of the Battery, or -1 if there is not any Battery.
      */
     public int checkBatteries()
@@ -378,7 +394,6 @@ public class ChargingStation
 
 
     /**
-     * Returns an array with all the ExchangeHandler objects that are linked with the charging station.
      * @return Returns all the ExchangeHandler objects.
      */
     public ExchangeHandler[] reExchangeHandlers()
@@ -386,6 +401,17 @@ public class ChargingStation
         ExchangeHandler[] g = new ExchangeHandler[exchangeHandlers.size()];
         for(int i = 0; i< exchangeHandlers.size(); i++)
             g[i] = exchangeHandlers.get(i);
+        return g;
+    }
+
+    /**
+     * @return Returns all the ParkingSlot objects.
+     */
+    public ParkingSlot[] reParkingSlots()
+    {
+        ParkingSlot[] g = new ParkingSlot[parkingSlots.size()];
+        for(int i = 0; i< parkingSlots.size(); i++)
+            g[i] = parkingSlots.get(i);
         return g;
     }
 
@@ -407,6 +433,10 @@ public class ChargingStation
         dischargers.add(y);
     }
 
+    /**
+     * Inserts a new ExchangeHandler in the charging station.
+     * @param y The ExchangeHandler object to be added.
+     */
     public void addExchangeHandler(ExchangeHandler y)
     {
         exchangeHandlers.add(y);
@@ -422,32 +452,32 @@ public class ChargingStation
         if (z instanceof Solar)
         {
             sources.add("solar");
-            amounts.put("solar", 0f);
+            amounts.put("solar", 0.0);
         }
         else if (z instanceof Wave)
         {
             sources.add("wave");
-            amounts.put("wave", 0f);
+            amounts.put("wave", 0.0);
         }
         else if (z instanceof Wind)
         {
             sources.add("wind");
-            amounts.put("wind", 0f);
+            amounts.put("wind", 0.0);
         }
         else if (z instanceof HydroElectric)
         {
             sources.add("hydroElectric");
-            amounts.put("hydroelectric", 0f);
+            amounts.put("hydroelectric", 0.0);
         }
         else if (z instanceof Geothermal)
         {
             sources.add("geothermal");
-            amounts.put("geothermal", 0f);
+            amounts.put("geothermal", 0.0);
         }
         else if (z instanceof NonRenewable)
         {
             sources.add("nonrenewable");
-            amounts.put("nonrenewable", 0f);
+            amounts.put("nonrenewable", 0.0);
         }
     }
 
@@ -531,7 +561,6 @@ public class ChargingStation
     }
 
     /**
-     * Returns an array with all DisCharger objects.
      * @return Returns the DisCharger objects of the ChargingStation.
      */
     public DisCharger[] reDisChargers()
@@ -591,7 +620,22 @@ public class ChargingStation
     }
 
     /**
-     * Returns an array with all the Charger objects.
+     * Search for an ParkingSlot object based on the given id.
+     * @param id The id of the ParkingSlot object which is asked.
+     * @return The ParkingSlot object.
+     */
+    public ParkingSlot searchParkingSlot(int id)
+    {
+        ParkingSlot y = null;
+        for(int i=0; i<parkingSlots.size(); i++)
+        {
+            if (parkingSlots.get(i).reId() == id)
+                y = parkingSlots.get(i);
+        }
+        return y;
+    }
+
+    /**
      * @return The array with the Charger objects.
      */
     public Charger[] reChargers()
@@ -603,7 +647,6 @@ public class ChargingStation
     }
 
     /**
-     * Returns an array with the sources of energy.
      * @return The array with the kind of energies.
      */
     public String[] reSources()
@@ -615,11 +658,9 @@ public class ChargingStation
     }
 
     /**
-     * Returns a Dictionary object which has as keys the sources of energy 
-     * and as values the energy which has each of them.
-     * @return A Dictionary object with the amounts of each kind of energy.
+     * @return A HashMap object with the amounts of each kind of energy.
      */
-    public HashMap<String, Float> reMap()
+    public HashMap<String, Double> reMap()
     {
         return amounts;
     }
@@ -629,37 +670,35 @@ public class ChargingStation
      * @param source The kind of energy in which the energy will be added.
      * @param amount The amount of energy will be added.
      */
-    public void setSpecificAmount(String source, float amount)
+    public void setSpecificAmount(String source, double amount)
     {
         amounts.put(source, amount);
     }
 
     /**
-     * Returns the amount of energy a source has.
      * @param source The source of energy.
      * @return The energy of the source.
      */
-    public float reSpecificAmount(String source)
+    public double reSpecificAmount(String source)
     {
         if (!amounts.containsKey(source))
-            return 0f;
-        return (float) amounts.get(source);
+            return 0.0;
+        return amounts.get(source);
     }
 
     /**
      * Removes an amount of energy from the total energy of the ChargingStation.
      * @param energ The amount of energy which is going to be removed.
      */
-    public void setTotalEnergy(float energ)
+    public void setTotalEnergy(double energ)
     {
         totalEnergy = totalEnergy - energ;
     }
 
     /**
-     * Returns the total energy of the ChargingStation.
      * @return The total energy of this ChargingStation.
      */
-    public float reTotalEnergy()
+    public double reTotalEnergy()
     {
         return totalEnergy;
     }
@@ -674,7 +713,6 @@ public class ChargingStation
     }
 
     /**
-     * Returns the charging ratio of the slow charging.
      * @return The slow charging ratio of this ChargingStation.
      */
     public double reChargingRatioSlow()
@@ -692,7 +730,6 @@ public class ChargingStation
     }
 
     /**
-     * Returns the charging ratio of the fast charging.
      * @return The fast charging ratio of this ChargingStation.
      */
     public double reChargingRatioFast()
@@ -710,12 +747,28 @@ public class ChargingStation
     }
 
     /**
-     * Returns the discharging ratio.
      * @return The discharging ratio of this ChargingStation.
      */
     public double reDisChargingRatio()
     {
         return disChargingRatio;
+    }
+
+    /**
+     * Sets the ratio of inductive charging.
+     * @param inductiveChargingRatio The ratio of charging during inductive charging.
+     */
+    public void setInductiveChargingRatio(double inductiveChargingRatio)
+    {
+        this.inductiveChargingRatio = inductiveChargingRatio;
+    }
+
+    /**
+     * @return The ratio of charging during inductive charging.
+     */
+    public double reInductiveRatio()
+    {
+        return inductiveChargingRatio;
     }
 
     /**
@@ -780,16 +833,15 @@ public class ChargingStation
      * Sets a price for the energy unit.
      * @param price The price.
      */
-    public void setUnitPrice(float price)
+    public void setUnitPrice(double price)
     {
-        unitPrice = price;
+        this.unitPrice = price;
     }
 
     /**
-     * Returns the price of the energy unit.
      * @return The price of the energy unit of this ChargingStation.
      */
-    public float reUnitPrice()
+    public double reUnitPrice()
     {
         return unitPrice;
     }
@@ -798,25 +850,23 @@ public class ChargingStation
      * Sets a price for the energy unit in a DischargingEvent.
      * @param disUnitPrice The price of energy unit.
      */
-    public void setDisUnitPrice(float disUnitPrice)
+    public void setDisUnitPrice(double disUnitPrice)
     {
         this.disUnitPrice = disUnitPrice;
     }
 
     /**
-     * Returns the price of the energy unit during a DischargingEvent.
      * @return The price of the energy unit.
      */
-    public float reDisUnitPrice()
+    public double reDisUnitPrice()
     {
         return disUnitPrice;
     }
 
     /**
-     * Returns the price of an exchange battery service.
      * @return The price of a battery exchange.
      */
-    public float reExchangePrice()
+    public double reExchangePrice()
     {
         return exchangePrice;
     }
@@ -825,7 +875,7 @@ public class ChargingStation
      * Sets the price for a battery exchange.
      * @param price The price the exchange costs.
      */
-    public void setExchangePrice(float price)
+    public void setExchangePrice(double price)
     {
         exchangePrice = price;
     }
@@ -841,7 +891,6 @@ public class ChargingStation
     }
 
     /**
-     * Returns which handles the ArrayList.
      * @return True if the ArrayList is handled automatic by the library.
      * False if the user has to handle the ArrayList.
      */
@@ -860,7 +909,6 @@ public class ChargingStation
     }
 
     /**
-     * Returns the time of each update storage.
      * @return The time among each storage update.
      */
     public int reUpdateSpace()
@@ -884,10 +932,7 @@ public class ChargingStation
                 r.vehicleJoinBattery(batteries.get(i));
                 e = new ChargingEvent(this, r, batteries.get(i).reBatteryCapacity() - batteries.get(i).reRemAmount(), kind);
                 if (checkChargers(e.reKind()) != -1)
-                {
-                    e.preProcessing();
                     e.execution ();
-                }
             }
     }
 
@@ -913,7 +958,6 @@ public class ChargingStation
     }
 
     /**
-     * Returns the time the battery exchange lasts.
      * @return The time of the battery exchange.
      */
     public long reTimeOfExchange()
@@ -940,7 +984,7 @@ public class ChargingStation
      */
     private void updateStorage()
     {
-        float counter = 0;
+        double counter = 0;
         for (int j=0; j<reEnergySources().length; j++)
         {
             counter = counter + reEnergySources()[j].popAmount();
@@ -972,11 +1016,11 @@ public class ChargingStation
      */
     public void energyDistribution(long date)
     {
-        float counter = 0;
+        double counter = 0;
         int counter1 = 0;
         boolean[] g;
         g = new boolean[reChargers().length];
-        float max = -1;
+        double max = -1;
         for (int i = 0;i < reChargers().length;i++)
             if (reChargers()[i].reChargingEvent() != null)
             {
@@ -1009,15 +1053,22 @@ public class ChargingStation
      * @param w The ChargingEvent that executed.
      * @return The cost of the charging.
      */
-    public float calculatePrice(ChargingEvent w)
+    public double calculatePrice(ChargingEvent w)
     {
         if (!"exchange".equals(w.reKind()))
-        {
-            float t = w.reEnergyToBeReceived()*reUnitPrice();
-            return t;
-        }
+            return w.reEnergyToBeReceived()*reUnitPrice();
         else
             return reExchangePrice();
+    }
+
+    /**
+     * Calculates the cost of a charging.
+     * @param w The ParkingEvent that executed.
+     * @return The cost of the charging.
+     */
+    public double calculatePrice(ParkingEvent w)
+    {
+        return w.reEnergyToBeReceived()*reUnitPrice();
     }
 
     /**
@@ -1090,7 +1141,6 @@ public class ChargingStation
     }
 
     /**
-     * Calculates the waiting time of a DisChargingEvent.
      * @return The time the ElectricVehicle has to wait.
      */
     public long calDisWaitingTime()

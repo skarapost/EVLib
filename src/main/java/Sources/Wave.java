@@ -5,12 +5,12 @@ import java.util.ArrayList;
 
 public class Wave extends EnergySource
 {
-    private ArrayList<Float> energyAmount;
+    private ArrayList<Double> energyAmount;
 
-    public Wave(ChargingStation station, float[] energyAmoun)
+    public Wave(ChargingStation station, double[] energyAmoun)
     {
         super(station);
-        energyAmount = new ArrayList<Float>();
+        energyAmount = new ArrayList<>();
         for(int i=0; i<energyAmoun.length; i++)
             energyAmount.add(energyAmoun[i]);
     }
@@ -18,10 +18,10 @@ public class Wave extends EnergySource
     public Wave(ChargingStation station)
     {
         super(station);
-        energyAmount = new ArrayList<Float>();
+        energyAmount = new ArrayList<>();
     }
 
-    public float popAmount()
+    public double popAmount()
     {
         if ((energyAmount == null)||(energyAmount.size() == 0))
             return 0;
@@ -29,7 +29,7 @@ public class Wave extends EnergySource
             return energyAmount.get(0);
     }
 
-    public void insertAmount(float am)
+    public void insertAmount(double am)
     {
         energyAmount.add(am);
     }

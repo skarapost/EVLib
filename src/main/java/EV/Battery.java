@@ -5,14 +5,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Battery
 {
     private int id;
-    private float remAmount;
-    private float batteryCapacity;
+    private double remAmount;
+    private double batteryCapacity;
     private int numberOfChargings;
     private int maxNumberOfChargings;
     private boolean active;
     private static AtomicInteger idGenerator = new AtomicInteger(0);
 
-    public Battery(float remAmount, float batteryCapacity)
+    public Battery(double remAmount, double batteryCapacity)
     {
         this.id = idGenerator.getAndIncrement();
         this.remAmount = remAmount;
@@ -31,7 +31,7 @@ public class Battery
      * Sets the remaining amount of energy in the Battery.
      * @param r Remaining amount.
      */
-    public void setRemAmount(float r)
+    public void setRemAmount(double r)
     {
         remAmount = r;
     }
@@ -48,7 +48,7 @@ public class Battery
      * Sets a Battery capacity.
      * @param u Battery capacity to be inserted.
      */
-    public void setBatteryCapacity(float u)
+    public void setBatteryCapacity(double u)
     {
         batteryCapacity = u;
     }
@@ -56,7 +56,7 @@ public class Battery
     /**
      * @return Remaining Amount of battery.
      */
-    public float reRemAmount()
+    public double reRemAmount()
     {
         return remAmount;
     }
@@ -64,7 +64,7 @@ public class Battery
     /**
      * @return Battery capacity of the Battery.
      */
-    public float reBatteryCapacity()
+    public double reBatteryCapacity()
     {
         return batteryCapacity;
     }

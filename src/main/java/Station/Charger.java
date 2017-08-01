@@ -32,16 +32,16 @@ public class Charger {
     public void executeChargingEvent() {
         new Thread(() ->
         {
-            float sdf;
+            double sdf;
             long en;
             sdf = e.reEnergyToBeReceived();
             e.reElectricVehicle().reBattery().setRemAmount(sdf + e.reElectricVehicle().reBattery().reRemAmount());
             if (e.reElectricVehicle().reDriver() != null)
                 e.reElectricVehicle().reDriver().setDebt(e.reElectricVehicle().reDriver().reDebt() + station.calculatePrice(e));
-            HashMap<String, Float> keys = new HashMap<>(station.reMap());
-            for (HashMap.Entry<String, Float> energy : keys.entrySet()) {
+            HashMap<String, Double> keys = new HashMap<>(station.reMap());
+            for (HashMap.Entry<String, Double> energy : keys.entrySet()) {
                 if (e.reEnergyToBeReceived() < station.reMap().get(energy.getKey())) {
-                    float ert = station.reMap().get(energy.getKey()) - sdf;
+                    double ert = station.reMap().get(energy.getKey()) - sdf;
                     e.reStation().setSpecificAmount(energy.getKey(), ert);
                     break;
                 } else {
@@ -73,8 +73,6 @@ public class Charger {
     }
 
     /**
-     * Returns the situation of the Charger.
-     *
      * @return True if it is busy, false if it is not busy.
      */
     public boolean reBusy() {
@@ -82,8 +80,6 @@ public class Charger {
     }
 
     /**
-     * Returns the kind of charging.
-     *
      * @return The kind of charging the Charger supports.
      */
     public String reKind() {
@@ -92,7 +88,6 @@ public class Charger {
 
     /**
      * Sets a ChargingEvent in the Charger.
-     *
      * @param ev The ChargingEvent to be linked with the Charger.
      */
     public void setChargingEvent(ChargingEvent ev) {
@@ -104,23 +99,15 @@ public class Charger {
      */
     public void handleQueueEvents() {
         if ("fast".equals(reKind())) {
-            if (station.reFast().reSize() != 0) {
-                station.reFast().takeFirst().preProcessing();
-                if (station.reFast().takeFirst().reCondition().equals("ready"))
-                    station.reFast().removeFirst().execution();
-            }
+            if (station.reFast().reSize() != 0)
+                station.reFast().removeFirst().execution();
         } else if ("slow".equals(reKind())) {
-            if (station.reSlow().reSize() != 0) {
-                station.reSlow().takeFirst().preProcessing();
-                if (station.reSlow().takeFirst().reCondition().equals("ready"))
-                    station.reSlow().removeFirst().execution();
-            }
+            if (station.reSlow().reSize() != 0)
+                station.reSlow().removeFirst().execution();
         }
     }
 
     /**
-     * Returns the ChargingEvent of the Charger.
-     *
      * @return The ChargingEvent which is linked with the Charger.
      */
     public ChargingEvent reChargingEvent() {
@@ -128,8 +115,6 @@ public class Charger {
     }
 
     /**
-     * Returns the amount of time the Charger is going to be busy.
-     *
      * @return The time that the Charger is going to be busy.
      */
     public long reCommitTime() {
@@ -138,7 +123,6 @@ public class Charger {
 
     /**
      * Sets the time the Charger is going to be busy.
-     *
      * @param time The commit time.
      */
     public void setCommitTime(long time) {
@@ -146,8 +130,6 @@ public class Charger {
     }
 
     /**
-     * Returns the id of the Charger.
-     *
      * @return The id of Charger.
      */
     public int reId() {
