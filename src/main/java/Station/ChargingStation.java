@@ -1,6 +1,7 @@
 package Station;
 
 import Events.ParkingEvent;
+import Events.PricingPolicy;
 import Sources.*;
 import EV.Battery;
 import EV.ElectricVehicle;
@@ -44,6 +45,8 @@ public class ChargingStation
     private long lastUpdate;
     private double inductiveChargingRatio;
     private static AtomicInteger idGenerator = new AtomicInteger(0);
+    private long timestamp;
+    private PricingPolicy policy;
 
     public ChargingStation(String name, String[] kinds, String[] source, double[][] energAm)
     {
@@ -74,41 +77,37 @@ public class ChargingStation
         this.updateSpace = 20;
         for (int i=0; i<source.length; i++)
         {
-            if (source[i].equals("solar"))
-            {
-                c = new Solar(this, energAm[i]);
-                n.add(i, c);
-                amounts.put("solar", 0.0);
-            }
-            else if (source[i].equals("wind"))
-            {
-                c = new Wind(this, energAm[i]);
-                n.add(i, c);
-                amounts.put("wind", 0.0);
-            }
-            else if (source[i].equals("geothermal"))
-            {
-                c = new Geothermal(this, energAm[i]);
-                n.add(i, c);
-                amounts.put("geothermal", 0.0);
-            }
-            else if (source[i].equals("wave"))
-            {
-                c = new Wave(this, energAm[i]);
-                n.add(i, c);
-                amounts.put("wave", 0.0);
-            }
-            else if (source[i].equals("hydroelectric"))
-            {
-                c = new HydroElectric(this, energAm[i]);
-                n.add(i, c);
-                amounts.put("hydroelectric", 0.0);
-            }
-            else if (source[i].equals("nonrenewable"))
-            {
-                c = new NonRenewable(this, energAm[i]);
-                n.add(i, c);
-                amounts.put("nonrenewable", 0.0);
+            switch (source[i]) {
+                case "solar":
+                    c = new Solar(this, energAm[i]);
+                    n.add(i, c);
+                    amounts.put("solar", 0.0);
+                    break;
+                case "wind":
+                    c = new Wind(this, energAm[i]);
+                    n.add(i, c);
+                    amounts.put("wind", 0.0);
+                    break;
+                case "geothermal":
+                    c = new Geothermal(this, energAm[i]);
+                    n.add(i, c);
+                    amounts.put("geothermal", 0.0);
+                    break;
+                case "wave":
+                    c = new Wave(this, energAm[i]);
+                    n.add(i, c);
+                    amounts.put("wave", 0.0);
+                    break;
+                case "hydroelectric":
+                    c = new HydroElectric(this, energAm[i]);
+                    n.add(i, c);
+                    amounts.put("hydroelectric", 0.0);
+                    break;
+                case "nonrenewable":
+                    c = new NonRenewable(this, energAm[i]);
+                    n.add(i, c);
+                    amounts.put("nonrenewable", 0.0);
+                    break;
             }
         }
         for (int i=0; i<kinds.length; i++)
@@ -151,41 +150,37 @@ public class ChargingStation
         this.inductiveChargingRatio = 0.5;
         for (int i=0; i<source.length; i++)
         {
-            if (source[i].equals("solar"))
-            {
-                c = new Solar(this);
-                n.add(i, c);
-                amounts.put("solar",0.0);
-            }
-            else if (source[i].equals("wind"))
-            {
-                c = new Wind(this);
-                n.add(i, c);
-                amounts.put("wind", 0.0);
-            }
-            else if (source[i].equals("geothermal"))
-            {
-                c = new Geothermal(this);
-                n.add(i, c);
-                amounts.put("geothermal", 0.0);
-            }
-            else if (source[i].equals("wave"))
-            {
-                c = new Wave(this);
-                n.add(i, c);
-                amounts.put("wave",0.0);
-            }
-            else if (source[i].equals("hydroelectric"))
-            {
-                c = new HydroElectric(this);
-                n.add(i, c);
-                amounts.put("hydroelectric",0.0);
-            }
-            else if (source[i].equals("nonrenewable"))
-            {
-                c = new NonRenewable(this);
-                n.add(i, c);
-                amounts.put("nonrenewable", 0.0);
+            switch (source[i]) {
+                case "solar":
+                    c = new Solar(this);
+                    n.add(i, c);
+                    amounts.put("solar", 0.0);
+                    break;
+                case "wind":
+                    c = new Wind(this);
+                    n.add(i, c);
+                    amounts.put("wind", 0.0);
+                    break;
+                case "geothermal":
+                    c = new Geothermal(this);
+                    n.add(i, c);
+                    amounts.put("geothermal", 0.0);
+                    break;
+                case "wave":
+                    c = new Wave(this);
+                    n.add(i, c);
+                    amounts.put("wave", 0.0);
+                    break;
+                case "hydroelectric":
+                    c = new HydroElectric(this);
+                    n.add(i, c);
+                    amounts.put("hydroelectric", 0.0);
+                    break;
+                case "nonrenewable":
+                    c = new NonRenewable(this);
+                    n.add(i, c);
+                    amounts.put("nonrenewable", 0.0);
+                    break;
             }
         }
         for (int i=0; i<kinds.length; i++)
@@ -594,10 +589,9 @@ public class ChargingStation
     public DisCharger searchDischarger(int id)
     {
         DisCharger y = null;
-        for(int i=0;i<dischargers.size();i++)
-        {
-            if (dischargers.get(i).reId() == id)
-                y = dischargers.get(i);
+        for (DisCharger discharger : dischargers) {
+            if (discharger.reId() == id)
+                y = discharger;
         }
         return y;
     }
@@ -610,10 +604,9 @@ public class ChargingStation
     public ExchangeHandler searchExchangeHandler(int id)
     {
         ExchangeHandler y = null;
-        for(int i=0; i<exchangeHandlers.size(); i++)
-        {
-            if (exchangeHandlers.get(i).reId() == id)
-                y = exchangeHandlers.get(i);
+        for (ExchangeHandler exchangeHandler : exchangeHandlers) {
+            if (exchangeHandler.reId() == id)
+                y = exchangeHandler;
         }
         return y;
     }
@@ -626,10 +619,9 @@ public class ChargingStation
     public ParkingSlot searchParkingSlot(int id)
     {
         ParkingSlot y = null;
-        for(int i=0; i<parkingSlots.size(); i++)
-        {
-            if (parkingSlots.get(i).reId() == id)
-                y = parkingSlots.get(i);
+        for (ParkingSlot parkingSlot : parkingSlots) {
+            if (parkingSlot.reId() == id)
+                y = parkingSlot;
         }
         return y;
     }
@@ -924,14 +916,13 @@ public class ChargingStation
     {
         ChargingEvent e;
         ElectricVehicle r;
-        for(int i=0; i<batteries.size(); i++)
-            if (batteries.get(i).reRemAmount() < batteries.get(i).reBatteryCapacity())
-            {
+        for (Battery battery : batteries)
+            if (battery.reRemAmount() < battery.reBatteryCapacity()) {
                 r = new ElectricVehicle(null, 0);
-                r.vehicleJoinBattery(batteries.get(i));
-                e = new ChargingEvent(this, r, batteries.get(i).reBatteryCapacity() - batteries.get(i).reRemAmount(), kind);
+                r.vehicleJoinBattery(battery);
+                e = new ChargingEvent(this, r, battery.reBatteryCapacity() - battery.reRemAmount(), kind);
                 if (checkChargers(e.reKind()) != -1)
-                    e.execution ();
+                    e.execution();
             }
     }
 
@@ -1053,10 +1044,34 @@ public class ChargingStation
      */
     public double calculatePrice(ChargingEvent w)
     {
-        if (!"exchange".equals(w.reKind()))
-            return w.reEnergyToBeReceived()*reUnitPrice();
+        if(policy == null) {
+            if (!"exchange".equals(w.reKind()))
+                return w.reEnergyToBeReceived() * reUnitPrice();
+            else
+                return reExchangePrice();
+        }
         else
-            return reExchangePrice();
+        {
+            if (policy.reSpace() != 0)
+            {
+                long diff = timestamp - getTime();
+                int spaces;
+                spaces = (int) ((int) diff/policy.reSpace());
+                return w.reEnergyToBeReceived() * policy.reSpecificPrice(++spaces);
+            }
+            else
+            {
+                long diff = timestamp - getTime();
+                long accumulator = 0;
+                int counter = 1;
+                while( accumulator<=diff )
+                {
+                    accumulator += policy.reSpecificTimeSpace(counter);
+                    counter++;
+                }
+                return w.reEnergyToBeReceived() * policy.reSpecificPrice(counter);
+            }
+        }
     }
 
     /**
@@ -1066,7 +1081,7 @@ public class ChargingStation
      */
     public double calculatePrice(ParkingEvent w)
     {
-        return w.reEnergyToBeReceived()*reUnitPrice();
+        return w.reEnergyToBeReceived() * reUnitPrice();
     }
 
     /**
@@ -1081,7 +1096,7 @@ public class ChargingStation
         long[] counter1 = new long[reChargers().length];
         long[] counter2 = new long[reChargers().length];
         int min = 10000000;
-        if (!"exchange".equals (y.reKind ()))
+        if ( "exchange" != y.reKind())
             for (int i = 0; i < reChargers ().length; i++) {
                 if (y.reKind () == reChargers()[i].reKind ()) {
                     long diff = reChargers()[i].reChargingEvent ().reElapsedChargingTime();
@@ -1098,7 +1113,7 @@ public class ChargingStation
                     min = i;
                 counter2[i] = diff;
             }
-        if ("slow".equals(y.reKind()))
+        if ("slow" == y.reKind())
         {
             WaitList o = reSlow();
             for (int i = 0;i < o.reSize() ;i++)
@@ -1110,7 +1125,7 @@ public class ChargingStation
             }
             return counter1[min];
         }
-        if ("fast".equals(y.reKind()))
+        if ("fast" == y.reKind())
         {
             WaitList o = reFast();
             for(int i = 0; i < o.reSize() ;i++)
@@ -1122,7 +1137,7 @@ public class ChargingStation
             }
             return counter1[min];
         }
-        if ("exchange".equals(y.reKind()))
+        if ("exchange" == y.reKind())
         {
             WaitList o = reExchange();
             for(int i = 0; i < o.reSize();i++)
@@ -1160,5 +1175,14 @@ public class ChargingStation
                     min = j;
         }
         return counter1[min];
+    }
+
+    /**
+     * Links a pricing policy with the charging station.
+     * @param policy The policy to be linked with.
+     */
+    public void setPricingPolicy(PricingPolicy policy) {
+        timestamp = getTime();
+        this.policy = policy;
     }
 }
