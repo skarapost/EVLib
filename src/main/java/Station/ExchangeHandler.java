@@ -13,6 +13,8 @@ public class ExchangeHandler
     private ChargingEvent e;
     private boolean busy;
     private static AtomicInteger idGenerator = new AtomicInteger(0);
+    private long commitTime;
+    private long timestamp;
 
     public ExchangeHandler(ChargingStation station)
     {
@@ -21,7 +23,9 @@ public class ExchangeHandler
         e = null;
     }
 
-
+    /**
+     * @return The id of the ExchangeHandler.
+     */
     public int reId()
     {
         return id;
@@ -37,7 +41,6 @@ public class ExchangeHandler
     }
 
     /**
-     * Returns the ChargingEvent of the ExchangeHandler.
      * @return The ChargingEvent of the ExchangeHandler.
      */
     public ChargingEvent reChargingEvent()
@@ -62,7 +65,7 @@ public class ExchangeHandler
             d1.start ();
             long st = d1.getTime();
             long en;
-            Battery temp = null;
+            Battery temp;
             temp = e.reElectricVehicle().reBattery();
             e.reElectricVehicle().vehicleJoinBattery(station.reBatteries().get(st2));
             station.reBatteries().remove(st2);
@@ -79,31 +82,54 @@ public class ExchangeHandler
             station.checkForUpdate();
             changeSituation();
             joinChargingEvent(null);
+            setCommitTime(0);
             if (station.reQueueHandling())
-                handleQueue();
+                handleQueueEvents();
         }).start ();
     }
 
     /**
      * Handles the list. It executes the first(if any) element of the list.
      */
-    public void handleQueue()
+    public void handleQueueEvents()
     {
         if (station.reExchange().reSize() != 0)
-        {
-            station.reExchange().takeFirst().preProcessing();
-            if (station.reExchange().takeFirst().reCondition().equals("ready"))
                 station.reExchange().removeFirst().execution();
-        }
     }
 
+    /**
+     * @return If it is busy or not.
+     */
     public boolean reBusy()
     {
         return busy;
     }
 
+    /**
+     * Changes the situation of the ExchangeHandler. It works like a switch.
+     */
     public void changeSituation()
     {
         busy = !busy;
+    }
+
+    /**
+     * @return The time that the ExchangeHandler is going to be busy.
+     */
+    public long reElapsedCommitTime() {
+        long diff = station.getTime() - timestamp;
+        if (commitTime - diff >= 0)
+            return commitTime - diff;
+        else
+            return 0;
+    }
+
+    /**
+     * Sets the time the ExchangeHandler is going to be busy.
+     * @param time The commit time.
+     */
+    public void setCommitTime(long time) {
+        timestamp = station.getTime();
+        commitTime = time;
     }
 }

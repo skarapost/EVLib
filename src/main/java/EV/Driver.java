@@ -32,8 +32,7 @@ public class Driver
     }
 
     /**
-     * Returns the profit of the Driver.
-     * @return The profit.
+     * @return The profit of the driver.
      */
     public double reProfit()
     {
@@ -41,7 +40,7 @@ public class Driver
     }
 
     /**
-     * Sets the debt a Driver has.
+     * Sets the debt of a driver.
      * @param debt The debt.
      */
     public void setDebt(double debt)
@@ -50,8 +49,7 @@ public class Driver
     }
 
     /**
-     * Returns the debt of the Driver.
-     * @return The debt.
+     * @return The debt of the driver.
      */
     public double reDebt()
     {

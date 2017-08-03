@@ -17,7 +17,6 @@ public class Battery
         this.id = idGenerator.getAndIncrement();
         this.remAmount = remAmount;
         this.batteryCapacity = batteryCapacity;
-        this.numberOfChargings = 0;
         this.maxNumberOfChargings = 100;
         active = true;
     }
@@ -37,13 +36,13 @@ public class Battery
     }
 
     /**
-     *
      * @return If it is active(available) or not.
      */
     public boolean reActive()
     {
         return active;
     }
+
     /**
      * Sets a Battery capacity.
      * @param u Battery capacity to be inserted.
@@ -70,7 +69,7 @@ public class Battery
     }
 
     /**
-     * @return The number a battery can be charged
+     * @return The number of chargings a battery can afford.
      */
     public int reNumberOfChargings()
     {
@@ -78,7 +77,7 @@ public class Battery
     }
 
     /**
-     * Increases the number of chargings of a battery by one
+     * Increases the number of chargings of a battery by one.
      */
     public void addCharging()
     {
@@ -89,8 +88,7 @@ public class Battery
     }
 
     /**
-     *
-     * @return The maximum number of times a battery can be fully charged
+     * @return The maximum number of times a battery can be fully charged.
      */
     public int reMaxNumberOfCharging()
     {
@@ -98,7 +96,7 @@ public class Battery
     }
 
     /**
-     * Sets a number of full chargings a battery can have
+     * Sets a number of full chargings a battery can have.
      * @param maxNumberOfChargings The number of chargings
      */
     public void setMaxNumberOfChargings(int maxNumberOfChargings)

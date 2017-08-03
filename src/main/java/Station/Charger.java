@@ -12,13 +12,13 @@ public class Charger {
     private long commitTime;
     private ChargingEvent e;
     private ChargingStation station;
+    private long timestamp;
     private static AtomicInteger idGenerator = new AtomicInteger(0);
 
     public Charger(ChargingStation station, String kindOfCharging) {
         this.id = idGenerator.getAndIncrement();
         this.kindOfCharging = kindOfCharging;
         this.busy = false;
-        this.commitTime = 0;
         this.station = station;
         this.e = null;
     }
@@ -59,6 +59,7 @@ public class Charger {
             station.checkForUpdate();
             changeSituation();
             setChargingEvent(null);
+            commitTime = 0;
             if (station.reQueueHandling())
                 handleQueueEvents();
         }).start();
@@ -117,8 +118,12 @@ public class Charger {
     /**
      * @return The time that the Charger is going to be busy.
      */
-    public long reCommitTime() {
-        return commitTime;
+    public long reElapsedCommitTime() {
+        long diff = station.getTime() - timestamp;
+        if (commitTime - diff >= 0)
+            return commitTime - diff;
+        else
+            return 0;
     }
 
     /**
@@ -126,6 +131,7 @@ public class Charger {
      * @param time The commit time.
      */
     public void setCommitTime(long time) {
+        timestamp = station.getTime();
         commitTime = time;
     }
 

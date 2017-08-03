@@ -14,7 +14,6 @@ public class ElectricVehicle extends Vehicle
     }
 
     /**
-    * Returns the Battery of the ElectricVehicle.
     * @return The Battery of the ElectricVehicle.
     */
     public Battery reBattery()
@@ -42,15 +41,14 @@ public class ElectricVehicle extends Vehicle
     /**
     * Links the ElectricVehicle with a Driver.
     * @param p The Driver to be linked.
-     * */
+     */
     public void setDriver(Driver p)
     {
         this.driver = p;
     }
 
     /**
-    * Returns the Driver of the ElectricVehicle.
-    * @return THe Driver.
+    * @return The Driver of the ElectricVehicle.
     */
     public Driver reDriver()
     {

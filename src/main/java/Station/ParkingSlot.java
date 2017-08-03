@@ -9,12 +9,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ParkingSlot {
     private int id;
     private boolean busy;
-    private long parkingTime;
+    private long commitTime;
     private long chargingTime;
     private ParkingEvent e;
     private ChargingStation station;
     private static AtomicInteger idGenerator = new AtomicInteger(0);
     private boolean inSwitch;
+    private long timestamp;
 
     public ParkingSlot(ChargingStation station)
     {
@@ -25,10 +26,10 @@ public class ParkingSlot {
     }
 
     /**
-     * Executes the inductive charging phase of a parking slot.
+     * Executes the inductive charging phase of a parking slot. It works like the ChargingEvent.
      */
-    public void chargingVehicle() {
-        if (inSwitch)
+    public void parkingVehicle() {
+        if (inSwitch&&(e.reChargingTime()!=0))
         {
             new Thread(() ->
             {
@@ -55,12 +56,23 @@ public class ParkingSlot {
                     en = d2.getTime();
                 } while (en < e.reChargingTime());
                 System.out.println("The charging took place succesfully");
-                e.setCondition("finished");
+                e.setCondition("parking");
                 station.checkForUpdate();
-                changeSituation();
-                setParkingEvent(null);
             }).start();
         }
+        long diff = e.reParkingTime() - e.reChargingTime();
+        StopWatch d2 = new StopWatch();
+        d2.start();
+        long en;
+        do {
+            en = d2.getTime();
+        }while(en < diff);
+        changeSituation();
+        setParkingEvent(null);
+        e.setCondition("finished");
+        station.checkForUpdate();
+        commitTime = 0;
+        chargingTime = 0;
     }
 
     /**
@@ -126,7 +138,7 @@ public class ParkingSlot {
     /**
      * @return The chargingTime the vehicle will charge.
      */
-    public long reChargingTime()
+    public long reElapsedChargingTime()
     {
         return chargingTime;
     }
@@ -135,16 +147,21 @@ public class ParkingSlot {
      * Sets the time the vehicle will park.
      * @param parkingTime The time the vehicle will be parked.
      */
-    public void setParkingTime(long parkingTime)
+    public void setCommitTime(long parkingTime)
     {
-        this.parkingTime = parkingTime;
+        timestamp = station.getTime();
+        this.commitTime = parkingTime;
     }
 
     /**
      * @return The time the vehicle will be parked.
      */
-    public long reParkingTime()
+    public long reElapsedCommitTime()
     {
-        return parkingTime;
+        long diff = station.getTime() - timestamp;
+        if (commitTime - diff >= 0)
+            return commitTime - diff;
+        else
+            return 0;
     }
 }

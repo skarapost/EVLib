@@ -1,6 +1,6 @@
 package Events;
 
-
+import Station.DisCharger;
 import EV.ElectricVehicle;
 import Station.ChargingStation;
 
@@ -15,7 +15,7 @@ public class DisChargingEvent
     private long dateArrival;
     private long waitingTime;
     private long maxWaitingTime;
-    private long startTime;
+    private long timestamp;
 
     public DisChargingEvent(ChargingStation station, ElectricVehicle vehicle, double amEnerg)
     {
@@ -25,7 +25,6 @@ public class DisChargingEvent
         this.disChargerId = -1;
         this.condition = "arrived";
         this.dateArrival = station.getTime();
-        this.startTime = 0;
     }
 
     /**
@@ -46,21 +45,11 @@ public class DisChargingEvent
     }
 
     /**
-     * @return The time arrival.
+     * @return The time of arrival.
      */
     public long reDateArrival()
     {
         return dateArrival;
-    }
-
-    public void setStartTime(long time)
-    {
-        this.startTime = time;
-    }
-
-    public long reStartTime()
-    {
-        return startTime;
     }
 
     /**
@@ -88,12 +77,12 @@ public class DisChargingEvent
                     setCondition("discharging");
                     disChargingTime = (int) (amEnerg / station.reDisChargingRatio());
                     disChargerId = qwe;
-                    setStartTime (station.getTime());
-                    station.searchDischarger(disChargerId).setDisChargingEvent(this);
-                    station.searchDischarger(disChargerId).changeSituation();
+                    DisCharger dsc = station.searchDischarger(disChargerId);
+                    dsc.setDisChargingEvent(this);
+                    dsc.changeSituation();
                     station.checkForUpdate();
-                    station.searchDischarger(disChargerId).setBusyTime(disChargingTime);
-                    station.searchDischarger(disChargerId).executeDisChargingEvent();
+                    dsc.setCommitTime(disChargingTime);
+                    dsc.executeDisChargingEvent();
                 } else if (qwe == -2)
                     setCondition("nonExecutable");
                 else {
@@ -132,7 +121,7 @@ public class DisChargingEvent
     /**
      * @return The amount of energy to be given.
      */
-    public double reAmEnerg()
+    public double reEnergyAmount()
     {
         return amEnerg;
     }
@@ -148,9 +137,22 @@ public class DisChargingEvent
     /**
      * @return The discharging time.
      */
-    public long reDisChargingTime()
+    public long reElapsedDisChargingTime()
     {
-        return disChargingTime;
+        long diff = station.getTime() - timestamp;
+        if (disChargingTime - diff >= 0)
+            return disChargingTime - diff;
+        else
+            return 0;
+    }
+
+    /**
+     * Sets the time of the discharging.
+     * @param disChargingTime The time of discharging.
+     */
+    public void setDisChargingTime(long disChargingTime){
+        timestamp = station.getTime();
+        this.disChargingTime = disChargingTime;
     }
 
     /**
@@ -178,5 +180,13 @@ public class DisChargingEvent
     public void setMaxWaitingTime(long time)
     {
         this.maxWaitingTime = time;
+    }
+
+    /**
+     * @return The discharging time of the DisChargingEvent
+     */
+    public long reDisChargingTime()
+    {
+        return disChargingTime;
     }
 }

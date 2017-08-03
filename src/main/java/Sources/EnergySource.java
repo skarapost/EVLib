@@ -21,7 +21,6 @@ public abstract class EnergySource
     public abstract void insertAmount(double am);
 
     /**
-     * Returns the id of the EnergySource.
      * @return The id of the EnergySource.
      */
     public int reId()
@@ -30,7 +29,6 @@ public abstract class EnergySource
     }
 
     /**
-     * Returns the ChargingStation of the EnergySource.
      * @return The ChagingStation of the EnergySource.
      */
     public ChargingStation reStation()

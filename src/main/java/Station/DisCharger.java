@@ -11,14 +11,14 @@ public class DisCharger
     private int id;
     private DisChargingEvent e;
     private boolean busy;
-    private long busyTime;
+    private long commitTime;
+    private long timestamp;
     private static AtomicInteger idGenerator = new AtomicInteger(0);
 
     public DisCharger(ChargingStation station)
     {
         this.id = idGenerator.getAndIncrement();
         this.busy = false;
-        this.busyTime = 0;
         this.station = station;
         this.e = null;
         if (station.reSpecificAmount("discharging") == 0f)
@@ -39,9 +39,9 @@ public class DisCharger
             d1.start();
             long st = d1.getTime();
             long en;
-            e.reElectricVehicle().reBattery().setRemAmount(e.reElectricVehicle().reBattery().reRemAmount() - e.reAmEnerg());
-            e.reElectricVehicle().reDriver().setProfit(e.reElectricVehicle().reDriver().reProfit() + e.reAmEnerg() * station.reDisUnitPrice());
-            double energy = station.reMap().get("discharging") + e.reAmEnerg();
+            e.reElectricVehicle().reBattery().setRemAmount(e.reElectricVehicle().reBattery().reRemAmount() - e.reEnergyAmount());
+            e.reElectricVehicle().reDriver().setProfit(e.reElectricVehicle().reDriver().reProfit() + e.reEnergyAmount() * station.reDisUnitPrice());
+            double energy = station.reMap().get("discharging") + e.reEnergyAmount();
             station.setSpecificAmount("discharging", energy);
             StopWatch d2 = new StopWatch();
             d2.start();
@@ -51,9 +51,9 @@ public class DisCharger
             System.out.println("The discharging took place succesfully");
             e.setCondition("finished");
             station.checkForUpdate();
-            setBusyTime(busyTime);
             changeSituation();
             setDisChargingEvent(null);
+            commitTime = 0;
             if (station.reQueueHandling())
                 handleQueueEvents();
         }).start();
@@ -88,9 +88,10 @@ public class DisCharger
      * Sets the time the DisCharger is going to be occupied.
      * @param time The busy time.
      */
-    public void setBusyTime(long time)
+    public void setCommitTime(long time)
     {
-        this.busyTime = time;
+        timestamp = station.getTime();
+        this.commitTime = time;
     }
 
     /**
@@ -104,9 +105,13 @@ public class DisCharger
     /**
      * @return The busy time.
      */
-    public long reBusyTime()
+    public long reElapsedCommitTime()
     {
-        return busyTime;
+        long diff = station.getTime() - timestamp;
+        if (commitTime - diff >= 0)
+            return commitTime - diff;
+        else
+            return 0;
     }
 
     /**

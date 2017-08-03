@@ -2,6 +2,8 @@ package Events;
 
 import EV.ElectricVehicle;
 import Station.ChargingStation;
+import Station.Charger;
+import Station.ExchangeHandler;
 
 public class ChargingEvent
 {
@@ -18,7 +20,7 @@ public class ChargingEvent
     private long dateArrival;
     private double stock;
     private long maxWaitingTime;
-    private long startTime;
+    private long timestamp;
 
     public ChargingEvent(ChargingStation station, ElectricVehicle vehicle, double amEnerg, String kindOfCharging)
     {
@@ -74,6 +76,7 @@ public class ChargingEvent
                     int qwe = station.checkChargers(kindOfCharging);
                     if ((qwe != -1) && (qwe != -2)) {
                         chargerId = qwe;
+                        Charger ch = station.searchCharger(chargerId);
                         if (amEnerg < station.reTotalEnergy()) {
                             if (amEnerg <= (vehicle.reBattery().reBatteryCapacity() - vehicle.reBattery().reRemAmount()))
                                 energyToBeReceived = amEnerg;
@@ -92,13 +95,12 @@ public class ChargingEvent
                                 return;
                             }
                         }
-                        station.searchCharger(chargerId).setChargingEvent(this);
-                        station.searchCharger(chargerId).changeSituation();
-                        station.searchCharger(chargerId).setCommitTime(chargingTime);
-                        setStartTime (station.getTime());
+                        ch.setChargingEvent(this);
+                        ch.changeSituation();
+                        ch.setCommitTime(chargingTime);
                         setCondition("charging");
                         station.checkForUpdate();
-                        station.searchCharger(chargerId).executeChargingEvent();
+                        ch.executeChargingEvent();
                     } else if (qwe == -2)
                         setCondition("nonExecutable");
                     else {
@@ -115,6 +117,7 @@ public class ChargingEvent
                     int qwe = station.checkExchangeHandlers();
                     if ((qwe != -1) && (qwe != -2)) {
                         chargerId = qwe;
+                        ExchangeHandler eh = station.searchExchangeHandler(chargerId);
                         int state2 = station.checkBatteries();
                         if ((state2 != -1) && (state2 != -2)) {
                             numberOfBattery = state2;
@@ -131,12 +134,12 @@ public class ChargingEvent
                             setCondition("nonExecutable");
                             return;
                         }
-                        station.searchExchangeHandler(chargerId).joinChargingEvent(this);
-                        station.searchExchangeHandler(chargerId).changeSituation();
+                        eh.joinChargingEvent(this);
+                        eh.changeSituation();
                         station.checkForUpdate();
-                        setStartTime (station.getTime());
-                        setCondition("charging");
-                        station.searchExchangeHandler(chargerId).executeExchange(numberOfBattery);
+                        setCondition("swapping");
+                        eh.setCommitTime(station.reTimeOfExchange());
+                        eh.executeExchange(numberOfBattery);
                     } else if (qwe == -2)
                         setCondition("nonExecutable");
                     else {
@@ -156,7 +159,7 @@ public class ChargingEvent
     }
 
     /**
-     * @return The ElectricVehicle object of the event.
+     * @return The ElectricVehicle of the event.
      */
     public ElectricVehicle reElectricVehicle()
     {
@@ -233,9 +236,13 @@ public class ChargingEvent
     /**
      * @return The charging time of the ChargingEvent.
      */
-    public long reChargingTime()
+    public long reElapsedChargingTime()
     {
-        return chargingTime;
+        long diff = station.getTime() - timestamp;
+        if (chargingTime - diff >= 0)
+            return chargingTime - diff;
+        else
+            return 0;
     }
 
     /**
@@ -244,6 +251,7 @@ public class ChargingEvent
      */
     public void setChargingTime(int time)
     {
+        timestamp = station.getTime();
         this.chargingTime = time;
     }
 
@@ -262,23 +270,6 @@ public class ChargingEvent
     public long reDateArrival()
     {
         return dateArrival;
-    }
-
-    /**
-     * Sets the starting time of an event.
-     * @param time The time moment an event starts.
-     */
-    public void setStartTime(long time)
-    {
-        startTime = time;
-    }
-
-    /**
-     * @return The starting time of the event.
-     */
-    public long reStartTime()
-    {
-        return startTime;
     }
 
     /**
@@ -312,5 +303,13 @@ public class ChargingEvent
     public long reMaxWaitingTime()
     {
         return maxWaitingTime;
+    }
+
+    /**
+     * @return The charging time of this ChargingEvent.
+     */
+    public long reChargingTime()
+    {
+        return chargingTime;
     }
 }

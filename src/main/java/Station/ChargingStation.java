@@ -246,7 +246,7 @@ public class ChargingStation
     }
 
     /**
-     * Adds a ChargingEvent in the corresponding waiting ArrayList.
+     * Adds a ChargingEvent in the corresponding waiting list.
      * @param y The ChargingEvent that is going to be added.
      */
     public void updateQueue(ChargingEvent y)
@@ -269,7 +269,7 @@ public class ChargingStation
     }
 
     /**
-     * Adds a DisChargingEvent in the waiting ArrayList.
+     * Adds a DisChargingEvent in the waiting list.
      * @param d The DisChargingEvent that is going to be added.
      */
     public void updateDisChargingQueue(DisChargingEvent d)
@@ -278,7 +278,7 @@ public class ChargingStation
     }
 
     /**
-     * @return The WaitngArrayList object for the fast charging.
+     * @return The WaitngList object for the fast charging.
      */
     public WaitList reFast()
     {
@@ -286,7 +286,7 @@ public class ChargingStation
     }
 
     /**
-     * @return The WaitingArrayList object for the slow charging.
+     * @return The WaitingList object for the slow charging.
      */
     public WaitList reSlow()
     {
@@ -294,7 +294,7 @@ public class ChargingStation
     }
 
     /**
-     * @return The WaitingArrayList object for the exchange battery.
+     * @return The WaitingList object for the exchange battery.
      */
     public WaitList reExchange()
     {
@@ -302,7 +302,7 @@ public class ChargingStation
     }
 
     /**
-     * @return The WaitingArrayList object for the discharging.
+     * @return The WaitingList object for the discharging.
      */
     public WaitList reDischarging()
     {
@@ -416,7 +416,7 @@ public class ChargingStation
     }
 
     /**
-     * adds a Charger to the ChargingStation.
+     * Adds a Charger to the ChargingStation.
      * @param y The Charger to be added.
      */
     public void addCharger(Charger y)
@@ -425,7 +425,7 @@ public class ChargingStation
     }
 
     /**
-     * adds a Discharger to the ChargingStation.
+     * Adds a Discharger to the ChargingStation.
      * @param y The DisCharger to be added.
      */
     public void addDisCharger(DisCharger y)
@@ -443,7 +443,7 @@ public class ChargingStation
     }
 
     /**
-     * adds a new EnergySource to the ChargingStation.
+     * Adds a new EnergySource to the ChargingStation.
      * @param z The EnergySource is going to be added.
      */
     public void addEnergySource(EnergySource z)
@@ -541,7 +541,6 @@ public class ChargingStation
     }
 
     /**
-     * Returns the batteries that are destined to be used for battery exchange.
      * @return A ArrayList with the Battery objects.
      */
     public ArrayList<Battery> reBatteries()
@@ -783,7 +782,7 @@ public class ChargingStation
             for (int i=0; i<sources.size(); i++)
             {
                 if (n.get(i) instanceof Solar)
-                return n.get(i);
+                    return n.get(i);
             }
         }
         else if ("wind".equals(source))
@@ -791,7 +790,7 @@ public class ChargingStation
             for (int i=0; i<sources.size(); i++)
             {
                 if (n.get(i) instanceof Wind)
-                return n.get(i);
+                    return n.get(i);
             }
         }
         else if ("wave".equals(source))
@@ -799,7 +798,7 @@ public class ChargingStation
             for (int i=0; i<sources.size(); i++)
             {
                 if (n.get(i) instanceof Wave)
-                return n.get(i);
+                    return n.get(i);
             }
         }
         else if ("hydroelectric".equals(source))
@@ -807,7 +806,7 @@ public class ChargingStation
             for (int i=0; i<sources.size(); i++)
             {
                 if (n.get(i) instanceof HydroElectric)
-                return n.get(i);
+                    return n.get(i);
             }
         }
         else if ("geothermal".equals(source))
@@ -815,7 +814,7 @@ public class ChargingStation
             for (int i=0; i<sources.size(); i++)
             {
                 if (n.get(i) instanceof Geothermal)
-                return n.get(i);
+                    return n.get(i);
             }
         }
         else if ("nonrenewable".equals(source))
@@ -823,7 +822,7 @@ public class ChargingStation
             for (int i=0; i<sources.size(); i++)
             {
                 if (n.get(i) instanceof NonRenewable)
-                return n.get(i);
+                    return n.get(i);
             }
         }
         return null;
@@ -881,9 +880,9 @@ public class ChargingStation
     }
 
     /**
-     * Adjust the management of the ArrayList.
-     * @param value The choice of queue handling's. If true the ArrayList is handled
-     * automatic by the library. If false the user have to handle the ArrayList.
+     * Adjust the management of the WaitingList.
+     * @param value The choice of queue handling's. If true the WaitingList is handled
+     * automatic by the library. If false the user have to handle the WaitingList.
      */
     public void setAutomaticQueueHandling(boolean value)
     {
@@ -891,8 +890,8 @@ public class ChargingStation
     }
 
     /**
-     * @return True if the ArrayList is handled automatic by the library.
-     * False if the user has to handle the ArrayList.
+     * @return True if the WaitingList is handled automatic by the library.
+     * False if the user has to handle the WaitingList.
      */
     public boolean reQueueHandling()
     {
@@ -937,7 +936,6 @@ public class ChargingStation
     }
 
     /**
-     * Returns an array with all the EnergySource objects of the ChargingStation.
      * @return The array with the EnergySource objects of theChargingStation.
      */
     public EnergySource[] reEnergySources()
@@ -1074,7 +1072,7 @@ public class ChargingStation
     /**
      * Calculates the amount of time a Driver has to wait until his ElectricVehicle
      * can be charged. This calculation happens in case a Vehicle adds has to 
-     * be added in the ArrayList.
+     * be added in the WaitingList.
      * @param y The ChargingEvent that has to wait.
      * @return The waiting time.
      */
@@ -1082,24 +1080,23 @@ public class ChargingStation
     {
         long[] counter1 = new long[reChargers().length];
         long[] counter2 = new long[reChargers().length];
-        long r = getTime();
         int min = 10000000;
         if (!"exchange".equals (y.reKind ()))
             for (int i = 0; i < reChargers ().length; i++) {
                 if (y.reKind () == reChargers()[i].reKind ()) {
-                    long diff = r - reChargers()[i].reChargingEvent ().reStartTime();
-                    if (min > reChargers()[i].reChargingEvent ().reChargingTime () - diff)
+                    long diff = reChargers()[i].reChargingEvent ().reElapsedChargingTime();
+                    if (min > diff)
                         min = i;
-                    counter1 [i] = reChargers()[i].reChargingEvent ().reChargingTime () - diff;
+                    counter1 [i] = diff;
                 }
             }
         else
             for (int i = 0; i<reExchangeHandlers().length; i++)
             {
-                long diff = r - reExchangeHandlers()[i].reChargingEvent().reStartTime();
-                if (min > reExchangeHandlers()[i].reChargingEvent().reChargingTime() - diff)
+                long diff = reExchangeHandlers()[i].reChargingEvent().reElapsedChargingTime();
+                if (min > diff)
                     min = i;
-                counter2[i] = reExchangeHandlers()[i].reChargingEvent().reChargingTime() - diff;
+                counter2[i] = diff;
             }
         if ("slow".equals(y.reKind()))
         {
@@ -1146,14 +1143,13 @@ public class ChargingStation
     public long calDisWaitingTime()
     {
         long[] counter1 = new long[reDisChargers().length];
-        long r = getTime();
         int min = 10000000;
         for (int i = 0; i<reDisChargers().length; i++)
         {
-            long diff = r - reDisChargers()[i].reDisChargingEvent().reStartTime();
-            if (min > reDisChargers()[i].reDisChargingEvent().reDisChargingTime() - diff)
+            long diff = reDisChargers()[i].reDisChargingEvent().reElapsedDisChargingTime();
+            if (min > diff)
                 min = i;
-            counter1[i] = reDisChargers()[i].reDisChargingEvent().reDisChargingTime() - diff;
+            counter1[i] = diff;
         }
         WaitList o = reDischarging();
         for (int i = 0; i < o.rSize(); i++)
