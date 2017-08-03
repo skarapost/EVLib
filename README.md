@@ -1,18 +1,19 @@
 # EVLib
 EVLib is a library for the management and the simulation of EV activities in a charging station level which makes use of a set of available energy sources. It is implemented in the JAVA programming language, and its main goal is to manage the charging, discharging and battery swap functions and support their integration into a single charging station. The library supports a large number of functions to properly manage EV-related activities. There are three main functions, as well as a number of secondary ones, while each function is executed in 2 phases, namely the pre-processing and the execution.
+
 ## Compilation
 The library has to be compiled using Maven.
 
 ## Main Functions
 
 ### Charging: 
-There are 2 types of charging depending on the charging time, namely the fast and the slow charging. The execution of a charging event requires first the pre-processing phase where a quest for an empty charger and available energy is performed. If the pre-processing phase is successful, the execution phase can be run.
+There are 2 types of charging depending on the charging time, namely the fast and the slow charging. The execution of a charging event requires first the pre-processing phase where a quest for an empty charger and available energy is performed.
 
 ### DisCharging: 
-Similarly to a charging event, a discharging event first demands the pre-processing phase where a quest for an empty dis-charger is made. If this phase is successful then the execution can be run.
+Similarly to a charging event, a discharging event first demands the pre-processing phase where a quest for an empty dis-charger is made.
 
 ### Battery Exchange: 
-The pre-processing phase requires for a battery with enough range to be available in the charging station. If such a battery is found, the execution function can be called and the battery is swapped into the EV.
+The pre-processing phase requires for a battery with enough range to be available in the charging station. If such a battery is found, the battery exchange function can be called and the battery is swapped into the EV.
 
 ## Extra Functions
 The library also supports a number of secondary functions: The creation of a charging station, as well as the creation and integration of a charger, dis-charger or battery swapper in the station. Additional operations are the recharging of batteries which are later to be swapped into EVs, as well as the ability to add new batteries to the storage in order seamless operation of the battery exchange process to be achieved. The total cost of the charging, discharging and battery swapping can be calculated based on a series of costs (e.g., energy cost) defined by the user. During the creation of the charging station, 4 waiting lists are created. A list for the charging events which want fast charging, a list for the charging events which want slow charging, a list for the discharging events, and a list for the vehicles waiting for battery exchange.
@@ -82,25 +83,18 @@ The library also supports a number of secondary functions: The creation of a cha
   ev5.setWaitingTime(120000);
   ev6.setWaitingTime(450000);
 
-  ev1.preProcessing();
   ev1.execution();
 
-  ev2.preProcessing();
   ev2.execution();
 
-  ev3.preProcessing();
   ev3.execution();
 
-  ev4.preProcessing();
   ev4.execution();
 
-  ev5.preProcessing();
   ev5.execution();
 
-  ev6.preProcessing();
   ev6.execution();
 
-  ev7.preProcessing();
   ev7.execution();
   
 ```
