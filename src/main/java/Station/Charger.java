@@ -40,12 +40,12 @@ public class Charger {
                 e.reElectricVehicle().reDriver().setDebt(e.reElectricVehicle().reDriver().reDebt() + station.calculatePrice(e));
             HashMap<String, Double> keys = new HashMap<>(station.reMap());
             for (HashMap.Entry<String, Double> energy : keys.entrySet()) {
-                if (e.reEnergyToBeReceived() < station.reMap().get(energy.getKey())) {
+                if (e.reEnergyToBeReceived() < energy.getValue()) {
                     double ert = station.reMap().get(energy.getKey()) - sdf;
                     e.reStation().setSpecificAmount(energy.getKey(), ert);
                     break;
                 } else {
-                    sdf = e.reEnergyToBeReceived() - station.reMap().get(energy);
+                    sdf = e.reEnergyToBeReceived() - energy.getValue();
                     e.reStation().setSpecificAmount(energy.getKey(), 0);
                 }
             }
