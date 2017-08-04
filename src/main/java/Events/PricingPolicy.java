@@ -48,6 +48,7 @@ public class PricingPolicy {
             return (double) prices.get(position);
     }
 
+
     public long reSpecificTimeSpace(int position)
     {
         Pair t = (Pair) this.prices.get(position);

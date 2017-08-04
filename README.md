@@ -20,46 +20,46 @@ The library also supports a number of secondary functions: The creation of a cha
 
 ## Examples
 ```
-  String[] kinds = new string[4] { "slow", "fast", "fast", "slow" };
-  String[] sources = new string[4] { "geothermal", "nonrenewable", "wind", "wave" };
-  float[][] energyAm = new float[4][ 5];
+  String[] kinds = { "slow", "fast", "fast", "slow" };
+  String[] sources = { "geothermal", "nonrenewable", "wind", "wave" };
+  double[][] energyAm = new double[4][ 5];
   for (int i = 0; i<4; i++)
       for (int j = 0; j<5; j++)
-        energyAm [i][j] = 150;
+          energyAm [i][j] = 1500;
   
   ChargingStation station = new ChargingStation("Miami", kinds, sources, energyAm);
   DisCharger dsc = new DisCharger(station);
   ExchangeHandler handler = new ExchangeHandler(station);
-	
-  station.insertExchangeHandler(handler);
-
-  station.insertDisCharger(dsc);
-
+  
+  station.addExchangeHandler(handler);
+  
+  station.addDisCharger(dsc);
+  
   //Sets the space between every update in milliseconds.
   station.setUpdateSpace(10000);
   
   station.setChargingRatioFast(0.01);
   station.setDisChargingRatio(0.1);
-
+  
   //Sets the duration of a battery exchange in milliseconds
   station.setTimeofExchange(5000);
-
+  
   Driver a = new Driver("Tom");
-
+  
   ElectricVehicle vec1 = new ElectricVehicle("Honda", 1950);
   ElectricVehicle vec2 = new ElectricVehicle("Toyota", 1400);
   ElectricVehicle vec3 = new ElectricVehicle("Mitsubishi", 1500);
   ElectricVehicle vec4 = new ElectricVehicle("Fiat", 1600);
-
+  
   Battery bat1 = new Battery(1500, 5000);
   Battery bat2 = new Battery(2000, 6000);
   Battery bat3 = new Battery(2500, 6000);
   Battery bat4 = new Battery(800, 3000);
   Battery bat5 = new Battery(0, 800);
-
+  
   //Links a battery with a charging station for the exchange battery function
   station.joinBattery(bat4);
-
+  
   vec1.setDriver(a);
   vec1.vehicleJoinBattery(bat1);
   vec2.setDriver(a);
@@ -68,32 +68,32 @@ The library also supports a number of secondary functions: The creation of a cha
   vec3.vehicleJoinBattery(bat3);
   vec4.setDriver(a);
   vec4.vehicleJoinBattery(bat5);
-
+  
   ChargingEvent ev1 = new ChargingEvent(station, vec1, 300, "fast");
   ChargingEvent ev2 = new ChargingEvent(station, vec2, 600, "fast");
   ChargingEvent ev3 = new ChargingEvent(station, vec3, 200, "fast");
   ChargingEvent ev5 = new ChargingEvent(station, vec1, 300, "fast");
-  ChargingEvent ev7 = new ChargingEvent(station, vec4, "exchange");
-
+  ChargingEvent ev7 = new ChargingEvent(station, vec4);
+  
   DisChargingEvent ev4 = new DisChargingEvent(station, vec1, 500);
   DisChargingEvent ev6 = new DisChargingEvent(station, vec1, 800);
-
+  
   //Sets the maximum time a vehicle can wait in milliseconds
-  ev3.setWaitingTime(50000);
-  ev5.setWaitingTime(120000);
+  ev3.setWaitingTime(500000);
+  ev5.setWaitingTime(1200000);
   ev6.setWaitingTime(450000);
-
+  
   ev1.execution();
-
+  
   ev2.execution();
-
+  
   ev3.execution();
-
+  
   ev4.execution();
-
+  
   ev5.execution();
-
+  
   ev6.execution();
-
+  
   ev7.execution();
 ```
