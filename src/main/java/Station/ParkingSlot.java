@@ -57,7 +57,8 @@ public class ParkingSlot {
                 } while (en < e.reChargingTime());
                 System.out.println("The charging took place succesfully");
                 e.setCondition("parking");
-                station.checkForUpdate();
+                if (station.reUpdateMode())
+                    station.checkForUpdate();
             }).start();
         }
         long diff = e.reParkingTime() - e.reChargingTime();
@@ -70,7 +71,8 @@ public class ParkingSlot {
         changeSituation();
         setParkingEvent(null);
         e.setCondition("finished");
-        station.checkForUpdate();
+        if(station.reUpdateMode())
+            station.checkForUpdate();
         commitTime = 0;
         chargingTime = 0;
     }

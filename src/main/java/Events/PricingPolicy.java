@@ -1,5 +1,6 @@
 package Events;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -40,19 +41,34 @@ public class PricingPolicy {
      * @return The value of the price in this position of the pricing policy.
      */
     public double reSpecificPrice(int position) {
-        if (option == 2) {
-            Pair t = (Pair) this.prices.get(position);
-            return (double) t.getR();
+        try {
+            if (option == 2) {
+                Pair t = (Pair) this.prices.get(position);
+                return (double) t.getR();
+            } else
+                return (double) prices.get(position);
         }
-        else
-            return (double) prices.get(position);
+        catch(Exception ex)
+        {
+            return station.reUnitPrice();
+        }
     }
 
 
     public long reSpecificTimeSpace(int position)
     {
-        Pair t = (Pair) this.prices.get(position);
-        return (long) t.getL();
+        try {
+            if (option == 2) {
+                Pair t = (Pair) this.prices.get(position);
+                return (long) t.getL();
+            }
+            else
+                return space;
+        }
+        catch(Exception ex)
+        {
+            return 0;
+        }
     }
 
     /**

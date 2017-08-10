@@ -56,9 +56,10 @@ public class Charger {
             } while (en < e.reChargingTime());
             System.out.println("The charging took place succesfully");
             e.setCondition("finished");
-            station.checkForUpdate();
             changeSituation();
             setChargingEvent(null);
+            if (station.reUpdateMode())
+                station.checkForUpdate();
             commitTime = 0;
             if (station.reQueueHandling())
                 handleQueueEvents();

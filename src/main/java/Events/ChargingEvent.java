@@ -32,6 +32,10 @@ public class ChargingEvent
         this.condition = "arrived";
         this.dateArrival = station.getTime();
         this.stock = station.reTotalEnergy();
+        if ("fast".equals(kindOfCharging))
+            chargingTime = (long) (this.amEnerg / station.reChargingRatioFast());
+        else
+            chargingTime = (long) (this.amEnerg / station.reChargingRatioSlow());
     }
 
     public ChargingEvent(ChargingStation station, ElectricVehicle vehicle, String kindOfCharging, double money)
@@ -47,6 +51,10 @@ public class ChargingEvent
             this.amEnerg = money/station.reUnitPrice();
         else
             this.amEnerg = station.reTotalEnergy();
+        if ("fast".equals(kindOfCharging))
+            chargingTime = (long) (this.amEnerg / station.reChargingRatioFast());
+        else
+            chargingTime = (long) (this.amEnerg / station.reChargingRatioSlow());
     }
 
     public ChargingEvent(ChargingStation station, ElectricVehicle vehicle)

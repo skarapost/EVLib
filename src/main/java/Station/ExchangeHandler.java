@@ -79,7 +79,8 @@ public class ExchangeHandler
             }while(en - st < e.reChargingTime());
             System.out.println ("The exchange took place successfully");
             e.setCondition("finished");
-            station.checkForUpdate();
+            if (station.reUpdateMode())
+                station.checkForUpdate();
             changeSituation();
             joinChargingEvent(null);
             setCommitTime(0);

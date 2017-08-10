@@ -47,6 +47,7 @@ public class ChargingStation
     private static AtomicInteger idGenerator = new AtomicInteger(0);
     private long timestamp;
     private PricingPolicy policy;
+    private boolean automaticUpdate;
 
     public ChargingStation(String name, String[] kinds, String[] source, double[][] energAm)
     {
@@ -1056,8 +1057,8 @@ public class ChargingStation
             {
                 long diff = timestamp - getTime();
                 int spaces;
-                spaces = (int) ((int) diff/policy.reSpace());
-                return w.reEnergyToBeReceived() * policy.reSpecificPrice(++spaces);
+                spaces = (int) (diff/policy.reSpace());
+                return w.reEnergyToBeReceived() * policy.reSpecificPrice(spaces);
             }
             else
             {
@@ -1095,22 +1096,27 @@ public class ChargingStation
     {
         long[] counter1 = new long[reChargers().length];
         long[] counter2 = new long[reChargers().length];
-        int min = 10000000;
+        long min = 1000000000;
+        int index = 1000000000;
         if ( "exchange" != y.reKind())
             for (int i = 0; i < reChargers ().length; i++) {
                 if (y.reKind () == reChargers()[i].reKind ()) {
-                    long diff = reChargers()[i].reChargingEvent ().reElapsedChargingTime();
-                    if (min > diff)
-                        min = i;
-                    counter1 [i] = diff;
+                    long diff = reChargers()[i].reChargingEvent().reElapsedChargingTime();
+                    if (min > diff) {
+                        min = diff;
+                        index = i;
+                    }
+                    counter1[i] = diff;
                 }
             }
         else
             for (int i = 0; i<reExchangeHandlers().length; i++)
             {
                 long diff = reExchangeHandlers()[i].reChargingEvent().reElapsedChargingTime();
-                if (min > diff)
-                    min = i;
+                if (min > diff) {
+                    min = diff;
+                    index = i;
+                }
                 counter2[i] = diff;
             }
         if ("slow" == y.reKind())
@@ -1118,36 +1124,36 @@ public class ChargingStation
             WaitList o = reSlow();
             for (int i = 0;i < o.reSize() ;i++)
             {
-                counter1[min] = counter1[min] + o.peek(i).reChargingTime();
+                counter1[index] = counter1[index] + o.peek(i).reChargingTime();
                 for(int j=0; j<reChargers().length; j++)
-                    if ((counter1[j]<counter1[min])&&(counter1[j]!=0))
-                        min = j;
+                    if ((counter1[j]<counter1[index])&&(counter1[j]!=0))
+                        index = j;
             }
-            return counter1[min];
+            return counter1[index];
         }
         if ("fast" == y.reKind())
         {
             WaitList o = reFast();
             for(int i = 0; i < o.reSize() ;i++)
             {
-                counter1[min] = counter1[min] + o.peek(i).reChargingTime();
+                counter1[index] = counter1[index] + o.peek(i).reChargingTime();
                 for(int j=0; j<reChargers().length; j++)
-                    if ((counter1[j]<counter1[min])&&(counter1[j]!=0))
-                        min = j;
+                    if ((counter1[j]<counter1[index])&&(counter1[j]!=0))
+                        index = j;
             }
-            return counter1[min];
+            return counter1[index];
         }
         if ("exchange" == y.reKind())
         {
             WaitList o = reExchange();
             for(int i = 0; i < o.reSize();i++)
             {
-                counter2[min] = counter2[min] + o.peek(i).reChargingTime();
+                counter2[index] = counter2[index] + o.peek(i).reChargingTime();
                 for(int j=0; j<reChargers().length; j++)
-                    if ((counter2[j]<counter2[min])&&(counter2[j]!=0))
-                        min = j;
+                    if ((counter2[j]<counter2[index])&&(counter2[j]!=0))
+                        index = j;
             }
-            return counter2[min];
+            return counter2[index];
         }
         return 0;
     }
@@ -1158,23 +1164,26 @@ public class ChargingStation
     public long calDisWaitingTime()
     {
         long[] counter1 = new long[reDisChargers().length];
-        int min = 10000000;
+        long min = 1000000000;
+        int index = 1000000000;
         for (int i = 0; i<reDisChargers().length; i++)
         {
             long diff = reDisChargers()[i].reDisChargingEvent().reElapsedDisChargingTime();
-            if (min > diff)
-                min = i;
+            if (min > diff)if (min > diff) {
+                min = diff;
+                index = i;
+            }
             counter1[i] = diff;
         }
         WaitList o = reDischarging();
-        for (int i = 0; i < o.rSize(); i++)
+        for(int i = 0; i < o.rSize() ;i++)
         {
-            counter1[min] = counter1[min] + o.get(i).reDisChargingTime();
+            counter1[index] = counter1[index] + o.get(i).reDisChargingTime();
             for(int j=0; j<reDisChargers().length; j++)
-                if ((counter1[j] < counter1[min])&&(counter1[j]!=0))
-                    min = j;
+                if ((counter1[j]<counter1[index])&&(counter1[j]!=0))
+                    index = j;
         }
-        return counter1[min];
+        return counter1[index];
     }
 
     /**
@@ -1184,5 +1193,30 @@ public class ChargingStation
     public void setPricingPolicy(PricingPolicy policy) {
         timestamp = getTime();
         this.policy = policy;
+    }
+
+    /**
+     * @return The PricingPolicy of the Charging Station.
+     */
+    public PricingPolicy rePricingPolicy()
+    {
+        return policy;
+    }
+
+    /**
+     * Sets the update of the energy storage will become either automatic or by the user
+     * @param update The way the update will become. False means by the user, true means automatic.
+     */
+    public void setUpdateMode(boolean update)
+    {
+        this.automaticUpdate = update;
+    }
+
+    /**
+     * @return The update mode of the energy storage. True for automatic, false for not automatic.
+     */
+    public boolean reUpdateMode()
+    {
+        return automaticUpdate;
     }
 }

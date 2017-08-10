@@ -50,9 +50,10 @@ public class DisCharger
             } while (en - st < e.reDisChargingTime());
             System.out.println("The discharging took place succesfully");
             e.setCondition("finished");
-            station.checkForUpdate();
             changeSituation();
             setDisChargingEvent(null);
+            if (station.reUpdateMode())
+                station.checkForUpdate();
             commitTime = 0;
             if (station.reQueueHandling())
                 handleQueueEvents();
