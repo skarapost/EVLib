@@ -170,7 +170,7 @@ public class ChargingEvent
      */
     public void execution()
     {
-        if (condition == "charging")
+        if ((condition == "charging")||(condition == "swapping"))
         {
             if (kindOfCharging != "exchange")
             {

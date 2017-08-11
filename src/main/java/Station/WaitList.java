@@ -40,7 +40,6 @@ public class WaitList
     /**
      * Inserts a ChargingEvent in the list.
      * @param p The ChargingEvent to be inserted.
-     * @return True if the insertion was successfull, false if it was not.
      */
     public void insertElement(ChargingEvent p)
     {
@@ -89,7 +88,6 @@ public class WaitList
     /**
      * Inserts a DisChargingEvent to the list.
      * @param p The DisChargingEvent to be inserted.
-     * @return True if the insertion was successfull, false if it was not.
      */
     public void insertElement(DisChargingEvent p)
     {

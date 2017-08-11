@@ -98,8 +98,8 @@ public class DisChargingEvent
         if(condition == "discharging")
         {
             station.checkForUpdate();
-            dsc.setCommitTime(disChargingTime);
-            dsc.executeDisChargingEvent();
+            station.searchDischarger(disChargerId).setCommitTime(disChargingTime);
+            station.searchDischarger(disChargerId).executeDisChargingEvent();
         }
     }
 

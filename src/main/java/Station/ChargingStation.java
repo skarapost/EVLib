@@ -346,7 +346,7 @@ public class ChargingStation
 
     /**
      * Checks for any empty exchange slot.
-     * @return The number of the slot, or -1 if there is not any empty slot, 
+     * @return The number of the slot, -1 if there is not any empty slot,
      * or -2 if the charging station is not linked with any ExchangeHandler object.
      */
     public int checkExchangeHandlers()
@@ -362,7 +362,9 @@ public class ChargingStation
     }
 
     /**
-     *
+     * Checks for any empty ParkingSlot.
+     * @return The id of the ParkingSlot, -1 if there is not any empty slot, or -2 if the ChargingStation
+     * is not linked with any ParkingSlot.
      */
     public int checkParkingSlots()
     {
@@ -1124,15 +1126,57 @@ public class ChargingStation
 
     private static class Statistics
     {
-        private File file;
-        private List<ChargingEvent> events;
-        private List<DisChargingEvent> disEvents;
-        private List<ChargingEvent> exchangeEvents;
-        private List<String> energyLog;
+        private static List<ChargingEvent> events;
+        private static List<DisChargingEvent> disEvents;
+        private static List<ChargingEvent> exchangeEvents;
+        private static List<String> energyLog;
 
         public Statistics()
         {
+            events = new ArrayList<ChargingEvent>();
+            disEvents = new ArrayList<DisChargingEvent>();
+            exchangeEvents = new ArrayList<ChargingEvent>();
+            energyLog = new ArrayList<String>();
+        }
 
+        public void addEvent(ChargingEvent event)
+        {
+            events.add(event);
+        }
+
+        public void addDisEvent(DisChargingEvent event)
+        {
+            disEvents.add(event);
+        }
+
+        public void addExchangeEvent(ChargingEvent event)
+        {
+            exchangeEvents.add(event);
+        }
+
+        public void addEnergy(String energy)
+        {
+            energyLog.add(energy);
+        }
+
+        public void removeEvent(ChargingEvent event)
+        {
+            events.remove(event);
+        }
+
+        public void removeDisEvent(DisChargingEvent disEvent)
+        {
+            disEvents.remove(disEvent);
+        }
+
+        public void removeExchangeEvent(ChargingEvent event)
+        {
+            exchangeEvents.remove(event);
+        }
+
+        public void generateReport()
+        {
+            
         }
     }
 }

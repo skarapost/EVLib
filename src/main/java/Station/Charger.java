@@ -102,10 +102,15 @@ public class Charger {
     public void handleQueueEvents() {
         if ("fast".equals(reKind())) {
             if (station.reFast().reSize() != 0)
+            {
+                station.reFast().takeFirst().preProcessing();
                 station.reFast().removeFirst().execution();
+            }
         } else if ("slow".equals(reKind())) {
-            if (station.reSlow().reSize() != 0)
+            if (station.reSlow().reSize() != 0) {
+                station.reSlow().takeFirst().preProcessing();
                 station.reSlow().removeFirst().execution();
+            }
         }
     }
 

@@ -125,12 +125,15 @@ public class DisCharger
 
     /**
      * Handles the list for the discharging. Takes the first DisChargingEvent
-     * executes the preProcessing function and then if the mode is 2 runs
+     * executes the preProcessing function and then runs
      * the execution function.
      */
     public void handleQueueEvents()
     {
         if (station.reDischarging().rSize() != 0)
+        {
+            station.reDischarging().reFirst().preProcessing();
             station.reDischarging().moveFirst().execution();
+        }
     }
 }
