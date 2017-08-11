@@ -3,6 +3,7 @@ package Events;
 import Station.DisCharger;
 import EV.ElectricVehicle;
 import Station.ChargingStation;
+import Station.WaitList;
 
 public class DisChargingEvent
 {
@@ -45,14 +46,6 @@ public class DisChargingEvent
     }
 
     /**
-     * @return The time of arrival.
-     */
-    public long reDateArrival()
-    {
-        return dateArrival;
-    }
-
-    /**
      * @return The ElectricVehicle of the ChargingEvent.
      */
     public ElectricVehicle reElectricVehicle()
@@ -61,13 +54,11 @@ public class DisChargingEvent
     }
 
     /**
-     * Executes the dis-charging phase. Checks for any DisCharger
+     * Executes the pre-processing phase. Checks for any DisCharger
      * and calculates the discharging time. If there is not any empty DisCharger
-     * the DisChargingEvent object is inserted in the waiting list. In the end calls
-     * the executeDisChargingEvent() function of the assigned DisCharger object
-     * to implement the discharging.
+     * the DisChargingEvent object is inserted in the WaitingList.
      */
-    public void execution()
+    public void preProcessing()
     {
         if (reElectricVehicle().reBattery().reActive()) {
             if ((condition.equals("arrived")) || (condition.equals("wait"))) {
@@ -80,13 +71,10 @@ public class DisChargingEvent
                     DisCharger dsc = station.searchDischarger(disChargerId);
                     dsc.setDisChargingEvent(this);
                     dsc.changeSituation();
-                    station.checkForUpdate();
-                    dsc.setCommitTime(disChargingTime);
-                    dsc.executeDisChargingEvent();
                 } else if (qwe == -2)
                     setCondition("nonExecutable");
                 else {
-                    long time = station.calDisWaitingTime();
+                    long time = calDisWaitingTime();
                     maxWaitingTime = time;
                     if (time < waitingTime) {
                         if (!condition.equals("wait"))
@@ -99,6 +87,20 @@ public class DisChargingEvent
         }
         else
             setCondition("nonExecutable");
+    }
+
+    /**
+     * It starts the execution of the DisChargingEvent.
+     * If the DisChargingEvent is in the WaitingList it does not do anything.
+     */
+    public void execution()
+    {
+        if(condition == "discharging")
+        {
+            station.checkForUpdate();
+            dsc.setCommitTime(disChargingTime);
+            dsc.executeDisChargingEvent();
+        }
     }
 
     /**
@@ -188,5 +190,33 @@ public class DisChargingEvent
     public long reDisChargingTime()
     {
         return disChargingTime;
+    }
+
+    /**
+     * @return The time the ElectricVehicle has to wait.
+     */
+    private long calDisWaitingTime()
+    {
+        long[] counter1 = new long[station.reDisChargers().length];
+        long min = 1000000000;
+        int index = 1000000000;
+        for (int i = 0; i<station.reDisChargers().length; i++)
+        {
+            long diff = station.reDisChargers()[i].reDisChargingEvent().reElapsedDisChargingTime();
+            if (min > diff)if (min > diff) {
+                min = diff;
+                index = i;
+            }
+            counter1[i] = diff;
+        }
+        WaitList o = station.reDischarging();
+        for(int i = 0; i < o.rSize() ;i++)
+        {
+            counter1[index] = counter1[index] + o.get(i).reDisChargingTime();
+            for(int j=0; j<station.reDisChargers().length; j++)
+                if ((counter1[j]<counter1[index])&&(counter1[j]!=0))
+                    index = j;
+        }
+        return counter1[index];
     }
 }

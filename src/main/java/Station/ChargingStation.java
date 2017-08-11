@@ -7,8 +7,11 @@ import EV.Battery;
 import EV.ElectricVehicle;
 import Events.DisChargingEvent;
 import Events.ChargingEvent;
+
+import java.io.File;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang3.time.StopWatch;
@@ -1004,7 +1007,7 @@ public class ChargingStation
      * energy of all the ElectricVehicle objects.
      * @param date The time the ElectricVehicle object arrived.
      */
-    public void energyDistribution(long date)
+    /*public void energyDistribution(long date)
     {
         double counter = 0;
         int counter1 = 0;
@@ -1036,7 +1039,7 @@ public class ChargingStation
                 else
                     reChargers()[i].reChargingEvent().setChargingTime((int) ((reChargers()[i].reChargingEvent().reEnergyToBeReceived() + 1)/reChargingRatioSlow()));
             }
-    }
+    }*/
 
     /**
      * Calculates the cost of a charging.
@@ -1086,107 +1089,6 @@ public class ChargingStation
     }
 
     /**
-     * Calculates the amount of time a Driver has to wait until his ElectricVehicle
-     * can be charged. This calculation happens in case a Vehicle adds has to 
-     * be added in the WaitingList.
-     * @param y The ChargingEvent that has to wait.
-     * @return The waiting time.
-     */
-    public long calWaitingTime(ChargingEvent y)
-    {
-        long[] counter1 = new long[reChargers().length];
-        long[] counter2 = new long[reChargers().length];
-        long min = 1000000000;
-        int index = 1000000000;
-        if ( "exchange" != y.reKind())
-            for (int i = 0; i < reChargers ().length; i++) {
-                if (y.reKind () == reChargers()[i].reKind ()) {
-                    long diff = reChargers()[i].reChargingEvent().reElapsedChargingTime();
-                    if (min > diff) {
-                        min = diff;
-                        index = i;
-                    }
-                    counter1[i] = diff;
-                }
-            }
-        else
-            for (int i = 0; i<reExchangeHandlers().length; i++)
-            {
-                long diff = reExchangeHandlers()[i].reChargingEvent().reElapsedChargingTime();
-                if (min > diff) {
-                    min = diff;
-                    index = i;
-                }
-                counter2[i] = diff;
-            }
-        if ("slow" == y.reKind())
-        {
-            WaitList o = reSlow();
-            for (int i = 0;i < o.reSize() ;i++)
-            {
-                counter1[index] = counter1[index] + o.peek(i).reChargingTime();
-                for(int j=0; j<reChargers().length; j++)
-                    if ((counter1[j]<counter1[index])&&(counter1[j]!=0))
-                        index = j;
-            }
-            return counter1[index];
-        }
-        if ("fast" == y.reKind())
-        {
-            WaitList o = reFast();
-            for(int i = 0; i < o.reSize() ;i++)
-            {
-                counter1[index] = counter1[index] + o.peek(i).reChargingTime();
-                for(int j=0; j<reChargers().length; j++)
-                    if ((counter1[j]<counter1[index])&&(counter1[j]!=0))
-                        index = j;
-            }
-            return counter1[index];
-        }
-        if ("exchange" == y.reKind())
-        {
-            WaitList o = reExchange();
-            for(int i = 0; i < o.reSize();i++)
-            {
-                counter2[index] = counter2[index] + o.peek(i).reChargingTime();
-                for(int j=0; j<reChargers().length; j++)
-                    if ((counter2[j]<counter2[index])&&(counter2[j]!=0))
-                        index = j;
-            }
-            return counter2[index];
-        }
-        return 0;
-    }
-
-    /**
-     * @return The time the ElectricVehicle has to wait.
-     */
-    public long calDisWaitingTime()
-    {
-        long[] counter1 = new long[reDisChargers().length];
-        long min = 1000000000;
-        int index = 1000000000;
-        for (int i = 0; i<reDisChargers().length; i++)
-        {
-            long diff = reDisChargers()[i].reDisChargingEvent().reElapsedDisChargingTime();
-            if (min > diff)if (min > diff) {
-                min = diff;
-                index = i;
-            }
-            counter1[i] = diff;
-        }
-        WaitList o = reDischarging();
-        for(int i = 0; i < o.rSize() ;i++)
-        {
-            counter1[index] = counter1[index] + o.get(i).reDisChargingTime();
-            for(int j=0; j<reDisChargers().length; j++)
-                if ((counter1[j]<counter1[index])&&(counter1[j]!=0))
-                    index = j;
-        }
-        return counter1[index];
-    }
-
-    /**
      * Links a pricing policy with the charging station.
      * @param policy The policy to be linked with.
      */
@@ -1218,5 +1120,19 @@ public class ChargingStation
     public boolean reUpdateMode()
     {
         return automaticUpdate;
+    }
+
+    private static class Statistics
+    {
+        private File file;
+        private List<ChargingEvent> events;
+        private List<DisChargingEvent> disEvents;
+        private List<ChargingEvent> exchangeEvents;
+        private List<String> energyLog;
+
+        public Statistics()
+        {
+
+        }
     }
 }

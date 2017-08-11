@@ -140,7 +140,7 @@ public class ParkingEvent {
     }
 
     /**
-     * @return The chargin time of the ElectricVehicle.
+     * @return The charging time of the ElectricVehicle.
      */
     public long reChargingTime()
     {

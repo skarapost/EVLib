@@ -4,6 +4,7 @@ import EV.ElectricVehicle;
 import Station.ChargingStation;
 import Station.Charger;
 import Station.ExchangeHandler;
+import Station.WaitList;
 
 public class ChargingEvent
 {
@@ -73,10 +74,9 @@ public class ChargingEvent
      * Executes the charging phase. Checks for any Charger or exchange slot,
      * calculates the energy to be given to the Vehicle and calculates the charging time.
      * If there is not any empty Charger or exchange slot the ChargingEvent is inserted
-     * in the respectively waiting list. In the end, the function calls the executeChargingEvent()
-     * function of the corresponding Charger object to implement the charging.
+     * in the respectively waiting list.
      */
-    public void execution()
+    public void preProcessing()
     {
         if (reElectricVehicle().reBattery().reActive()) {
             if ((condition.equals("arrived")) || (condition.equals("wait"))) {
@@ -85,6 +85,9 @@ public class ChargingEvent
                     if ((qwe != -1) && (qwe != -2)) {
                         chargerId = qwe;
                         Charger ch = station.searchCharger(chargerId);
+                        ch.setChargingEvent(this);
+                        ch.changeSituation();
+                        setCondition("charging");
                         if (amEnerg < station.reTotalEnergy()) {
                             if (amEnerg <= (vehicle.reBattery().reBatteryCapacity() - vehicle.reBattery().reRemAmount()))
                                 energyToBeReceived = amEnerg;
@@ -92,27 +95,25 @@ public class ChargingEvent
                                 energyToBeReceived = vehicle.reBattery().reBatteryCapacity() - vehicle.reBattery().reRemAmount();
                             station.setTotalEnergy(energyToBeReceived);
                             if ("fast".equals(kindOfCharging))
-                                chargingTime = (long) ((energyToBeReceived) / station.reChargingRatioFast());
+                                chargingTime = (long) (energyToBeReceived / station.reChargingRatioFast());
                             else
                                 chargingTime = (long) (energyToBeReceived / station.reChargingRatioSlow());
                         } else {
-                            station.energyDistribution(dateArrival);
+                            energyToBeReceived = station.reTotalEnergy();
+                            if ("fast".equals(kindOfCharging))
+                                chargingTime = (long) (energyToBeReceived / station.reChargingRatioFast());
+                            else
+                                chargingTime = (long) (energyToBeReceived / station.reChargingRatioSlow());
                             station.setTotalEnergy(station.reTotalEnergy());
                             if (energyToBeReceived == 0) {
                                 setCondition("nonExecutable");
                                 return;
                             }
                         }
-                        ch.setChargingEvent(this);
-                        ch.changeSituation();
-                        ch.setCommitTime(chargingTime);
-                        setCondition("charging");
-                        station.checkForUpdate();
-                        ch.executeChargingEvent();
                     } else if (qwe == -2)
                         setCondition("nonExecutable");
                     else {
-                        long time = station.calWaitingTime(this);
+                        long time = calWaitingTime();
                         maxWaitingTime = time;
                         if (time < waitingTime) {
                             if (!condition.equals("wait"))
@@ -126,11 +127,14 @@ public class ChargingEvent
                     if ((qwe != -1) && (qwe != -2)) {
                         chargerId = qwe;
                         ExchangeHandler eh = station.searchExchangeHandler(chargerId);
+                        eh.joinChargingEvent(this);
+                        eh.changeSituation();
+                        setCondition("swapping");
                         int state2 = station.checkBatteries();
                         if ((state2 != -1) && (state2 != -2)) {
                             numberOfBattery = state2;
                         } else if (state2 == -1) {
-                            if (station.calWaitingTime(this) < waitingTime) {
+                            if (calWaitingTime() < waitingTime) {
                                 if (!condition.equals("wait"))
                                     station.updateQueue(this);
                                 setCondition("wait");
@@ -142,16 +146,10 @@ public class ChargingEvent
                             setCondition("nonExecutable");
                             return;
                         }
-                        eh.joinChargingEvent(this);
-                        eh.changeSituation();
-                        station.checkForUpdate();
-                        setCondition("swapping");
-                        eh.setCommitTime(station.reTimeOfExchange());
-                        eh.executeExchange(numberOfBattery);
                     } else if (qwe == -2)
                         setCondition("nonExecutable");
                     else {
-                        long time = station.calWaitingTime(this);
+                        long time = calWaitingTime();
                         maxWaitingTime = time;
                         if (time < waitingTime) {
                             setCondition("wait");
@@ -164,6 +162,29 @@ public class ChargingEvent
         }
         else
             setCondition("nonExecutable");
+    }
+
+    /**
+     * It starts the execution of the ChargingEvent.
+     * If the ChargingEvent is in the WaitingList it does not do anything.
+     */
+    public void execution()
+    {
+        if (condition == "charging")
+        {
+            if (kindOfCharging != "exchange")
+            {
+                station.checkForUpdate();
+                station.searchCharger(chargerId).setCommitTime(chargingTime);
+                station.searchCharger(chargerId).executeChargingEvent();
+            }
+            else
+            {
+                station.checkForUpdate();
+                station.searchExchangeHandler(chargerId).setCommitTime(chargingTime);
+                station.searchExchangeHandler(chargerId).executeExchange(numberOfBattery);
+            }
+        }
     }
 
     /**
@@ -273,14 +294,6 @@ public class ChargingEvent
     }
 
     /**
-     * @return The the time that the ChargingEvent created.
-     */
-    public long reDateArrival()
-    {
-        return dateArrival;
-    }
-
-    /**
      * @return The amount of energy the ChargingStation has.
      */
     public double reStock()
@@ -319,5 +332,77 @@ public class ChargingEvent
     public long reChargingTime()
     {
         return chargingTime;
+    }
+
+    /**
+     * Calculates the amount of time a Driver has to wait until his ElectricVehicle
+     * can be charged. This calculation happens in case a Vehicle adds has to
+     * be added in the WaitingList.
+     * @return The waiting time.
+     */
+    private long calWaitingTime()
+    {
+        long[] counter1 = new long[station.reChargers().length];
+        long[] counter2 = new long[station.reChargers().length];
+        long min = 1000000000;
+        int index = 1000000000;
+        if ( "exchange" != reKind())
+            for (int i = 0; i < station.reChargers ().length; i++) {
+                if (reKind () == station.reChargers()[i].reKind ()) {
+                    long diff = station.reChargers()[i].reChargingEvent().reElapsedChargingTime();
+                    if (min > diff) {
+                        min = diff;
+                        index = i;
+                    }
+                    counter1[i] = diff;
+                }
+            }
+        else
+            for (int i = 0; i<station.reExchangeHandlers().length; i++)
+            {
+                long diff = station.reExchangeHandlers()[i].reChargingEvent().reElapsedChargingTime();
+                if (min > diff) {
+                    min = diff;
+                    index = i;
+                }
+                counter2[i] = diff;
+            }
+        if ("slow" == reKind())
+        {
+            WaitList o = station.reSlow();
+            for (int i = 0;i < o.reSize() ;i++)
+            {
+                counter1[index] = counter1[index] + o.peek(i).reChargingTime();
+                for(int j=0; j<station.reChargers().length; j++)
+                    if ((counter1[j]<counter1[index])&&(counter1[j]!=0))
+                        index = j;
+            }
+            return counter1[index];
+        }
+        if ("fast" == reKind())
+        {
+            WaitList o = station.reFast();
+            for(int i = 0; i < o.reSize() ;i++)
+            {
+                counter1[index] = counter1[index] + o.peek(i).reChargingTime();
+                for(int j=0; j<station.reChargers().length; j++)
+                    if ((counter1[j]<counter1[index])&&(counter1[j]!=0))
+                        index = j;
+            }
+            return counter1[index];
+        }
+        if ("exchange" == reKind())
+        {
+            WaitList o = station.reExchange();
+            for(int i = 0; i < o.reSize();i++)
+            {
+                counter2[index] = counter2[index] + o.peek(i).reChargingTime();
+                for(int j=0; j < station.reChargers().length; j++)
+                    if ((counter2[j]<counter2[index])&&(counter2[j]!=0))
+                        index = j;
+            }
+            return counter2[index];
+        }
+        return 0;
     }
 }
