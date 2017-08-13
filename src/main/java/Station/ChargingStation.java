@@ -8,7 +8,7 @@ import EV.ElectricVehicle;
 import Events.DisChargingEvent;
 import Events.ChargingEvent;
 
-import java.io.File;
+import java.io.*;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +51,7 @@ public class ChargingStation
     private long timestamp;
     private PricingPolicy policy;
     private boolean automaticUpdate;
+    private Statistics statistics = new Statistics();
 
     public ChargingStation(String name, String[] kinds, String[] source, double[][] energAm)
     {
@@ -1124,12 +1125,21 @@ public class ChargingStation
         return automaticUpdate;
     }
 
-    private static class Statistics
+    /**
+     * Generates a report with all the recent traffic in the charging station. It also records the current situation of the station.
+     * @param filePath The absolute path where the user wants to save the report. The file has to be .txt.
+     */
+    public void genReport(String filePath)
     {
-        private static List<ChargingEvent> events;
-        private static List<DisChargingEvent> disEvents;
-        private static List<ChargingEvent> exchangeEvents;
-        private static List<String> energyLog;
+        statistics.generateReport(filePath);
+    }
+
+    private class Statistics
+    {
+        private List<ChargingEvent> events;
+        private List<DisChargingEvent> disEvents;
+        private List<ChargingEvent> exchangeEvents;
+        private List<String> energyLog;
 
         public Statistics()
         {
@@ -1174,9 +1184,46 @@ public class ChargingStation
             exchangeEvents.remove(event);
         }
 
-        public void generateReport()
+        public void generateReport(String filePath)
         {
-            
+            List<String> content = new ArrayList<String>();
+            content.add("***********************************");
+            content.add("Id: " + id);
+            content.add("Name: " + name);
+            content.add("Remaining energy: " + reTotalEnergy());
+            content.add("Number of chargers: " + reChargers().length);
+            content.add("Number of dischargers: " + reDisChargers().length);
+            content.add("Number of exchange handlers: " + reExchangeHandlers().length);
+            content.add("Number of parking slots: " + reParkingSlots().length);
+            content.add("Number of chargings: " + events.size());
+            content.add("Number of dischargings: " + disEvents.size());
+            content.add("Number of battery swappings: " + exchangeEvents.size());
+            content.add("Number of vehicles waiting for fast charging: " + fast.reSize());
+            content.add("Number of vehicles waiting for slow charging: " + slow.reSize());
+            content.add("Number of vehicles waiting for discharging: " + discharging.rSize());
+            content.add("Number of vehicles waiting for battery swapping: " + exchange.reSize());
+            content.add("Energy sources: ");
+            for(String s: reSources())
+                content.add("  " + s);
+            content.add("***********************************");
+            Writer writer = null;
+            try{
+                writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath), "utf-8"));
+                for(String line: content)
+                {
+                    line += System.getProperty("line.separator");
+                    writer.write(line);
+                }
+            } catch(IOException e){
+
+            } finally {
+                if (writer != null)
+                    try{
+                        writer.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+            }
         }
     }
 }
