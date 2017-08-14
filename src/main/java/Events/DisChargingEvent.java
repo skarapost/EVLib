@@ -5,6 +5,9 @@ import EV.ElectricVehicle;
 import Station.ChargingStation;
 import Station.WaitList;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DisChargingEvent
 {
     private ElectricVehicle vehicle;
@@ -13,10 +16,10 @@ public class DisChargingEvent
     private long disChargingTime;
     private String condition;
     private int disChargerId;
-    private long dateArrival;
     private long waitingTime;
     private long maxWaitingTime;
     private long timestamp;
+    public static List<DisChargingEvent> dischargingLog = new ArrayList<>();
 
     public DisChargingEvent(ChargingStation station, ElectricVehicle vehicle, double amEnerg)
     {
@@ -25,7 +28,6 @@ public class DisChargingEvent
         this.vehicle = vehicle;
         this.disChargerId = -1;
         this.condition = "arrived";
-        this.dateArrival = station.getTime();
     }
 
     /**
@@ -100,6 +102,7 @@ public class DisChargingEvent
             station.checkForUpdate();
             station.searchDischarger(disChargerId).setCommitTime(disChargingTime);
             station.searchDischarger(disChargerId).executeDisChargingEvent();
+            dischargingLog.add(this);
         }
     }
 

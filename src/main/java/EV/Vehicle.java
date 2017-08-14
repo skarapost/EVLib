@@ -22,4 +22,20 @@ public abstract class Vehicle
         this.brand = brand;
         this.cubism = cubism;
     }
+
+    /**
+     * @return The brand of the Vehicle
+     */
+    public String reBrand()
+    {
+        return brand;
+    }
+
+    /**
+     * @return The cubism of the Vehicle
+     */
+    public int reCubism()
+    {
+        return cubism;
+    }
 }

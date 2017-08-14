@@ -35,9 +35,6 @@ public class Charger {
             double sdf;
             long en;
             sdf = e.reEnergyToBeReceived();
-            e.reElectricVehicle().reBattery().setRemAmount(sdf + e.reElectricVehicle().reBattery().reRemAmount());
-            if (e.reElectricVehicle().reDriver() != null)
-                e.reElectricVehicle().reDriver().setDebt(e.reElectricVehicle().reDriver().reDebt() + station.calculatePrice(e));
             HashMap<String, Double> keys = new HashMap<>(station.reMap());
             for (HashMap.Entry<String, Double> energy : keys.entrySet()) {
                 if (e.reEnergyToBeReceived() < energy.getValue()) {
@@ -54,6 +51,9 @@ public class Charger {
             do {
                 en = d2.getTime();
             } while (en < e.reChargingTime());
+            e.reElectricVehicle().reBattery().setRemAmount(sdf + e.reElectricVehicle().reBattery().reRemAmount());
+            if (e.reElectricVehicle().reDriver() != null)
+                e.reElectricVehicle().reDriver().setDebt(e.reElectricVehicle().reDriver().reDebt() + station.calculatePrice(e));
             System.out.println("The charging took place succesfully");
             e.setCondition("finished");
             changeSituation();

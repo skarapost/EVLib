@@ -69,14 +69,14 @@ public class ExchangeHandler
             temp = e.reElectricVehicle().reBattery();
             e.reElectricVehicle().vehicleJoinBattery(station.reBatteries().get(st2));
             station.reBatteries().remove(st2);
-            station.joinBattery(temp);
-            e.reElectricVehicle().reDriver().setDebt(e.reElectricVehicle().reDriver().reDebt() + station.calculatePrice(e));
             StopWatch d2 = new StopWatch();
             d2.start();
             do
             {
                 en = d2.getTime();
             }while(en - st < e.reChargingTime());
+            station.joinBattery(temp);
+            e.reElectricVehicle().reDriver().setDebt(e.reElectricVehicle().reDriver().reDebt() + station.calculatePrice(e));
             System.out.println ("The exchange took place successfully");
             e.setCondition("finished");
             if (station.reUpdateMode())

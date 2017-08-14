@@ -4,6 +4,9 @@ import EV.ElectricVehicle;
 import Station.ChargingStation;
 import Station.ParkingSlot;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ParkingEvent {
     private long parkingTime;
     private ElectricVehicle vehicle;
@@ -15,6 +18,7 @@ public class ParkingEvent {
     private long timestamp1;
     private long timestamp2;
     private String condition;
+    public static List<ParkingEvent> parkLog = new ArrayList<>();
 
     public ParkingEvent(ChargingStation station, ElectricVehicle vehicle, long parkingTime)
     {
@@ -44,13 +48,11 @@ public class ParkingEvent {
     }
 
     /**
-     * Executes the charging phase. Checks for any ParkingSlot,
+     * Executes the preprocessing phase. Checks for any ParkingSlot,
      * calculates the energy to be given to the Vehicle and calculates the charging time.
      * If there is not any empty ParkingSlot the ChargingEvent is charecterized as "nonExecutable".
-     * In the end, the function calls the chargingVehicle()
-     * function of the corresponding ParkingSlot object to implement the charging, or the parking
      */
-    public void execution()
+    public void preprocessing()
     {
         int qwe = station.checkParkingSlots();
         if ((qwe != -1) && (qwe != -2)) {
@@ -72,9 +74,6 @@ public class ParkingEvent {
                         setParkingTime(parkingTime);
                         ps.setParkingEvent(this);
                         ps.changeSituation();
-                        ps.setCommitTime(parkingTime);
-                        station.checkForUpdate();
-                        ps.parkingVehicle();
                         return;
                     }
                 }
@@ -82,25 +81,40 @@ public class ParkingEvent {
             else
             {
                 setCondition("parking");
-                setParkingTime(parkingTime);
                 ps.setParkingEvent(this);
                 ps.changeSituation();
-                ps.setCommitTime(parkingTime);
-                station.checkForUpdate();
-                ps.parkingVehicle();
                 return;
             }
+            setCondition("charging");
             ps.setParkingEvent(this);
             ps.changeSituation();
-            ps.setCommitTime(parkingTime);
-            setParkingTime(parkingTime);
-            ps.setChargingTime(timeOfCharging);
-            setCondition("charging");
-            station.checkForUpdate();
-            ps.parkingVehicle();
         }
         else
             setCondition("nonExecutable");
+    }
+
+    /**
+     * Executes the parking/charging phase of a vehicle.
+     */
+    public void execution()
+    {
+        if (condition == "parking")
+        {
+            station.searchParkingSlot(parkingSlotId).setCommitTime(parkingTime);
+            setParkingTime(parkingTime);
+            station.checkForUpdate();
+            station.searchParkingSlot(parkingSlotId).parkingVehicle();
+            parkLog.add(this);
+        }
+        else if (condition == "charging")
+        {
+            station.searchParkingSlot(parkingSlotId).setCommitTime(parkingTime);
+            setParkingTime(parkingTime);
+            station.searchParkingSlot(parkingSlotId).setChargingTime(timeOfCharging);
+            station.checkForUpdate();
+            station.searchParkingSlot(parkingSlotId).parkingVehicle();
+            parkLog.add(this);
+        }
     }
 
     /**

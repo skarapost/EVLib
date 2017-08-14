@@ -36,9 +36,6 @@ public class ParkingSlot {
                 double sdf;
                 long en;
                 sdf = e.reEnergyToBeReceived();
-                e.reElectricVehicle().reBattery().setRemAmount(sdf + e.reElectricVehicle().reBattery().reRemAmount());
-                if (e.reElectricVehicle().reDriver() != null)
-                    e.reElectricVehicle().reDriver().setDebt(e.reElectricVehicle().reDriver().reDebt() + station.calculatePrice(e));
                 HashMap<String, Double> keys = new HashMap<>(station.reMap());
                 for (HashMap.Entry<String, Double> energy : keys.entrySet()) {
                     if (e.reEnergyToBeReceived() < station.reMap().get(energy.getKey())) {
@@ -55,26 +52,28 @@ public class ParkingSlot {
                 do {
                     en = d2.getTime();
                 } while (en < e.reChargingTime());
+                e.reElectricVehicle().reBattery().setRemAmount(sdf + e.reElectricVehicle().reBattery().reRemAmount());
+                if (e.reElectricVehicle().reDriver() != null)
+                    e.reElectricVehicle().reDriver().setDebt(e.reElectricVehicle().reDriver().reDebt() + station.calculatePrice(e));
                 System.out.println("The charging took place succesfully");
                 e.setCondition("parking");
                 if (station.reUpdateMode())
                     station.checkForUpdate();
+                long diff = e.reParkingTime() - e.reChargingTime();
+                d2 = new StopWatch();
+                d2.start();
+                do {
+                    en = d2.getTime();
+                }while(en < diff);
+                changeSituation();
+                setParkingEvent(null);
+                e.setCondition("finished");
+                if(station.reUpdateMode())
+                    station.checkForUpdate();
+                commitTime = 0;
+                chargingTime = 0;
             }).start();
         }
-        long diff = e.reParkingTime() - e.reChargingTime();
-        StopWatch d2 = new StopWatch();
-        d2.start();
-        long en;
-        do {
-            en = d2.getTime();
-        }while(en < diff);
-        changeSituation();
-        setParkingEvent(null);
-        e.setCondition("finished");
-        if(station.reUpdateMode())
-            station.checkForUpdate();
-        commitTime = 0;
-        chargingTime = 0;
     }
 
     /**

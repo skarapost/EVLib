@@ -39,15 +39,15 @@ public class DisCharger
             d1.start();
             long st = d1.getTime();
             long en;
-            e.reElectricVehicle().reBattery().setRemAmount(e.reElectricVehicle().reBattery().reRemAmount() - e.reEnergyAmount());
-            e.reElectricVehicle().reDriver().setProfit(e.reElectricVehicle().reDriver().reProfit() + e.reEnergyAmount() * station.reDisUnitPrice());
-            double energy = station.reMap().get("discharging") + e.reEnergyAmount();
-            station.setSpecificAmount("discharging", energy);
             StopWatch d2 = new StopWatch();
             d2.start();
             do {
                 en = d2.getTime();
             } while (en - st < e.reDisChargingTime());
+            e.reElectricVehicle().reBattery().setRemAmount(e.reElectricVehicle().reBattery().reRemAmount() - e.reEnergyAmount());
+            e.reElectricVehicle().reDriver().setProfit(e.reElectricVehicle().reDriver().reProfit() + e.reEnergyAmount() * station.reDisUnitPrice());
+            double energy = station.reMap().get("discharging") + e.reEnergyAmount();
+            station.setSpecificAmount("discharging", energy);
             System.out.println("The discharging took place succesfully");
             e.setCondition("finished");
             changeSituation();

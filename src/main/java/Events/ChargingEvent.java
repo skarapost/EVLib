@@ -6,6 +6,9 @@ import Station.Charger;
 import Station.ExchangeHandler;
 import Station.WaitList;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ChargingEvent
 {
     private ChargingStation station;
@@ -18,10 +21,11 @@ public class ChargingEvent
     private int chargerId;
     private int numberOfBattery;
     private double energyToBeReceived;
-    private long dateArrival;
     private double stock;
     private long maxWaitingTime;
     private long timestamp;
+    public static List<ChargingEvent> chargingLog = new ArrayList<>();
+    public static List<ChargingEvent> exchangeLog = new ArrayList<>();
 
     public ChargingEvent(ChargingStation station, ElectricVehicle vehicle, double amEnerg, String kindOfCharging)
     {
@@ -31,7 +35,6 @@ public class ChargingEvent
         this.chargerId = -1;
         this.vehicle = vehicle;
         this.condition = "arrived";
-        this.dateArrival = station.getTime();
         this.stock = station.reTotalEnergy();
         if ("fast".equals(kindOfCharging))
             chargingTime = (long) (this.amEnerg / station.reChargingRatioFast());
@@ -46,7 +49,6 @@ public class ChargingEvent
         this.kindOfCharging = kindOfCharging;
         this.chargerId = -1;
         this.condition = "arrived";
-        this.dateArrival = station.getTime();
         this.stock = station.reTotalEnergy();
         if (money/station.reUnitPrice() <= station.reTotalEnergy())
             this.amEnerg = money/station.reUnitPrice();
@@ -66,7 +68,6 @@ public class ChargingEvent
         this.vehicle = vehicle;
         this.chargingTime = station.reTimeOfExchange();
         this.condition = "arrived";
-        this.dateArrival = station.getTime();
         this.stock = station.reTotalEnergy();
     }
 
@@ -177,12 +178,14 @@ public class ChargingEvent
                 station.checkForUpdate();
                 station.searchCharger(chargerId).setCommitTime(chargingTime);
                 station.searchCharger(chargerId).executeChargingEvent();
+                chargingLog.add(this);
             }
             else
             {
                 station.checkForUpdate();
                 station.searchExchangeHandler(chargerId).setCommitTime(chargingTime);
                 station.searchExchangeHandler(chargerId).executeExchange(numberOfBattery);
+                exchangeLog.add(this);
             }
         }
     }
