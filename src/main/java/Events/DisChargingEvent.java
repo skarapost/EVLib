@@ -7,6 +7,7 @@ import Station.WaitList;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class DisChargingEvent
 {
@@ -97,7 +98,7 @@ public class DisChargingEvent
      */
     public void execution()
     {
-        if(condition == "discharging")
+        if(condition.equals("discharging"))
         {
             station.checkForUpdate();
             station.searchDischarger(disChargerId).setCommitTime(disChargingTime);

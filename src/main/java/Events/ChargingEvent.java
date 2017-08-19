@@ -8,6 +8,7 @@ import Station.WaitList;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class ChargingEvent
 {
@@ -171,9 +172,9 @@ public class ChargingEvent
      */
     public void execution()
     {
-        if ((condition == "charging")||(condition == "swapping"))
+        if ((condition.equals("charging"))||(condition.equals("swapping")))
         {
-            if (kindOfCharging != "exchange")
+            if (!kindOfCharging.equals("exchange"))
             {
                 station.checkForUpdate();
                 station.searchCharger(chargerId).setCommitTime(chargingTime);
@@ -370,7 +371,7 @@ public class ChargingEvent
                 }
                 counter2[i] = diff;
             }
-        if ("slow" == reKind())
+        if ("slow".equals(reKind()))
         {
             WaitList o = station.reSlow();
             for (int i = 0;i < o.reSize() ;i++)
@@ -382,7 +383,7 @@ public class ChargingEvent
             }
             return counter1[index];
         }
-        if ("fast" == reKind())
+        if ("fast".equals(reKind()))
         {
             WaitList o = station.reFast();
             for(int i = 0; i < o.reSize() ;i++)
@@ -394,7 +395,7 @@ public class ChargingEvent
             }
             return counter1[index];
         }
-        if ("exchange" == reKind())
+        if ("exchange".equals(reKind()))
         {
             WaitList o = station.reExchange();
             for(int i = 0; i < o.reSize();i++)

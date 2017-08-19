@@ -6,6 +6,7 @@ import Station.ParkingSlot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class ParkingEvent {
     private long parkingTime;
@@ -52,7 +53,7 @@ public class ParkingEvent {
      * calculates the energy to be given to the Vehicle and calculates the charging time.
      * If there is not any empty ParkingSlot the ChargingEvent is charecterized as "nonExecutable".
      */
-    public void preprocessing()
+    public void preProcessing()
     {
         int qwe = station.checkParkingSlots();
         if ((qwe != -1) && (qwe != -2)) {
@@ -98,7 +99,7 @@ public class ParkingEvent {
      */
     public void execution()
     {
-        if (condition == "parking")
+        if (condition.equals("parking"))
         {
             station.searchParkingSlot(parkingSlotId).setCommitTime(parkingTime);
             setParkingTime(parkingTime);
@@ -106,7 +107,7 @@ public class ParkingEvent {
             station.searchParkingSlot(parkingSlotId).parkingVehicle();
             parkLog.add(this);
         }
-        else if (condition == "charging")
+        else if (condition.equals("charging"))
         {
             station.searchParkingSlot(parkingSlotId).setCommitTime(parkingTime);
             setParkingTime(parkingTime);

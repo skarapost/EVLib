@@ -7,9 +7,7 @@ import EV.Battery;
 import EV.ElectricVehicle;
 import Events.DisChargingEvent;
 import Events.ChargingEvent;
-
 import java.io.*;
-import java.sql.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -194,7 +192,7 @@ public class ChargingStation {
         updateStorage();
     }
 
-    public ChargingStation(int id, String name) {
+    public ChargingStation(String name) {
         this.date = new StopWatch();
         date.start();
         this.id = idGenerator.getAndIncrement();
@@ -421,6 +419,15 @@ public class ChargingStation {
      */
     public void addExchangeHandler(ExchangeHandler y) {
         exchangeHandlers.add(y);
+    }
+
+    /**
+     * Inserts a ParkingSlot in the ChargingStation
+     * @param y The ParkingSlot to be added.
+     */
+    public void addParkingSlot(ParkingSlot y)
+    {
+        parkingSlots.add(y);
     }
 
     /**
@@ -1066,6 +1073,14 @@ public class ChargingStation {
         statistics.generateReport(filePath);
     }
 
+    /**
+     * @return The name of the ChargingStation
+     */
+    public String reName()
+    {
+        return name;
+    }
+
     private class Statistics {
         private List<String> energyLog;
 
@@ -1080,6 +1095,7 @@ public class ChargingStation {
         public void generateReport(String filePath) {
             List<String> content = new ArrayList<>();
             content.add("***********************************");
+            content.add("");
             content.add("Id: " + id);
             content.add("Name: " + name);
             content.add("Remaining energy: " + reTotalEnergy());
@@ -1097,31 +1113,41 @@ public class ChargingStation {
             content.add("Energy sources: ");
             for (String s : reSources())
                 content.add("  " + s + ": " + reSpecificAmount(s));
+            content.add("");
             content.add("***Charging events***");
             for (ChargingEvent ev : ChargingEvent.chargingLog) {
-                content.add(" ");
+                content.add("");
                 content.add("Vehicle: " + ev.reElectricVehicle().reBrand());
                 content.add("Cubism: " + ev.reElectricVehicle().reCubism());
                 content.add("Energy: " + ev.reEnergyToBeReceived());
                 content.add("Charging time: " + ev.reChargingTime());
                 content.add("Waiting time: " + ev.reMaxWaitingTime());
             }
+            content.add("");
             content.add("***DisCharging events***");
             for (DisChargingEvent ev : DisChargingEvent.dischargingLog) {
-                content.add(" ");
+                content.add("");
                 content.add("Vehicle: " + ev.reElectricVehicle().reBrand());
                 content.add("Cubism: " + ev.reElectricVehicle().reCubism());
                 content.add("Energy: " + ev.reEnergyAmount());
                 content.add("Charging time: " + ev.reDisChargingTime());
                 content.add("Waiting time: " + ev.reMaxWaitingTime());
             }
+            content.add("");
             content.add("***Exchange events***");
             for (ChargingEvent ev : ChargingEvent.exchangeLog) {
-                content.add(" ");
+                content.add("");
                 content.add("Vehicle: " + ev.reElectricVehicle().reBrand());
                 content.add("Cubism: " + ev.reElectricVehicle().reCubism());
                 content.add("Waiting time: " + ev.reMaxWaitingTime());
             }
+            content.add("");
+            content.add("***Energy additions***");
+            for(String s: energyLog) {
+                content.add("");
+                content.add(s);
+            }
+            content.add("");
             content.add("***********************************");
             Writer writer = null;
             try {

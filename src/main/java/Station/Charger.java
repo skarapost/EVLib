@@ -34,6 +34,11 @@ public class Charger {
         {
             double sdf;
             long en;
+            StopWatch d2 = new StopWatch();
+            d2.start();
+            do {
+                en = d2.getTime();
+            } while (en < e.reChargingTime());
             sdf = e.reEnergyToBeReceived();
             HashMap<String, Double> keys = new HashMap<>(station.reMap());
             for (HashMap.Entry<String, Double> energy : keys.entrySet()) {
@@ -46,11 +51,6 @@ public class Charger {
                     e.reStation().setSpecificAmount(energy.getKey(), 0);
                 }
             }
-            StopWatch d2 = new StopWatch();
-            d2.start();
-            do {
-                en = d2.getTime();
-            } while (en < e.reChargingTime());
             e.reElectricVehicle().reBattery().setRemAmount(sdf + e.reElectricVehicle().reBattery().reRemAmount());
             if (e.reElectricVehicle().reDriver() != null)
                 e.reElectricVehicle().reDriver().setDebt(e.reElectricVehicle().reDriver().reDebt() + station.calculatePrice(e));
