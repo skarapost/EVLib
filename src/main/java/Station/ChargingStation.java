@@ -41,6 +41,7 @@ public class ChargingStation {
     private ArrayList<String> sources;
     private double unitPrice;
     private double disUnitPrice;
+    private double inductivePrice;
     private double exchangePrice;
     private boolean automaticQueueHandling;
     private int updateSpace;
@@ -447,7 +448,7 @@ public class ChargingStation {
             sources.add("wind");
             amounts.put("wind", 0.0);
         } else if (z instanceof HydroElectric) {
-            sources.add("hydroElectric");
+            sources.add("hydroelectric");
             amounts.put("hydroelectric", 0.0);
         } else if (z instanceof Geothermal) {
             sources.add("geothermal");
@@ -520,8 +521,7 @@ public class ChargingStation {
      * @return True if the deletion was successfull, false if it was unsuccessfull.
      */
     public boolean deleteBattery(Battery battery) {
-        boolean remove = batteries.remove(battery);
-        return remove;
+        return batteries.remove(battery);
     }
 
     /**
@@ -542,9 +542,9 @@ public class ChargingStation {
      */
     public Charger searchCharger(int id) {
         Charger y = null;
-        for (int i = 0; i < chargers.size(); i++) {
-            if (chargers.get(i).reId() == id)
-                y = chargers.get(i);
+        for (Charger charger : chargers) {
+            if (charger.reId() == id)
+                y = charger;
         }
         return y;
     }
@@ -722,6 +722,23 @@ public class ChargingStation {
     }
 
     /**
+     * Sets the price of an energy unit for the inductive charging.
+     * @param price The price of an energy unit.
+     */
+    public void setInductivePrice(double price)
+    {
+        inductivePrice = price;
+    }
+
+    /**
+     * @return The price of an energy unit for the inductive charging.
+     */
+    public double reInductivePrice()
+    {
+        return inductivePrice;
+    }
+
+    /**
      * Searches for the EnergySource of the given source.
      *
      * @param source The source for which the EnergySource object is asked.
@@ -729,34 +746,34 @@ public class ChargingStation {
      */
     public EnergySource searchEnergySource(String source) {
         if ("solar".equals(source)) {
-            for (int i = 0; i < sources.size(); i++) {
-                if (n.get(i) instanceof Solar)
-                    return n.get(i);
+            for (EnergySource aN : n) {
+                if (aN instanceof Solar)
+                    return aN;
             }
         } else if ("wind".equals(source)) {
-            for (int i = 0; i < sources.size(); i++) {
-                if (n.get(i) instanceof Wind)
-                    return n.get(i);
+            for (EnergySource aN : n) {
+                if (aN instanceof Wind)
+                    return aN;
             }
         } else if ("wave".equals(source)) {
-            for (int i = 0; i < sources.size(); i++) {
-                if (n.get(i) instanceof Wave)
-                    return n.get(i);
+            for (EnergySource aN : n) {
+                if (aN instanceof Wave)
+                    return aN;
             }
         } else if ("hydroelectric".equals(source)) {
-            for (int i = 0; i < sources.size(); i++) {
-                if (n.get(i) instanceof HydroElectric)
-                    return n.get(i);
+            for (EnergySource aN : n) {
+                if (aN instanceof HydroElectric)
+                    return aN;
             }
         } else if ("geothermal".equals(source)) {
-            for (int i = 0; i < sources.size(); i++) {
-                if (n.get(i) instanceof Geothermal)
-                    return n.get(i);
+            for (EnergySource aN : n) {
+                if (aN instanceof Geothermal)
+                    return aN;
             }
         } else if ("nonrenewable".equals(source)) {
-            for (int i = 0; i < sources.size(); i++) {
-                if (n.get(i) instanceof NonRenewable)
-                    return n.get(i);
+            for (EnergySource aN : n) {
+                if (aN instanceof NonRenewable)
+                    return aN;
             }
         }
         return null;
@@ -1028,7 +1045,7 @@ public class ChargingStation {
      * @return The cost of the charging.
      */
     public double calculatePrice(ParkingEvent w) {
-        return w.reEnergyToBeReceived() * reUnitPrice();
+        return w.reEnergyToBeReceived() * reInductivePrice();
     }
 
     /**
@@ -1156,7 +1173,7 @@ public class ChargingStation {
                         line += System.getProperty("line.separator");
                         writer.write(line);
                     }
-            } catch (IOException e) {
+            } catch (IOException ignored) {
 
             } finally {
                 if (writer != null)
