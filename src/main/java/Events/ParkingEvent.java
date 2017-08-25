@@ -103,7 +103,6 @@ public class ParkingEvent {
         {
             station.searchParkingSlot(parkingSlotId).setCommitTime(parkingTime);
             setParkingTime(parkingTime);
-            station.checkForUpdate();
             station.searchParkingSlot(parkingSlotId).parkingVehicle();
             parkLog.add(this);
         }
@@ -112,7 +111,6 @@ public class ParkingEvent {
             station.searchParkingSlot(parkingSlotId).setCommitTime(parkingTime);
             setParkingTime(parkingTime);
             station.searchParkingSlot(parkingSlotId).setChargingTime(timeOfCharging);
-            station.checkForUpdate();
             station.searchParkingSlot(parkingSlotId).parkingVehicle();
             parkLog.add(this);
         }

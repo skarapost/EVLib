@@ -109,7 +109,6 @@ public class ChargingEvent
                             station.setTotalEnergy(station.reTotalEnergy());
                             if (energyToBeReceived == 0) {
                                 setCondition("nonExecutable");
-                                return;
                             }
                         }
                     } else if (qwe == -2)
@@ -140,13 +139,11 @@ public class ChargingEvent
                                 if (!condition.equals("wait"))
                                     station.updateQueue(this);
                                 setCondition("wait");
-                                return;
                             } else {
                                 setCondition("nonExecutable");
-                                return; }
+                            }
                         } else {
                             setCondition("nonExecutable");
-                            return;
                         }
                     } else if (qwe == -2)
                         setCondition("nonExecutable");
@@ -176,14 +173,12 @@ public class ChargingEvent
         {
             if (!kindOfCharging.equals("exchange"))
             {
-                station.checkForUpdate();
                 station.searchCharger(chargerId).setCommitTime(chargingTime);
                 station.searchCharger(chargerId).executeChargingEvent();
                 chargingLog.add(this);
             }
             else
             {
-                station.checkForUpdate();
                 station.searchExchangeHandler(chargerId).setCommitTime(chargingTime);
                 station.searchExchangeHandler(chargerId).executeExchange(numberOfBattery);
                 exchangeLog.add(this);

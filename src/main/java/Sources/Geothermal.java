@@ -26,7 +26,7 @@ public class Geothermal extends EnergySource
         if ((energyAmount == null)||(energyAmount.size() == 0))
             return 0;
         else
-            return energyAmount.get(0);
+            return energyAmount.remove(0);
     }
 
     public void insertAmount(double am)

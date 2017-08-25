@@ -57,8 +57,6 @@ public class ParkingSlot {
                     e.reElectricVehicle().reDriver().setDebt(e.reElectricVehicle().reDriver().reDebt() + station.calculatePrice(e));
                 System.out.println("The charging took place succesfully");
                 e.setCondition("parking");
-                if (station.reUpdateMode())
-                    station.checkForUpdate();
                 long diff = e.reParkingTime() - e.reChargingTime();
                 d2 = new StopWatch();
                 d2.start();
@@ -68,8 +66,6 @@ public class ParkingSlot {
                 changeSituation();
                 setParkingEvent(null);
                 e.setCondition("finished");
-                if(station.reUpdateMode())
-                    station.checkForUpdate();
                 commitTime = 0;
                 chargingTime = 0;
             }).start();

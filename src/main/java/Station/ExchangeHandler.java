@@ -79,8 +79,6 @@ public class ExchangeHandler
             e.reElectricVehicle().reDriver().setDebt(e.reElectricVehicle().reDriver().reDebt() + station.calculatePrice(e));
             System.out.println ("The exchange took place successfully");
             e.setCondition("finished");
-            if (station.reUpdateMode())
-                station.checkForUpdate();
             changeSituation();
             joinChargingEvent(null);
             setCommitTime(0);

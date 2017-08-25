@@ -52,8 +52,6 @@ public class DisCharger
             e.setCondition("finished");
             changeSituation();
             setDisChargingEvent(null);
-            if (station.reUpdateMode())
-                station.checkForUpdate();
             commitTime = 0;
             if (station.reQueueHandling())
                 handleQueueEvents();

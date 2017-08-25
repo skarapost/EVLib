@@ -100,7 +100,6 @@ public class DisChargingEvent
     {
         if(condition.equals("discharging"))
         {
-            station.checkForUpdate();
             station.searchDischarger(disChargerId).setCommitTime(disChargingTime);
             station.searchDischarger(disChargerId).executeDisChargingEvent();
             dischargingLog.add(this);

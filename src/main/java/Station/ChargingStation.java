@@ -10,10 +10,7 @@ import Events.ChargingEvent;
 import java.io.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang3.time.StopWatch;
@@ -47,13 +44,19 @@ public class ChargingStation {
     private int updateSpace;
     private long timeOfExchange;
     private StopWatch date;
-    private long lastUpdate;
     private double inductiveChargingRatio;
     private static AtomicInteger idGenerator = new AtomicInteger(0);
     private long timestamp;
     private PricingPolicy policy;
     private boolean automaticUpdate;
     private Statistics statistics = new Statistics();
+    Timer timer;
+
+    private class checkUpdate extends TimerTask {
+        public void run() {
+            updateStorage();
+        }
+    }
 
     public ChargingStation(String name, String[] kinds, String[] source, double[][] energAm) {
         this.date = new StopWatch();
@@ -80,7 +83,6 @@ public class ChargingStation {
         this.chargingRatioFast = 2;
         this.disChargingRatio = 1;
         this.inductiveChargingRatio = 0.5;
-        this.updateSpace = 20;
         for (int i = 0; i < source.length; i++) {
             switch (source[i]) {
                 case "solar":
@@ -148,7 +150,6 @@ public class ChargingStation {
         this.chargingRatioSlow = 1;
         this.chargingRatioFast = 2;
         this.disChargingRatio = 1;
-        this.updateSpace = 20;
         this.inductiveChargingRatio = 0.5;
         for (int i = 0; i < source.length; i++) {
             switch (source[i]) {
@@ -216,8 +217,8 @@ public class ChargingStation {
         this.chargingRatioSlow = 1;
         this.chargingRatioFast = 2;
         this.disChargingRatio = 1;
-        this.updateSpace = 20;
         this.inductiveChargingRatio = 0.5;
+        updateStorage();
     }
 
     /**
@@ -851,7 +852,15 @@ public class ChargingStation {
      * @param updateSpace The time space.
      */
     public void setUpdateSpace(int updateSpace) {
-        this.updateSpace = updateSpace;
+        if(timer != null) {
+            timer.cancel();
+            timer.purge(); }
+        if(reUpdateMode() && updateSpace != 0) {
+            this.updateSpace = updateSpace;
+            timer = new Timer();
+            timer.schedule(new checkUpdate(), 0, this.updateSpace); }
+        else
+            this.updateSpace = 0;
     }
 
     /**
@@ -907,61 +916,49 @@ public class ChargingStation {
     }
 
     /**
-     * This function is called every time the library wants to check if an update storage is needed.
-     * The function accordingly to the choice(updateSpace) of the user calculates how many spaces have
-     * passed since the last update storage. Then calls the updateStorage() function n times.
-     */
-    public void checkForUpdate() {
-        long diff = getTime() - lastUpdate;
-        int count = (int) diff / reUpdateSpace();
-        for (int i = 1; i <= count; i++)
-            updateStorage();
-    }
-
-    /**
      * Update the storage of the ChargingStation with the new amounts of energy
      * of each source.
      */
-    private void updateStorage() {
+    public void updateStorage() {
         double counter = 0;
         double energy;
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         for (int j = 0; j < reEnergySources().length; j++) {
-            counter = counter + reEnergySources()[j].popAmount();
+            energy = reEnergySources()[j].popAmount();
+            counter += energy;
             if (reEnergySources()[j] instanceof Solar) {
-                energy = searchEnergySource("solar").popAmount();
-                setSpecificAmount("solar", (reSpecificAmount("solar") + energy));
+                energy += reSpecificAmount("solar");
+                setSpecificAmount("solar", energy);
                 Calendar calendar = Calendar.getInstance();
                 statistics.addEnergy("Solar, " + energy + ", " + dateFormat.format(calendar.getTime()));
             } else if (reEnergySources()[j] instanceof Geothermal) {
-                energy = searchEnergySource("geothermal").popAmount();
-                setSpecificAmount("geothermal", (reSpecificAmount("geothermal") + energy));
+                energy += reSpecificAmount("geothermal");
+                setSpecificAmount("geothermal", energy);
                 Calendar calendar = Calendar.getInstance();
                 statistics.addEnergy("Geothermal, " + energy + ", " + dateFormat.format(calendar.getTime()));
             } else if (reEnergySources()[j] instanceof NonRenewable) {
-                energy = searchEnergySource("nonrenewable").popAmount();
-                setSpecificAmount("nonrenewable", (reSpecificAmount("nonreneable") + energy));
+                energy += reSpecificAmount("nonreneable");
+                setSpecificAmount("nonrenewable", energy);
                 Calendar calendar = Calendar.getInstance();
                 statistics.addEnergy("Nonrenewable, " + energy + ", " + dateFormat.format(calendar.getTime()));
             } else if (reEnergySources()[j] instanceof HydroElectric) {
-                energy = searchEnergySource("hydroelectric").popAmount();
-                setSpecificAmount("hydroelectric", (reSpecificAmount("hydroelectric") + energy));
+                energy += reSpecificAmount("hydroelectric");
+                setSpecificAmount("hydroelectric", energy);
                 Calendar calendar = Calendar.getInstance();
                 statistics.addEnergy("Hydroelectric, " + energy + ", " + dateFormat.format(calendar.getTime()));
             } else if (reEnergySources()[j] instanceof Wave) {
-                energy = searchEnergySource("wave").popAmount();
-                setSpecificAmount("wave", (reSpecificAmount("wave") + energy));
+                energy += reSpecificAmount("wave");
+                setSpecificAmount("wave", energy);
                 Calendar calendar = Calendar.getInstance();
                 statistics.addEnergy("Wave, " + energy + ", " + dateFormat.format(calendar.getTime()));
             } else if (reEnergySources()[j] instanceof Wind) {
-                energy = searchEnergySource("wind").popAmount();
-                setSpecificAmount("wind", (reSpecificAmount("wind") + energy));
+                energy += reSpecificAmount("wind");
+                setSpecificAmount("wind", energy);
                 Calendar calendar = Calendar.getInstance();
                 statistics.addEnergy("Wind, " + energy + ", " + dateFormat.format(calendar.getTime()));
             }
         }
         setTotalEnergy(-counter);
-        lastUpdate = getTime();
     }
 
     /**
@@ -1066,12 +1063,23 @@ public class ChargingStation {
     }
 
     /**
-     * Sets the update of the energy storage will become either automatic or by the user
-     *
+     * Sets the update of the energy storage will become either automatic or by the user.
      * @param update The way the update will become. False means by the user, true means automatic.
      */
     public void setUpdateMode(boolean update) {
-        this.automaticUpdate = update;
+        if (!update && !this.automaticUpdate)
+            this.automaticUpdate = update;
+        else if(!update && this.automaticUpdate)
+        {
+            this.automaticUpdate = update;
+            if(timer != null)
+            {
+                timer.cancel();
+                timer.purge();
+            }
+        }
+        else
+            this.automaticUpdate = update;
     }
 
     /**
