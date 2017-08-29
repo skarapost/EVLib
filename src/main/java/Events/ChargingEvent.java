@@ -9,11 +9,14 @@ import Station.WaitList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ChargingEvent
 {
+    private int id;
+    private static AtomicInteger idGenerator = new AtomicInteger(0);
     private ChargingStation station;
-    private double amEnerg;
+    private double amountOfEnergy;
     private String kindOfCharging;
     private long waitingTime;
     private ElectricVehicle vehicle;
@@ -22,54 +25,54 @@ public class ChargingEvent
     private int chargerId;
     private int numberOfBattery;
     private double energyToBeReceived;
-    private double stock;
     private long maxWaitingTime;
     private long timestamp;
+    private double cost;
     public static List<ChargingEvent> chargingLog = new ArrayList<>();
     public static List<ChargingEvent> exchangeLog = new ArrayList<>();
 
     public ChargingEvent(ChargingStation station, ElectricVehicle vehicle, double amEnerg, String kindOfCharging)
     {
+        this.id = idGenerator.incrementAndGet();
         this.station = station;
-        this.amEnerg = amEnerg;
+        this.amountOfEnergy = amEnerg;
         this.kindOfCharging = kindOfCharging;
         this.chargerId = -1;
         this.vehicle = vehicle;
         this.condition = "arrived";
-        this.stock = station.reTotalEnergy();
         if ("fast".equals(kindOfCharging))
-            chargingTime = (long) (this.amEnerg / station.reChargingRatioFast());
+            chargingTime = (long) (this.amountOfEnergy / station.reChargingRatioFast());
         else
-            chargingTime = (long) (this.amEnerg / station.reChargingRatioSlow());
+            chargingTime = (long) (this.amountOfEnergy / station.reChargingRatioSlow());
     }
 
     public ChargingEvent(ChargingStation station, ElectricVehicle vehicle, String kindOfCharging, double money)
     {
+        this.id = idGenerator.incrementAndGet();
         this.station = station;
         this.vehicle = vehicle;
         this.kindOfCharging = kindOfCharging;
         this.chargerId = -1;
         this.condition = "arrived";
-        this.stock = station.reTotalEnergy();
         if (money/station.reUnitPrice() <= station.reTotalEnergy())
-            this.amEnerg = money/station.reUnitPrice();
+            this.amountOfEnergy = money/station.reUnitPrice();
         else
-            this.amEnerg = station.reTotalEnergy();
+            this.amountOfEnergy = station.reTotalEnergy();
         if ("fast".equals(kindOfCharging))
-            chargingTime = (long) (this.amEnerg / station.reChargingRatioFast());
+            chargingTime = (long) (this.amountOfEnergy / station.reChargingRatioFast());
         else
-            chargingTime = (long) (this.amEnerg / station.reChargingRatioSlow());
+            chargingTime = (long) (this.amountOfEnergy / station.reChargingRatioSlow());
     }
 
     public ChargingEvent(ChargingStation station, ElectricVehicle vehicle)
     {
+        this.id = idGenerator.incrementAndGet();
         this.station = station;
         this.kindOfCharging = "exchange";
         this.chargerId = -1;
         this.vehicle = vehicle;
         this.chargingTime = station.reTimeOfExchange();
         this.condition = "arrived";
-        this.stock = station.reTotalEnergy();
     }
 
     /**
@@ -87,30 +90,33 @@ public class ChargingEvent
                     if ((qwe != -1) && (qwe != -2)) {
                         chargerId = qwe;
                         Charger ch = station.searchCharger(chargerId);
+                        if ((amountOfEnergy != 0)&&(vehicle.reBattery().reActive())) {
+                            if (amountOfEnergy < station.reTotalEnergy()) {
+                                if (amountOfEnergy <= (vehicle.reBattery().reBatteryCapacity() - vehicle.reBattery().reRemAmount()))
+                                    energyToBeReceived = amountOfEnergy;
+                                else
+                                    energyToBeReceived = vehicle.reBattery().reBatteryCapacity() - vehicle.reBattery().reRemAmount();
+                                station.setTotalEnergy(energyToBeReceived);
+                            } else {
+                                if (station.reTotalEnergy() <= (vehicle.reBattery().reBatteryCapacity() - vehicle.reBattery().reRemAmount()))
+                                    energyToBeReceived = station.reTotalEnergy();
+                                else
+                                    energyToBeReceived = vehicle.reBattery().reBatteryCapacity() - vehicle.reBattery().reRemAmount();
+                                station.setTotalEnergy(energyToBeReceived);
+                                if (energyToBeReceived == 0) {
+                                    setCondition("nonExecutable");
+                                    return;
+                                }
+                            }
+                        }
+                        if ("fast".equals(kindOfCharging))
+                            chargingTime = (long) (energyToBeReceived / station.reChargingRatioFast());
+                        else
+                            chargingTime = (long) (energyToBeReceived / station.reChargingRatioSlow());
+                        this.cost = station.calculatePrice(this);
                         ch.setChargingEvent(this);
                         ch.changeSituation();
                         setCondition("charging");
-                        if (amEnerg < station.reTotalEnergy()) {
-                            if (amEnerg <= (vehicle.reBattery().reBatteryCapacity() - vehicle.reBattery().reRemAmount()))
-                                energyToBeReceived = amEnerg;
-                            else
-                                energyToBeReceived = vehicle.reBattery().reBatteryCapacity() - vehicle.reBattery().reRemAmount();
-                            station.setTotalEnergy(energyToBeReceived);
-                            if ("fast".equals(kindOfCharging))
-                                chargingTime = (long) (energyToBeReceived / station.reChargingRatioFast());
-                            else
-                                chargingTime = (long) (energyToBeReceived / station.reChargingRatioSlow());
-                        } else {
-                            energyToBeReceived = station.reTotalEnergy();
-                            if ("fast".equals(kindOfCharging))
-                                chargingTime = (long) (energyToBeReceived / station.reChargingRatioFast());
-                            else
-                                chargingTime = (long) (energyToBeReceived / station.reChargingRatioSlow());
-                            station.setTotalEnergy(station.reTotalEnergy());
-                            if (energyToBeReceived == 0) {
-                                setCondition("nonExecutable");
-                            }
-                        }
                     } else if (qwe == -2)
                         setCondition("nonExecutable");
                     else {
@@ -128,9 +134,6 @@ public class ChargingEvent
                     if ((qwe != -1) && (qwe != -2)) {
                         chargerId = qwe;
                         ExchangeHandler eh = station.searchExchangeHandler(chargerId);
-                        eh.joinChargingEvent(this);
-                        eh.changeSituation();
-                        setCondition("swapping");
                         int state2 = station.checkBatteries();
                         if ((state2 != -1) && (state2 != -2)) {
                             numberOfBattery = state2;
@@ -141,10 +144,16 @@ public class ChargingEvent
                                 setCondition("wait");
                             } else {
                                 setCondition("nonExecutable");
+                                return;
                             }
                         } else {
                             setCondition("nonExecutable");
+                            return;
                         }
+                        this.cost = station.reExchangePrice();
+                        eh.joinChargingEvent(this);
+                        eh.changeSituation();
+                        setCondition("swapping");
                     } else if (qwe == -2)
                         setCondition("nonExecutable");
                     else {
@@ -241,7 +250,7 @@ public class ChargingEvent
      */
     public double reEnergyAmount()
     {
-        return amEnerg;
+        return amountOfEnergy;
     }
 
     /**
@@ -293,14 +302,6 @@ public class ChargingEvent
     }
 
     /**
-     * @return The amount of energy the ChargingStation has.
-     */
-    public double reStock()
-    {
-        return stock;
-    }
-
-    /**
      * @return The condition of ChargingEvent.
      */
     public String reCondition()
@@ -345,9 +346,9 @@ public class ChargingEvent
         long[] counter2 = new long[station.reChargers().length];
         long min = 1000000000;
         int index = 1000000000;
-        if ( "exchange" != reKind())
+        if (!Objects.equals("exchange", reKind()))
             for (int i = 0; i < station.reChargers ().length; i++) {
-                if (reKind () == station.reChargers()[i].reKind ()) {
+                if (Objects.equals(reKind(), station.reChargers()[i].reKind())) {
                     long diff = station.reChargers()[i].reChargingEvent().reElapsedChargingTime();
                     if (min > diff) {
                         min = diff;
@@ -403,5 +404,21 @@ public class ChargingEvent
             return counter2[index];
         }
         return 0;
+    }
+
+    /**
+     * @return The id of this ChargingEvent.
+     */
+    public int reId()
+    {
+        return id;
+    }
+
+    /**
+     * @return The cost of this ChargingEvent.
+     */
+    public double reCost()
+    {
+        return this.cost;
     }
 }

@@ -3,14 +3,18 @@ package Station;
 import Events.DisChargingEvent;
 import Events.ChargingEvent;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class WaitList
 {
     private ArrayList<ChargingEvent> list1;
     private ArrayList<DisChargingEvent> list2;
+    private int id;
+    private static AtomicInteger idGenerator = new AtomicInteger(0);
 
     public WaitList(String n)
     {
+        this.id = idGenerator.incrementAndGet();
         if ("charging".equals(n))
             list1 = new ArrayList<ChargingEvent>();
         else if ("discharging".equals(n))
@@ -155,5 +159,13 @@ public class WaitList
         DisChargingEvent e = list2.get(index);
         list2.remove(index);
         return e;
+    }
+
+    /**
+     * @return The id of this WaitingList.
+     */
+    public int reId()
+    {
+        return id;
     }
 }

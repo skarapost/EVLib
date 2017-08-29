@@ -16,7 +16,7 @@ public class PricingPolicy {
     private short option;
 
     public PricingPolicy(ChargingStation station, long space, double[] prices) {
-        id = idGenerator.getAndIncrement();
+        this.id = idGenerator.incrementAndGet();
         this.station = station;
         this.space = space;
         this.prices = new LinkedList();
@@ -26,7 +26,7 @@ public class PricingPolicy {
     }
 
     public PricingPolicy(ChargingStation station, double[][] prices) {
-        id = idGenerator.getAndIncrement();
+        this.id = idGenerator.incrementAndGet();
         this.station = station;
         this.prices = new LinkedList<Pair>();
         for (double price[] : prices) {
@@ -77,13 +77,27 @@ public class PricingPolicy {
      * @param timeSpace The time space the price will be valid.
      * @param price The value of the price.
      */
-    public void setSpecificPrice(int position, long timeSpace, double price) {
+    public void setSpecificSpacePrice(int position, long timeSpace, double price) {
         if (option == 2) {
             Pair t = (Pair) this.prices.get(position);
             t.setL(timeSpace);
             t.setR(price);
             this.prices.remove(position);
             this.prices.add(position, t);
+        }
+    }
+
+    /**
+     * Sets the price for a specific time space. This function is valid only when the time space is fixed.
+     * @param position The time space the price corresponds to.
+     * @param price The price of the time space.
+     */
+    public void setSpecificPrice(int position, double price)
+    {
+        if (option == 1)
+        {
+            this.prices.remove(position);
+            this.prices.add(position, price);
         }
     }
 

@@ -18,7 +18,7 @@ public abstract class Vehicle
 
     public Vehicle(String brand,int cubism)
     {
-        this.id = idGenerator.getAndIncrement();
+        this.id = idGenerator.incrementAndGet();
         this.brand = brand;
         this.cubism = cubism;
     }
@@ -37,5 +37,13 @@ public abstract class Vehicle
     public int reCubism()
     {
         return cubism;
+    }
+
+    /**
+     * @return The id of this Vehicle.
+     */
+    public int reId()
+    {
+        return id;
     }
 }

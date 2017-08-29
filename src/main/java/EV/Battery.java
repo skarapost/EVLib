@@ -14,16 +14,11 @@ public class Battery
 
     public Battery(double remAmount, double batteryCapacity)
     {
-        this.id = idGenerator.getAndIncrement();
+        this.id = idGenerator.incrementAndGet();
         this.remAmount = remAmount;
         this.batteryCapacity = batteryCapacity;
         this.maxNumberOfChargings = 100;
         active = true;
-    }
-
-    public Battery()
-    {
-        this.id = idGenerator.getAndIncrement();
     }
 
     /**
@@ -105,5 +100,13 @@ public class Battery
             this.maxNumberOfChargings = maxNumberOfChargings;
         else
             this.maxNumberOfChargings = numberOfChargings;
+    }
+
+    /**
+     * @return The id of this Battery.
+     */
+    public int reId()
+    {
+        return id;
     }
 }

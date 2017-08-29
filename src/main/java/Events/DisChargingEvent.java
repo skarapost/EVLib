@@ -8,23 +8,28 @@ import Station.WaitList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class DisChargingEvent
 {
+    private int id;
+    private static AtomicInteger idGenerator = new AtomicInteger(0);
     private ElectricVehicle vehicle;
     private ChargingStation station;
-    private double amEnerg;
+    private double amountOfEnergy;
     private long disChargingTime;
     private String condition;
     private int disChargerId;
     private long waitingTime;
     private long maxWaitingTime;
     private long timestamp;
+    private double profit;
     public static List<DisChargingEvent> dischargingLog = new ArrayList<>();
 
     public DisChargingEvent(ChargingStation station, ElectricVehicle vehicle, double amEnerg)
     {
-        this.amEnerg = amEnerg;
+        this.id = idGenerator.incrementAndGet();
+        this.amountOfEnergy = amountOfEnergy;
         this.station = station;
         this.vehicle = vehicle;
         this.disChargerId = -1;
@@ -67,11 +72,12 @@ public class DisChargingEvent
             if ((condition.equals("arrived")) || (condition.equals("wait"))) {
                 int qwe = station.checkDisChargers();
                 if ((qwe != -1) && (qwe != -2)) {
-                    station.setTotalEnergy(-amEnerg);
+                    station.setTotalEnergy(-amountOfEnergy);
                     setCondition("discharging");
-                    disChargingTime = (int) (amEnerg / station.reDisChargingRatio());
+                    disChargingTime = (int) (amountOfEnergy / station.reDisChargingRatio());
                     disChargerId = qwe;
                     DisCharger dsc = station.searchDischarger(disChargerId);
+                    profit = amountOfEnergy * station.reDisUnitPrice();
                     dsc.setDisChargingEvent(this);
                     dsc.changeSituation();
                 } else if (qwe == -2)
@@ -128,7 +134,7 @@ public class DisChargingEvent
      */
     public double reEnergyAmount()
     {
-        return amEnerg;
+        return amountOfEnergy;
     }
 
     /**
@@ -221,5 +227,21 @@ public class DisChargingEvent
                     index = j;
         }
         return counter1[index];
+    }
+
+    /**
+     * @return The id of this DisChargingEvent.
+     */
+    public int reId()
+    {
+       return id;
+    }
+
+    /**
+     * @return The profit of this DisChargingEvent.
+     */
+    public double reProfit()
+    {
+        return profit;
     }
 }

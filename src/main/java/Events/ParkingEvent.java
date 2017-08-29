@@ -7,8 +7,12 @@ import Station.ParkingSlot;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ParkingEvent {
+
+    private int id;
+    private static AtomicInteger idGenerator = new AtomicInteger(0);
     private long parkingTime;
     private ElectricVehicle vehicle;
     private ChargingStation station;
@@ -19,25 +23,28 @@ public class ParkingEvent {
     private long timestamp1;
     private long timestamp2;
     private String condition;
+    private double cost;
     public static List<ParkingEvent> parkLog = new ArrayList<>();
 
     public ParkingEvent(ChargingStation station, ElectricVehicle vehicle, long parkingTime)
     {
-        setParkingTime(parkingTime);
+        this.id = idGenerator.incrementAndGet();
         this.station = station;
         this.vehicle = vehicle;
         this.parkingSlotId = -1;
         this.condition = "arrived";
+        this.parkingTime = parkingTime;
     }
 
     public ParkingEvent(ChargingStation station, ElectricVehicle vehicle, long parkingTime, double amountOfEnergy)
     {
+        this.id = idGenerator.incrementAndGet();
         this.vehicle = vehicle;
         this.station = station;
-        setParkingTime(parkingTime);
         this.amountOfEnergy = amountOfEnergy;
         this.parkingSlotId = -1;
         this.condition = "arrived";
+        this.parkingTime = parkingTime;
     }
 
     /**
@@ -66,29 +73,35 @@ public class ParkingEvent {
                     else
                         energyToBeReceived = vehicle.reBattery().reBatteryCapacity() - vehicle.reBattery().reRemAmount();
                     station.setTotalEnergy(energyToBeReceived);
-                    timeOfCharging = (long) ((energyToBeReceived) / station.reInductiveRatio());
                 } else {
-                    amountOfEnergy = station.reTotalEnergy();
-                    station.setTotalEnergy(station.reTotalEnergy());
+                    if (station.reTotalEnergy() <= (vehicle.reBattery().reBatteryCapacity() - vehicle.reBattery().reRemAmount()))
+                        energyToBeReceived = station.reTotalEnergy();
+                    else
+                        energyToBeReceived = vehicle.reBattery().reBatteryCapacity() - vehicle.reBattery().reRemAmount();
+                    station.setTotalEnergy(energyToBeReceived);
                     if (energyToBeReceived == 0) {
                         setCondition("parking");
-                        setParkingTime(parkingTime);
                         ps.setParkingEvent(this);
                         ps.changeSituation();
                         return;
                     }
                 }
+                timeOfCharging = (long) ((energyToBeReceived) / station.reInductiveRatio());
+                if (timeOfCharging > parkingTime) {
+                    energyToBeReceived = parkingTime * station.reInductiveRatio();
+                    timeOfCharging = parkingTime;
+                }
+                setCondition("charging");
+                cost = station.calculatePrice(this);
+                ps.setParkingEvent(this);
+                ps.changeSituation();
             }
             else
             {
                 setCondition("parking");
                 ps.setParkingEvent(this);
                 ps.changeSituation();
-                return;
             }
-            setCondition("charging");
-            ps.setParkingEvent(this);
-            ps.changeSituation();
         }
         else
             setCondition("nonExecutable");
@@ -224,5 +237,29 @@ public class ParkingEvent {
     {
         timestamp2 = station.getTime();
         this.parkingTime = parkingTime;
+    }
+
+    /**
+     * @return The id of this ParkingEvent.
+     */
+    public int reId()
+    {
+        return id;
+    }
+
+    /**
+     * @return The energy the ElectricVehicle asked.
+     */
+    public double reEnergyAmount()
+    {
+       return amountOfEnergy;
+    }
+
+    /**
+     * @return The cost of this ParkingEvent.
+     */
+    public double reCost()
+    {
+        return cost;
     }
 }

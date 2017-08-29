@@ -11,7 +11,7 @@ public abstract class EnergySource
 
     public EnergySource(ChargingStation station)
     {
-        this.id = idGenerator.getAndIncrement();
+        this.id = this.idGenerator.incrementAndGet();
         this.station = station;
     }
 

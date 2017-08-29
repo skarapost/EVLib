@@ -12,13 +12,13 @@ public class Driver
 
     public Driver(String name)
     {
-        this.id = idGenerator.getAndIncrement();
+        this.id = idGenerator.incrementAndGet();
         this.name = name;
     }
 
     public Driver()
     {
-        this.id = idGenerator.getAndIncrement();
+        this.id = idGenerator.incrementAndGet();
         name = "Unknown Driver";
     }
 
@@ -62,5 +62,13 @@ public class Driver
     public String reName()
     {
         return this.name;
+    }
+
+    /**
+     * @return The id of this Driver.
+     */
+    public int reId()
+    {
+        return id;
     }
 }

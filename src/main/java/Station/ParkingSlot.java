@@ -19,7 +19,7 @@ public class ParkingSlot {
 
     public ParkingSlot(ChargingStation station)
     {
-        idGenerator.getAndIncrement();
+        this.id = idGenerator.incrementAndGet();
         this.station = station;
         this.busy = false;
         inSwitch = true;
@@ -48,24 +48,25 @@ public class ParkingSlot {
                         e.reStation().setSpecificAmount(energy.getKey(), ert);
                         break;
                     } else {
-                        sdf = e.reEnergyToBeReceived() - station.reMap().get(energy);
+                        sdf -= energy.getValue();
                         e.reStation().setSpecificAmount(energy.getKey(), 0);
                     }
                 }
-                e.reElectricVehicle().reBattery().setRemAmount(sdf + e.reElectricVehicle().reBattery().reRemAmount());
+                e.reElectricVehicle().reBattery().setRemAmount(e.reEnergyToBeReceived() + e.reElectricVehicle().reBattery().reRemAmount());
                 if (e.reElectricVehicle().reDriver() != null)
                     e.reElectricVehicle().reDriver().setDebt(e.reElectricVehicle().reDriver().reDebt() + station.calculatePrice(e));
-                System.out.println("The charging took place succesfully");
+                System.out.println("The inductive charging " + e.reId() + " completed successfully");
                 e.setCondition("parking");
                 long diff = e.reParkingTime() - e.reChargingTime();
-                d2 = new StopWatch();
+                d2.reset();
                 d2.start();
                 do {
                     en = d2.getTime();
                 }while(en < diff);
+                System.out.println("The parking " + e.reId() + " completed successfully");
+                e.setCondition("finished");
                 changeSituation();
                 setParkingEvent(null);
-                e.setCondition("finished");
                 commitTime = 0;
                 chargingTime = 0;
             }).start();

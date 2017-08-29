@@ -16,7 +16,7 @@ public class Charger {
     private static AtomicInteger idGenerator = new AtomicInteger(0);
 
     public Charger(ChargingStation station, String kindOfCharging) {
-        this.id = idGenerator.getAndIncrement();
+        this.id = idGenerator.incrementAndGet();
         this.kindOfCharging = kindOfCharging;
         this.busy = false;
         this.station = station;
@@ -53,8 +53,8 @@ public class Charger {
             } while (en < e.reChargingTime());
             e.reElectricVehicle().reBattery().setRemAmount(e.reEnergyToBeReceived() + e.reElectricVehicle().reBattery().reRemAmount());
             if (e.reElectricVehicle().reDriver() != null)
-                e.reElectricVehicle().reDriver().setDebt(e.reElectricVehicle().reDriver().reDebt() + station.calculatePrice(e));
-            System.out.println("The charging took place succesfully");
+                e.reElectricVehicle().reDriver().setDebt(e.reElectricVehicle().reDriver().reDebt() + e.reCost());
+            System.out.println("The charging " + e.reId() + " completed succesfully");
             e.setCondition("finished");
             changeSituation();
             setChargingEvent(null);

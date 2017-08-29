@@ -62,7 +62,7 @@ public class ChargingStation {
         this.date = new StopWatch();
         date.start();
         this.amounts = new HashMap<>();
-        this.id = idGenerator.getAndIncrement();
+        this.id = idGenerator.incrementAndGet();
         this.name = name;
         this.automaticQueueHandling = true;
         this.slow = new WaitList("charging");
@@ -130,7 +130,7 @@ public class ChargingStation {
         this.date = new StopWatch();
         date.start();
         this.amounts = new HashMap<>();
-        this.id = idGenerator.getAndIncrement();
+        this.id = idGenerator.incrementAndGet();
         this.name = name;
         this.slow = new WaitList("charging");
         this.fast = new WaitList("charging");
@@ -197,7 +197,7 @@ public class ChargingStation {
     public ChargingStation(String name) {
         this.date = new StopWatch();
         date.start();
-        this.id = idGenerator.getAndIncrement();
+        this.id = idGenerator.incrementAndGet();
         this.name = name;
         this.slow = new WaitList("charging");
         this.fast = new WaitList("charging");
@@ -857,7 +857,7 @@ public class ChargingStation {
             timer.purge(); }
         if(reUpdateMode() && updateSpace != 0) {
             this.updateSpace = updateSpace;
-            timer = new Timer();
+            timer = new Timer(true);
             timer.schedule(new checkUpdate(), 0, this.updateSpace); }
         else
             this.updateSpace = 0;
@@ -1066,12 +1066,12 @@ public class ChargingStation {
      * Sets the update of the energy storage will become either automatic or by the user.
      * @param update The way the update will become. False means by the user, true means automatic.
      */
-    public void setUpdateMode(boolean update) {
+    public void setAutomaticUpdateMode(boolean update) {
         if (!update && !this.automaticUpdate)
-            this.automaticUpdate = update;
-        else if(!update && this.automaticUpdate)
+            this.automaticUpdate = false;
+        else if(!update)
         {
-            this.automaticUpdate = update;
+            this.automaticUpdate = false;
             if(timer != null)
             {
                 timer.cancel();
@@ -1079,7 +1079,7 @@ public class ChargingStation {
             }
         }
         else
-            this.automaticUpdate = update;
+            this.automaticUpdate = true;
     }
 
     /**
@@ -1147,6 +1147,7 @@ public class ChargingStation {
                 content.add("Energy: " + ev.reEnergyToBeReceived());
                 content.add("Charging time: " + ev.reChargingTime());
                 content.add("Waiting time: " + ev.reMaxWaitingTime());
+                content.add("Cost: " + ev.reCost());
             }
             content.add("");
             content.add("***DisCharging events***");
@@ -1157,6 +1158,7 @@ public class ChargingStation {
                 content.add("Energy: " + ev.reEnergyAmount());
                 content.add("Charging time: " + ev.reDisChargingTime());
                 content.add("Waiting time: " + ev.reMaxWaitingTime());
+                content.add("Profit: " + ev.reProfit());
             }
             content.add("");
             content.add("***Exchange events***");
@@ -1165,6 +1167,7 @@ public class ChargingStation {
                 content.add("Vehicle: " + ev.reElectricVehicle().reBrand());
                 content.add("Cubism: " + ev.reElectricVehicle().reCubism());
                 content.add("Waiting time: " + ev.reMaxWaitingTime());
+                content.add("Cost: " + ev.reCost());
             }
             content.add("");
             content.add("***Energy additions***");

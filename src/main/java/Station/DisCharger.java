@@ -17,7 +17,7 @@ public class DisCharger
 
     public DisCharger(ChargingStation station)
     {
-        this.id = idGenerator.getAndIncrement();
+        this.id = idGenerator.incrementAndGet();
         this.busy = false;
         this.station = station;
         this.e = null;
@@ -45,10 +45,10 @@ public class DisCharger
                 en = d2.getTime();
             } while (en - st < e.reDisChargingTime());
             e.reElectricVehicle().reBattery().setRemAmount(e.reElectricVehicle().reBattery().reRemAmount() - e.reEnergyAmount());
-            e.reElectricVehicle().reDriver().setProfit(e.reElectricVehicle().reDriver().reProfit() + e.reEnergyAmount() * station.reDisUnitPrice());
+            e.reElectricVehicle().reDriver().setProfit(e.reElectricVehicle().reDriver().reProfit() + e.reProfit());
             double energy = station.reMap().get("discharging") + e.reEnergyAmount();
             station.setSpecificAmount("discharging", energy);
-            System.out.println("The discharging took place succesfully");
+            System.out.println("The discharging " + e.reId() + " completed succesfully");
             e.setCondition("finished");
             changeSituation();
             setDisChargingEvent(null);

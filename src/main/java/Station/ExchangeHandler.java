@@ -18,7 +18,7 @@ public class ExchangeHandler
 
     public ExchangeHandler(ChargingStation station)
     {
-        this.id = idGenerator.getAndIncrement();
+        this.id = idGenerator.incrementAndGet();
         this.station = station;
         e = null;
     }
@@ -77,7 +77,7 @@ public class ExchangeHandler
             }while(en - st < e.reChargingTime());
             station.joinBattery(temp);
             e.reElectricVehicle().reDriver().setDebt(e.reElectricVehicle().reDriver().reDebt() + station.calculatePrice(e));
-            System.out.println ("The exchange took place successfully");
+            System.out.println ("The exchange " + e.reId() + " completed successfully");
             e.setCondition("finished");
             changeSituation();
             joinChargingEvent(null);

@@ -1,6 +1,8 @@
 package EV;
 
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class ElectricVehicle extends Vehicle
 {
     private Battery battery;
@@ -54,4 +56,5 @@ public class ElectricVehicle extends Vehicle
     {
         return driver;
     }
+
 }

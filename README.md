@@ -28,34 +28,43 @@ The library also supports a number of secondary functions: The creation of a cha
           energyAm [i][j] = 1500;
   
   ChargingStation station = new ChargingStation("Miami", kinds, sources, energyAm);
+  
+  //Creation of a Charger, a DisCharger and an ExchangeHandler
   DisCharger dsc = new DisCharger(station);
   ExchangeHandler handler = new ExchangeHandler(station);
+  ParkingSlot slot = new ParkingSlot(station);
   
   station.addExchangeHandler(handler);
-  
   station.addDisCharger(dsc);
+  station.addParkingSlot(slot);
   
   //Sets the space between every update in milliseconds.
   station.setUpdateSpace(10000);
   
   station.setChargingRatioFast(0.01);
   station.setDisChargingRatio(0.1);
+  station.setInductiveChargingRatio(0.001);
   
-  //Sets the duration of a battery exchange in milliseconds
-  station.setTimeofExchange(5000);
+  station.setUnitPrice(5);
+  station.setDisUnitPrice(5);
+  station.setInductivePrice(3);
+  station.setExchangePrice(20);
   
   Driver a = new Driver("Tom");
+  Driver b = new Driver("Ben");
   
   ElectricVehicle vec1 = new ElectricVehicle("Honda", 1950);
   ElectricVehicle vec2 = new ElectricVehicle("Toyota", 1400);
   ElectricVehicle vec3 = new ElectricVehicle("Mitsubishi", 1500);
   ElectricVehicle vec4 = new ElectricVehicle("Fiat", 1600);
+  ElectricVehicle vec5 = new ElectricVehicle("BMW", 2500);
   
   Battery bat1 = new Battery(1500, 5000);
   Battery bat2 = new Battery(2000, 6000);
   Battery bat3 = new Battery(2500, 6000);
   Battery bat4 = new Battery(800, 3000);
   Battery bat5 = new Battery(0, 800);
+  Battery bat6 = new Battery(500, 9000);
   
   //Links a battery with a charging station for the exchange battery function
   station.joinBattery(bat4);
@@ -66,34 +75,52 @@ The library also supports a number of secondary functions: The creation of a cha
   vec2.vehicleJoinBattery(bat2);
   vec3.setDriver(a);
   vec3.vehicleJoinBattery(bat3);
-  vec4.setDriver(a);
+  vec4.setDriver(b);
   vec4.vehicleJoinBattery(bat5);
+  vec5.setDriver(b);
+  vec5.vehicleJoinBattery(bat6);
   
+  //ChargingEvent
   ChargingEvent ev1 = new ChargingEvent(station, vec1, 300, "fast");
   ChargingEvent ev2 = new ChargingEvent(station, vec2, 600, "fast");
   ChargingEvent ev3 = new ChargingEvent(station, vec3, 200, "fast");
   ChargingEvent ev5 = new ChargingEvent(station, vec1, 300, "fast");
+  
+  //Exchange event
   ChargingEvent ev7 = new ChargingEvent(station, vec4);
   
+  //DisChargingEvent
   DisChargingEvent ev4 = new DisChargingEvent(station, vec1, 500);
   DisChargingEvent ev6 = new DisChargingEvent(station, vec1, 800);
+  
+  ParkingEvent ev8 = new ParkingEvent(station, vec5, 20000, 200);
   
   //Sets the maximum time a vehicle can wait in milliseconds
   ev3.setWaitingTime(500000);
   ev5.setWaitingTime(1200000);
   ev6.setWaitingTime(450000);
   
+  ev1.preProcessing();
   ev1.execution();
   
+  ev2.preProcessing();
   ev2.execution();
-  
+          
+  ev3.preProcessing();
   ev3.execution();
-  
+          
+  ev4.preProcessing();
   ev4.execution();
-  
+          
+  ev5.preProcessing();
   ev5.execution();
-  
+          
+  ev6.preProcessing();
   ev6.execution();
-  
+          
+  ev7.preProcessing();
   ev7.execution();
+          
+  ev8.preProcessing();
+  ev8.execution();
 ```
