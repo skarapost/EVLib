@@ -7,10 +7,10 @@ The library has to be compiled using Maven.
 ## Main Functions
 
 ### Charging: 
-There are 2 types of charging depending on the charging time, namely the fast and the slow charging.
+There are 2 types of charging depending on the ratio, namely the fast and the slow charging.
 
 ### DisCharging: 
-Similarly to a charging event, a discharging event first demands the pre-processing phase where a quest for an empty dis-charger is made.
+Similar to a charging event, a discharging event first demands the pre-processing phase where a quest for an empty dis-charger is made.
 
 ### Battery Exchange: 
 The pre-processing phase requires for a battery with enough range to be available in the charging station. If such a battery is found, the battery is swapped into the EV.
@@ -18,7 +18,7 @@ The pre-processing phase requires for a battery with enough range to be availabl
 ## Extra Functions
 The library also supports a number of secondary functions: The creation of a charging station, as well as the creation and integration of a charger, dis-charger or battery swapper in the station. Additional operations are the recharging of batteries which are later to be swapped into EVs, as well as the ability to add new batteries to the storage in order seamless operation of the battery exchange process to be achieved. The total cost of the charging, discharging and battery swapping can be calculated based on a series of costs (e.g., energy cost) defined by the user. During the creation of the charging station, 4 waiting lists are created. A list for the charging events which want fast charging, a list for the charging events which want slow charging, a list for the discharging events, and a list for the vehicles waiting for battery exchange.
 
-## Examples
+## Example
 ```
   String[] kinds = { "slow", "fast", "fast", "slow" };
   String[] sources = { "geothermal", "nonrenewable", "wind", "wave" };
@@ -39,7 +39,10 @@ The library also supports a number of secondary functions: The creation of a cha
   station.addParkingSlot(slot);
   
   //Sets the space between every update in milliseconds.
+  station.setAutomaticUpdateMode(true);
   station.setUpdateSpace(10000);
+  
+  station.setTimeOfExchange(5000);
   
   station.setChargingRatioFast(0.01);
   station.setDisChargingRatio(0.1);
