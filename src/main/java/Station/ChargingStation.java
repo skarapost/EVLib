@@ -1179,14 +1179,15 @@ public class ChargingStation {
             content.add("***********************************");
             Writer writer = null;
             try {
-                    writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath), "utf-8"));
-                    for (String line : content) {
-                        line += System.getProperty("line.separator");
-                        writer.write(line);
-                    }
+                writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath), "utf-8"));
+                for (String line : content) {
+                    line += System.getProperty("line.separator");
+                    writer.write(line);
+                }
             } catch (IOException ignored) {
 
-            } finally {
+            }
+            finally {
                 if (writer != null)
                     try {
                         writer.close();

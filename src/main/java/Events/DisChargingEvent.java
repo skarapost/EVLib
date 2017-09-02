@@ -74,7 +74,7 @@ public class DisChargingEvent
                 if ((qwe != -1) && (qwe != -2)) {
                     station.setTotalEnergy(-amountOfEnergy);
                     setCondition("discharging");
-                    disChargingTime = (int) (amountOfEnergy / station.reDisChargingRatio());
+                    setDisChargingTime((long) (amountOfEnergy / station.reDisChargingRatio()));
                     disChargerId = qwe;
                     DisCharger dsc = station.searchDischarger(disChargerId);
                     profit = amountOfEnergy * station.reDisUnitPrice();

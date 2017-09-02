@@ -34,6 +34,7 @@ public class ParkingEvent {
         this.parkingSlotId = -1;
         this.condition = "arrived";
         this.parkingTime = parkingTime;
+        this.timestamp2 = station.getTime();
     }
 
     public ParkingEvent(ChargingStation station, ElectricVehicle vehicle, long parkingTime, double amountOfEnergy)
@@ -45,6 +46,7 @@ public class ParkingEvent {
         this.parkingSlotId = -1;
         this.condition = "arrived";
         this.parkingTime = parkingTime;
+        this.timestamp2 = station.getTime();
     }
 
     /**
@@ -86,7 +88,7 @@ public class ParkingEvent {
                         return;
                     }
                 }
-                timeOfCharging = (long) ((energyToBeReceived) / station.reInductiveRatio());
+                setChargingTime((long) ((energyToBeReceived) / station.reInductiveRatio()));
                 if (timeOfCharging > parkingTime) {
                     energyToBeReceived = parkingTime * station.reInductiveRatio();
                     timeOfCharging = parkingTime;
@@ -185,7 +187,7 @@ public class ParkingEvent {
      * Sets the charging time of the ParkingEvent.
      * @param time The charging time.
      */
-    public void setChargingTime(int time)
+    public void setChargingTime(long time)
     {
         timestamp1 = station.getTime();
         this.timeOfCharging = time;

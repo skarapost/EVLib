@@ -80,7 +80,7 @@ public class ChargingEvent
      * calculates the energy to be given to the Vehicle and calculates the charging time.
      * If there is not any empty Charger or exchange slot the ChargingEvent is inserted
      * in the respectively waiting list.
-     */
+     **/
     public void preProcessing()
     {
         if (reElectricVehicle().reBattery().reActive()) {
@@ -110,9 +110,9 @@ public class ChargingEvent
                             }
                         }
                         if ("fast".equals(kindOfCharging))
-                            chargingTime = (long) (energyToBeReceived / station.reChargingRatioFast());
+                            setChargingTime((long) (energyToBeReceived / station.reChargingRatioFast()));
                         else
-                            chargingTime = (long) (energyToBeReceived / station.reChargingRatioSlow());
+                            setChargingTime((long) (energyToBeReceived / station.reChargingRatioSlow()));
                         this.cost = station.calculatePrice(this);
                         ch.setChargingEvent(this);
                         ch.changeSituation();
@@ -154,6 +154,7 @@ public class ChargingEvent
                         eh.joinChargingEvent(this);
                         eh.changeSituation();
                         setCondition("swapping");
+                        timestamp = station.getTime();
                     } else if (qwe == -2)
                         setCondition("nonExecutable");
                     else {
@@ -286,7 +287,7 @@ public class ChargingEvent
      * Sets the charging time of the ChargingEvent.
      * @param time The charging time.
      */
-    public void setChargingTime(int time)
+    public void setChargingTime(long time)
     {
         timestamp = station.getTime();
         this.chargingTime = time;
