@@ -50,7 +50,7 @@ public class ChargingStation {
     private PricingPolicy policy;
     private boolean automaticUpdate;
     private Statistics statistics = new Statistics();
-    Timer timer;
+    private Timer timer;
 
     private class checkUpdate extends TimerTask {
         public void run() {
@@ -489,6 +489,42 @@ public class ChargingStation {
     }
 
     /**
+     * Removes a specific Charger.
+     * @param charger The Charger to be removed.
+     */
+    public void deleteCharger(Charger charger)
+    {
+        chargers.remove(charger);
+    }
+
+    /**
+     * Removes a specific DisCharger.
+     * @param disCharger The DisCharger to be removed.
+     */
+    public void deleteDisCharger(DisCharger disCharger)
+    {
+        dischargers.remove(disCharger);
+    }
+
+    /**
+     * Removes a specific ExchangeHandler.
+     * @param exchangeHandler The ExchangeHandler to be removed.
+     */
+    public void deleteExchangeHandler(ExchangeHandler exchangeHandler)
+    {
+        exchangeHandlers.remove(exchangeHandler);
+    }
+
+    /**
+     * Removes a specific ParkingSlot.
+     * @param parkingSlot The ParkingSLot to be removed.
+     */
+    public void deleteParkingSlot(ParkingSlot parkingSlot)
+    {
+        parkingSlots.remove(parkingSlot);
+    }
+
+    /**
      * Sorts the energies sources according to the desire of the user.
      *
      * @param energies It is a String array that defines the energies order.
@@ -504,14 +540,14 @@ public class ChargingStation {
      *
      * @param battery The Battery is going to be added.
      */
-    public void joinBattery(Battery battery) {
+    void joinBattery(Battery battery) {
         batteries.add(battery);
     }
 
     /**
      * @return A ArrayList with the Battery objects.
      */
-    public ArrayList<Battery> reBatteries() {
+    ArrayList<Battery> reBatteries() {
         return batteries;
     }
 
@@ -618,7 +654,7 @@ public class ChargingStation {
     /**
      * @return A HashMap object with the amounts of each kind of energy.
      */
-    public HashMap<String, Double> reMap() {
+    HashMap<String, Double> reMap() {
         return amounts;
     }
 
@@ -628,15 +664,16 @@ public class ChargingStation {
      * @param source The kind of energy in which the energy will be added.
      * @param amount The amount of energy will be added.
      */
-    public void setSpecificAmount(String source, double amount) {
+    void setSpecificAmount(String source, double amount) {
         amounts.put(source, amount);
+        statistics.addEnergy("New energy for this source: " + String.valueOf(amount));
     }
 
     /**
      * @param source The source of energy.
      * @return The energy of the source.
      */
-    public double reSpecificAmount(String source) {
+    double reSpecificAmount(String source) {
         if (!amounts.containsKey(source))
             return 0.0;
         return amounts.get(source);
@@ -842,7 +879,7 @@ public class ChargingStation {
      * @return True if the WaitingList is handled automatic by the library.
      * False if the user has to handle the WaitingList.
      */
-    public boolean reQueueHandling() {
+    boolean reQueueHandling() {
         return automaticQueueHandling;
     }
 
@@ -890,7 +927,7 @@ public class ChargingStation {
     }
 
     /**
-     * @return The array with the EnergySource objects of theChargingStation.
+     * @return The array with the EnergySource objects of the ChargingStation.
      */
     public EnergySource[] reEnergySources() {
         EnergySource[] g = new EnergySource[n.size()];
@@ -927,82 +964,39 @@ public class ChargingStation {
             energy = reEnergySources()[j].popAmount();
             counter += energy;
             if (reEnergySources()[j] instanceof Solar) {
-                energy += reSpecificAmount("solar");
-                setSpecificAmount("solar", energy);
                 Calendar calendar = Calendar.getInstance();
                 statistics.addEnergy("Solar, " + energy + ", " + dateFormat.format(calendar.getTime()));
+                energy += reSpecificAmount("solar");
+                amounts.put("solar", energy);
             } else if (reEnergySources()[j] instanceof Geothermal) {
-                energy += reSpecificAmount("geothermal");
-                setSpecificAmount("geothermal", energy);
                 Calendar calendar = Calendar.getInstance();
                 statistics.addEnergy("Geothermal, " + energy + ", " + dateFormat.format(calendar.getTime()));
+                energy += reSpecificAmount("geothermal");
+                amounts.put("geothermal", energy);
             } else if (reEnergySources()[j] instanceof NonRenewable) {
-                energy += reSpecificAmount("nonreneable");
-                setSpecificAmount("nonrenewable", energy);
                 Calendar calendar = Calendar.getInstance();
                 statistics.addEnergy("Nonrenewable, " + energy + ", " + dateFormat.format(calendar.getTime()));
+                energy += reSpecificAmount("nonreneable");
+                amounts.put("nonrenewable", energy);
             } else if (reEnergySources()[j] instanceof HydroElectric) {
-                energy += reSpecificAmount("hydroelectric");
-                setSpecificAmount("hydroelectric", energy);
                 Calendar calendar = Calendar.getInstance();
                 statistics.addEnergy("Hydroelectric, " + energy + ", " + dateFormat.format(calendar.getTime()));
+                energy += reSpecificAmount("hydroelectric");
+                amounts.put("hydroelectric", energy);
             } else if (reEnergySources()[j] instanceof Wave) {
-                energy += reSpecificAmount("wave");
-                setSpecificAmount("wave", energy);
                 Calendar calendar = Calendar.getInstance();
                 statistics.addEnergy("Wave, " + energy + ", " + dateFormat.format(calendar.getTime()));
+                energy += reSpecificAmount("wave");
+                amounts.put("wave", energy);
             } else if (reEnergySources()[j] instanceof Wind) {
-                energy += reSpecificAmount("wind");
-                setSpecificAmount("wind", energy);
                 Calendar calendar = Calendar.getInstance();
                 statistics.addEnergy("Wind, " + energy + ", " + dateFormat.format(calendar.getTime()));
+                energy += reSpecificAmount("wind");
+                amounts.put("wind", energy);
             }
         }
         setTotalEnergy(-counter);
     }
-
-    /**
-     * Distribute the energy across the ElectricVehicle objects. In case some 
-     * ElectricVehicle objects arrive together and the ChargingStation's energy
-     * is not enough, then this function is called and distribute the energy. 
-     * Each ElectricVehicle takes a percentage of the total amount. 
-     * The percentage is the energy the ElectricVehicle demands to the total 
-     * energy of all the ElectricVehicle objects.
-     * @param date The time the ElectricVehicle object arrived.
-     */
-    /*public void energyDistribution(long date)
-    {
-        double counter = 0;
-        int counter1 = 0;
-        boolean[] g;
-        g = new boolean[reChargers().length];
-        double max = -1;
-        for (int i = 0;i < reChargers().length;i++)
-            if (reChargers()[i].reChargingEvent() != null)
-            {
-                if ((reChargers()[i].reChargingEvent().reDateArrival() == date)&&(!reChargers()[i].reChargingEvent().reCondition().equals("finished")))
-                {
-                    counter = counter + reChargers()[i].reChargingEvent().reEnergyAmount();
-                    g[i] = true;
-                    counter1++;
-                    if (max < reChargers()[i].reChargingEvent().reStock())
-                        max = reChargers()[i].reChargingEvent().reStock();
-                }
-                else
-                    g[i] = false;
-            }
-        if (counter1 == 1)
-            return;
-        for(int i = 0;i < g.length;i++)
-            if (g[i])
-            {
-                reChargers()[i].reChargingEvent().setEnergyToBeReceived(max * (reChargers()[i].reChargingEvent().reEnergyAmount()/counter));
-                if ("fast".equals(reChargers()[i].reChargingEvent().reKind()))
-                    reChargers()[i].reChargingEvent().setChargingTime((int) (reChargers()[i].reChargingEvent().reEnergyToBeReceived()/reChargingRatioFast()) + 1);
-                else
-                    reChargers()[i].reChargingEvent().setChargingTime((int) ((reChargers()[i].reChargingEvent().reEnergyToBeReceived() + 1)/reChargingRatioSlow()));
-            }
-    }*/
 
     /**
      * Calculates the cost of a charging.
@@ -1109,15 +1103,15 @@ public class ChargingStation {
     private class Statistics {
         private List<String> energyLog;
 
-        public Statistics() {
+        Statistics() {
             energyLog = new ArrayList<>();
         }
 
-        public void addEnergy(String energy) {
+        void addEnergy(String energy) {
             energyLog.add(energy);
         }
 
-        public void generateReport(String filePath) {
+        void generateReport(String filePath) {
             List<String> content = new ArrayList<>();
             content.add("***********************************");
             content.add("");

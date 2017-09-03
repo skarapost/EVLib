@@ -29,7 +29,7 @@ public class DisChargingEvent
     public DisChargingEvent(ChargingStation station, ElectricVehicle vehicle, double amEnerg)
     {
         this.id = idGenerator.incrementAndGet();
-        this.amountOfEnergy = amountOfEnergy;
+        this.amountOfEnergy = amEnerg;
         this.station = station;
         this.vehicle = vehicle;
         this.disChargerId = -1;
