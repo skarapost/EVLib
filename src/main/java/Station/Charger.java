@@ -34,32 +34,32 @@ public class Charger {
         {
             double sdf;
             long en;
-            sdf = e.reEnergyToBeReceived();
-            HashMap<String, Double> keys = new HashMap<>(station.reMap());
+            sdf = e.getEnergyToBeReceived();
+            HashMap<String, Double> keys = new HashMap<>(station.getMap());
             for (HashMap.Entry<String, Double> energy : keys.entrySet()) {
                 if (sdf < energy.getValue()) {
-                    double ert = station.reMap().get(energy.getKey()) - sdf;
-                    e.reStation().setSpecificAmount(energy.getKey(), ert);
+                    double ert = station.getMap().get(energy.getKey()) - sdf;
+                    e.getStation().setSpecificAmount(energy.getKey(), ert);
                     break;
                 } else {
                     sdf -= energy.getValue();
-                    e.reStation().setSpecificAmount(energy.getKey(), 0);
+                    e.getStation().setSpecificAmount(energy.getKey(), 0);
                 }
             }
             StopWatch d2 = new StopWatch();
             d2.start();
             do {
                 en = d2.getTime();
-            } while (en < e.reChargingTime());
-            e.reElectricVehicle().reBattery().setRemAmount(e.reEnergyToBeReceived() + e.reElectricVehicle().reBattery().reRemAmount());
-            if (e.reElectricVehicle().reDriver() != null)
-                e.reElectricVehicle().reDriver().setDebt(e.reElectricVehicle().reDriver().reDebt() + e.reCost());
-            System.out.println("The charging " + e.reId() + " completed succesfully");
+            } while (en < e.getChargingTime());
+            e.getElectricVehicle().getBattery().setRemAmount(e.getEnergyToBeReceived() + e.getElectricVehicle().getBattery().getRemAmount());
+            if (e.getElectricVehicle().getDriver() != null)
+                e.getElectricVehicle().getDriver().setDebt(e.getElectricVehicle().getDriver().getDebt() + e.getCost());
+            System.out.println("The charging " + e.getId() + " completed succesfully");
             e.setCondition("finished");
             changeSituation();
             setChargingEvent(null);
             commitTime = 0;
-            if (station.reQueueHandling())
+            if (station.getQueueHandling())
                 handleQueueEvents();
         }).start();
     }
@@ -75,14 +75,14 @@ public class Charger {
     /**
      * @return True if it is busy, false if it is not busy.
      */
-    public boolean reBusy() {
+    public boolean getBusy() {
         return busy;
     }
 
     /**
      * @return The kind of charging the Charger supports.
      */
-    public String reKind() {
+    public String getKind() {
         return kindOfCharging;
     }
 
@@ -98,16 +98,16 @@ public class Charger {
      * Handles the list. It executes (if any) the first element of the list.
      */
     public void handleQueueEvents() {
-        if ("fast".equals(reKind())) {
-            if (station.reFast().reSize() != 0)
+        if ("fast".equals(getKind())) {
+            if (station.getFast().size() != 0)
             {
-                station.reFast().takeFirst().preProcessing();
-                station.reFast().removeFirst().execution();
+                station.getFast().takeFirst().preProcessing();
+                station.getFast().removeFirst().execution();
             }
-        } else if ("slow".equals(reKind())) {
-            if (station.reSlow().reSize() != 0) {
-                station.reSlow().takeFirst().preProcessing();
-                station.reSlow().removeFirst().execution();
+        } else if ("slow".equals(getKind())) {
+            if (station.getSlow().size() != 0) {
+                station.getSlow().takeFirst().preProcessing();
+                station.getSlow().removeFirst().execution();
             }
         }
     }
@@ -115,7 +115,7 @@ public class Charger {
     /**
      * @return The ChargingEvent which is linked with the Charger.
      */
-    public ChargingEvent reChargingEvent() {
+    public ChargingEvent getChargingEvent() {
         return e;
     }
 
@@ -142,7 +142,7 @@ public class Charger {
     /**
      * @return The id of Charger.
      */
-    public int reId() {
+    public int getId() {
         return id;
     }
 }

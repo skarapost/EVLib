@@ -33,7 +33,7 @@ public class Battery
     /**
      * @return If it is active(available) or not.
      */
-    public boolean reActive()
+    public boolean getActive()
     {
         return active;
     }
@@ -50,7 +50,7 @@ public class Battery
     /**
      * @return Remaining Amount of battery.
      */
-    public double reRemAmount()
+    public double getRemAmount()
     {
         return remAmount;
     }
@@ -58,7 +58,7 @@ public class Battery
     /**
      * @return Battery capacity of the Battery.
      */
-    public double reBatteryCapacity()
+    public double getBatteryCapacity()
     {
         return batteryCapacity;
     }
@@ -66,7 +66,7 @@ public class Battery
     /**
      * @return The number of chargings a battery can afford.
      */
-    public int reNumberOfChargings()
+    public int getNumberOfChargings()
     {
         return numberOfChargings;
     }
@@ -85,7 +85,7 @@ public class Battery
     /**
      * @return The maximum number of times a battery can be fully charged.
      */
-    public int reMaxNumberOfCharging()
+    public int getMaxNumberOfCharging()
     {
         return maxNumberOfChargings;
     }
@@ -105,7 +105,7 @@ public class Battery
     /**
      * @return The id of this Battery.
      */
-    public int reId()
+    public int getId()
     {
         return id;
     }

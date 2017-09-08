@@ -18,7 +18,7 @@ public class ElectricVehicle extends Vehicle
     /**
     * @return The Battery of the ElectricVehicle.
     */
-    public Battery reBattery()
+    public Battery getBattery()
     {
         return battery;
     }
@@ -52,7 +52,7 @@ public class ElectricVehicle extends Vehicle
     /**
     * @return The Driver of the ElectricVehicle.
     */
-    public Driver reDriver()
+    public Driver getDriver()
     {
         return driver;
     }

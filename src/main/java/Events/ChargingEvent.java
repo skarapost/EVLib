@@ -41,9 +41,9 @@ public class ChargingEvent
         this.vehicle = vehicle;
         this.condition = "arrived";
         if ("fast".equals(kindOfCharging))
-            chargingTime = (long) (this.amountOfEnergy / station.reChargingRatioFast());
+            chargingTime = (long) (this.amountOfEnergy / station.getChargingRatioFast());
         else
-            chargingTime = (long) (this.amountOfEnergy / station.reChargingRatioSlow());
+            chargingTime = (long) (this.amountOfEnergy / station.getChargingRatioSlow());
     }
 
     public ChargingEvent(ChargingStation station, ElectricVehicle vehicle, String kindOfCharging, double money)
@@ -54,14 +54,14 @@ public class ChargingEvent
         this.kindOfCharging = kindOfCharging;
         this.chargerId = -1;
         this.condition = "arrived";
-        if (money/station.reUnitPrice() <= station.reTotalEnergy())
-            this.amountOfEnergy = money/station.reUnitPrice();
+        if (money/station.getUnitPrice() <= station.getTotalEnergy())
+            this.amountOfEnergy = money/station.getUnitPrice();
         else
-            this.amountOfEnergy = station.reTotalEnergy();
+            this.amountOfEnergy = station.getTotalEnergy();
         if ("fast".equals(kindOfCharging))
-            chargingTime = (long) (this.amountOfEnergy / station.reChargingRatioFast());
+            chargingTime = (long) (this.amountOfEnergy / station.getChargingRatioFast());
         else
-            chargingTime = (long) (this.amountOfEnergy / station.reChargingRatioSlow());
+            chargingTime = (long) (this.amountOfEnergy / station.getChargingRatioSlow());
     }
 
     public ChargingEvent(ChargingStation station, ElectricVehicle vehicle)
@@ -71,7 +71,7 @@ public class ChargingEvent
         this.kindOfCharging = "exchange";
         this.chargerId = -1;
         this.vehicle = vehicle;
-        this.chargingTime = station.reTimeOfExchange();
+        this.chargingTime = station.getTimeOfExchange();
         this.condition = "arrived";
     }
 
@@ -83,26 +83,24 @@ public class ChargingEvent
      **/
     public void preProcessing()
     {
-        if (reElectricVehicle().reBattery().reActive()) {
+        if (getElectricVehicle().getBattery().getActive()) {
             if ((condition.equals("arrived")) || (condition.equals("wait"))) {
                 if (!"exchange".equals(kindOfCharging)) {
                     int qwe = station.checkChargers(kindOfCharging);
                     if ((qwe != -1) && (qwe != -2)) {
                         chargerId = qwe;
                         Charger ch = station.searchCharger(chargerId);
-                        if ((amountOfEnergy != 0)&&(vehicle.reBattery().reActive())) {
-                            if (amountOfEnergy < station.reTotalEnergy()) {
-                                if (amountOfEnergy <= (vehicle.reBattery().reBatteryCapacity() - vehicle.reBattery().reRemAmount()))
+                        if ((amountOfEnergy != 0)&&(vehicle.getBattery().getActive())) {
+                            if (amountOfEnergy < station.getTotalEnergy()) {
+                                if (amountOfEnergy <= (vehicle.getBattery().getBatteryCapacity() - vehicle.getBattery().getRemAmount()))
                                     energyToBeReceived = amountOfEnergy;
                                 else
-                                    energyToBeReceived = vehicle.reBattery().reBatteryCapacity() - vehicle.reBattery().reRemAmount();
-                                station.setTotalEnergy(energyToBeReceived);
+                                    energyToBeReceived = vehicle.getBattery().getBatteryCapacity() - vehicle.getBattery().getRemAmount();
                             } else {
-                                if (station.reTotalEnergy() <= (vehicle.reBattery().reBatteryCapacity() - vehicle.reBattery().reRemAmount()))
-                                    energyToBeReceived = station.reTotalEnergy();
+                                if (station.getTotalEnergy() <= (vehicle.getBattery().getBatteryCapacity() - vehicle.getBattery().getRemAmount()))
+                                    energyToBeReceived = station.getTotalEnergy();
                                 else
-                                    energyToBeReceived = vehicle.reBattery().reBatteryCapacity() - vehicle.reBattery().reRemAmount();
-                                station.setTotalEnergy(energyToBeReceived);
+                                    energyToBeReceived = vehicle.getBattery().getBatteryCapacity() - vehicle.getBattery().getRemAmount();
                                 if (energyToBeReceived == 0) {
                                     setCondition("nonExecutable");
                                     return;
@@ -110,9 +108,9 @@ public class ChargingEvent
                             }
                         }
                         if ("fast".equals(kindOfCharging))
-                            setChargingTime((long) (energyToBeReceived / station.reChargingRatioFast()));
+                            setChargingTime((long) (energyToBeReceived / station.getChargingRatioFast()));
                         else
-                            setChargingTime((long) (energyToBeReceived / station.reChargingRatioSlow()));
+                            setChargingTime((long) (energyToBeReceived / station.getChargingRatioSlow()));
                         this.cost = station.calculatePrice(this);
                         ch.setChargingEvent(this);
                         ch.changeSituation();
@@ -150,7 +148,7 @@ public class ChargingEvent
                             setCondition("nonExecutable");
                             return;
                         }
-                        this.cost = station.reExchangePrice();
+                        this.cost = station.getExchangePrice();
                         eh.joinChargingEvent(this);
                         eh.changeSituation();
                         setCondition("swapping");
@@ -199,7 +197,7 @@ public class ChargingEvent
     /**
      * @return The ElectricVehicle of the event.
      */
-    public ElectricVehicle reElectricVehicle()
+    public ElectricVehicle getElectricVehicle()
     {
         return vehicle;
     }
@@ -216,7 +214,7 @@ public class ChargingEvent
     /**
      * @return The kind of charging of ChargingEvent.
      */
-    public String reKind()
+    public String getKind()
     {
         return kindOfCharging;
     }
@@ -224,7 +222,7 @@ public class ChargingEvent
     /**
      * @return The ChargingStation the event is going to be executed.
      */
-    public ChargingStation reStation()
+    public ChargingStation getStation()
     {
         return station;
     }
@@ -232,7 +230,7 @@ public class ChargingEvent
     /**
      * @return The energy to be received by ElectricVehicle.
      */
-    public double reEnergyToBeReceived()
+    public double getEnergyToBeReceived()
     {
         return energyToBeReceived;
     }
@@ -249,7 +247,7 @@ public class ChargingEvent
     /**
      * @return The amount of energy the ElectricVehicle asks.
      */
-    public double reEnergyAmount()
+    public double getEnergyAmount()
     {
         return amountOfEnergy;
     }
@@ -266,7 +264,7 @@ public class ChargingEvent
     /**
      * @return The waiting time of the ChargingEvent.
      */
-    public long reWaitingTime()
+    public long getWaitingTime()
     {
         return waitingTime;
     }
@@ -274,7 +272,7 @@ public class ChargingEvent
     /**
      * @return The charging time of the ChargingEvent.
      */
-    public long reElapsedChargingTime()
+    public long getElapsedChargingTime()
     {
         long diff = station.getTime() - timestamp;
         if (chargingTime - diff >= 0)
@@ -305,7 +303,7 @@ public class ChargingEvent
     /**
      * @return The condition of ChargingEvent.
      */
-    public String reCondition()
+    public String getCondition()
     {
         return condition;
     }
@@ -322,7 +320,7 @@ public class ChargingEvent
     /**
      * @return The maximum time the vehicle can wait.
      */
-    public long reMaxWaitingTime()
+    public long getMaxWaitingTime()
     {
         return maxWaitingTime;
     }
@@ -330,7 +328,7 @@ public class ChargingEvent
     /**
      * @return The charging time of this ChargingEvent.
      */
-    public long reChargingTime()
+    public long getChargingTime()
     {
         return chargingTime;
     }
@@ -343,14 +341,14 @@ public class ChargingEvent
      */
     private long calWaitingTime()
     {
-        long[] counter1 = new long[station.reChargers().length];
-        long[] counter2 = new long[station.reChargers().length];
+        long[] counter1 = new long[station.getChargers().length];
+        long[] counter2 = new long[station.getChargers().length];
         long min = 1000000000;
         int index = 1000000000;
-        if (!Objects.equals("exchange", reKind()))
-            for (int i = 0; i < station.reChargers ().length; i++) {
-                if (Objects.equals(reKind(), station.reChargers()[i].reKind())) {
-                    long diff = station.reChargers()[i].reChargingEvent().reElapsedChargingTime();
+        if (!Objects.equals("exchange", getKind()))
+            for (int i = 0; i < station.getChargers ().length; i++) {
+                if (Objects.equals(getKind(), station.getChargers()[i].getKind())) {
+                    long diff = station.getChargers()[i].getChargingEvent().getElapsedChargingTime();
                     if (min > diff) {
                         min = diff;
                         index = i;
@@ -359,46 +357,46 @@ public class ChargingEvent
                 }
             }
         else
-            for (int i = 0; i<station.reExchangeHandlers().length; i++)
+            for (int i = 0; i<station.getExchangeHandlers().length; i++)
             {
-                long diff = station.reExchangeHandlers()[i].reChargingEvent().reElapsedChargingTime();
+                long diff = station.getExchangeHandlers()[i].getChargingEvent().getElapsedChargingTime();
                 if (min > diff) {
                     min = diff;
                     index = i;
                 }
                 counter2[i] = diff;
             }
-        if ("slow".equals(reKind()))
+        if ("slow".equals(getKind()))
         {
-            WaitList o = station.reSlow();
-            for (int i = 0;i < o.reSize() ;i++)
+            WaitList o = station.getSlow();
+            for (int i = 0;i < o.size() ;i++)
             {
-                counter1[index] = counter1[index] + o.peek(i).reChargingTime();
-                for(int j=0; j<station.reChargers().length; j++)
+                counter1[index] = counter1[index] + o.peek(i).getChargingTime();
+                for(int j=0; j<station.getChargers().length; j++)
                     if ((counter1[j]<counter1[index])&&(counter1[j]!=0))
                         index = j;
             }
             return counter1[index];
         }
-        if ("fast".equals(reKind()))
+        if ("fast".equals(getKind()))
         {
-            WaitList o = station.reFast();
-            for(int i = 0; i < o.reSize() ;i++)
+            WaitList o = station.getFast();
+            for(int i = 0; i < o.size() ;i++)
             {
-                counter1[index] = counter1[index] + o.peek(i).reChargingTime();
-                for(int j=0; j<station.reChargers().length; j++)
+                counter1[index] = counter1[index] + o.peek(i).getChargingTime();
+                for(int j=0; j<station.getChargers().length; j++)
                     if ((counter1[j]<counter1[index])&&(counter1[j]!=0))
                         index = j;
             }
             return counter1[index];
         }
-        if ("exchange".equals(reKind()))
+        if ("exchange".equals(getKind()))
         {
-            WaitList o = station.reExchange();
-            for(int i = 0; i < o.reSize();i++)
+            WaitList o = station.getExchange();
+            for(int i = 0; i < o.size();i++)
             {
-                counter2[index] = counter2[index] + o.peek(i).reChargingTime();
-                for(int j=0; j < station.reChargers().length; j++)
+                counter2[index] = counter2[index] + o.peek(i).getChargingTime();
+                for(int j=0; j < station.getChargers().length; j++)
                     if ((counter2[j]<counter2[index])&&(counter2[j]!=0))
                         index = j;
             }
@@ -410,7 +408,7 @@ public class ChargingEvent
     /**
      * @return The id of this ChargingEvent.
      */
-    public int reId()
+    public int getId()
     {
         return id;
     }
@@ -418,7 +416,7 @@ public class ChargingEvent
     /**
      * @return The cost of this ChargingEvent.
      */
-    public double reCost()
+    public double getCost()
     {
         return this.cost;
     }

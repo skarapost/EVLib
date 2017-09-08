@@ -21,7 +21,7 @@ public class DisCharger
         this.busy = false;
         this.station = station;
         this.e = null;
-        if (station.reSpecificAmount("discharging") == 0f)
+        if (station.getSpecificAmount("discharging") == 0f)
             station.setSpecificAmount("discharging", 0f);
     }
 
@@ -43,17 +43,17 @@ public class DisCharger
             d2.start();
             do {
                 en = d2.getTime();
-            } while (en - st < e.reDisChargingTime());
-            e.reElectricVehicle().reBattery().setRemAmount(e.reElectricVehicle().reBattery().reRemAmount() - e.reEnergyAmount());
-            e.reElectricVehicle().reDriver().setProfit(e.reElectricVehicle().reDriver().reProfit() + e.reProfit());
-            double energy = station.reMap().get("discharging") + e.reEnergyAmount();
+            } while (en - st < e.getDisChargingTime());
+            e.getElectricVehicle().getBattery().setRemAmount(e.getElectricVehicle().getBattery().getRemAmount() - e.getEnergyAmount());
+            e.getElectricVehicle().getDriver().setProfit(e.getElectricVehicle().getDriver().getProfit() + e.getProfit());
+            double energy = station.getMap().get("discharging") + e.getEnergyAmount();
             station.setSpecificAmount("discharging", energy);
-            System.out.println("The discharging " + e.reId() + " completed succesfully");
+            System.out.println("The discharging " + e.getId() + " completed succesfully");
             e.setCondition("finished");
             changeSituation();
             setDisChargingEvent(null);
             commitTime = 0;
-            if (station.reQueueHandling())
+            if (station.getQueueHandling())
                 handleQueueEvents();
         }).start();
     }
@@ -69,7 +69,7 @@ public class DisCharger
     /**
      * @return Returns true if it is busy, false if it is not busy.
      */
-    public boolean reBusy()
+    public boolean getBusy()
     {
         return busy;
     }
@@ -96,7 +96,7 @@ public class DisCharger
     /**
      * @return The DisChargingEvent od the DisCharger.
      */
-    public DisChargingEvent reDisChargingEvent()
+    public DisChargingEvent getDisChargingEvent()
     {
         return e;
     }
@@ -104,7 +104,7 @@ public class DisCharger
     /**
      * @return The busy time.
      */
-    public long reElapsedCommitTime()
+    public long getElapsedCommitTime()
     {
         long diff = station.getTime() - timestamp;
         if (commitTime - diff >= 0)
@@ -116,7 +116,7 @@ public class DisCharger
     /**
      * @return The id of the DisCharger.
      */
-    public int reId()
+    public int getId()
     {
         return id;
     }
@@ -128,10 +128,10 @@ public class DisCharger
      */
     public void handleQueueEvents()
     {
-        if (station.reDischarging().rSize() != 0)
+        if (station.getDischarging().getSize() != 0)
         {
-            station.reDischarging().reFirst().preProcessing();
-            station.reDischarging().moveFirst().execution();
+            station.getDischarging().getFirst().preProcessing();
+            station.getDischarging().moveFirst().execution();
         }
     }
 }

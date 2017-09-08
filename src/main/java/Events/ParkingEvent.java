@@ -52,7 +52,7 @@ public class ParkingEvent {
     /**
      * @return The ElectricVehicle object.
      */
-    public ElectricVehicle reElectricVehicle()
+    public ElectricVehicle getElectricVehicle()
     {
         return vehicle;
     }
@@ -68,19 +68,17 @@ public class ParkingEvent {
         if ((qwe != -1) && (qwe != -2)) {
             parkingSlotId = qwe;
             ParkingSlot ps = station.searchParkingSlot(parkingSlotId);
-            if ((amountOfEnergy != 0)&&(ps.reInSwitch())&&(vehicle.reBattery().reActive())) {
-                if (amountOfEnergy < station.reTotalEnergy()) {
-                    if (amountOfEnergy <= (vehicle.reBattery().reBatteryCapacity() - vehicle.reBattery().reRemAmount()))
+            if ((amountOfEnergy != 0)&&(ps.getInSwitch())&&(vehicle.getBattery().getActive())) {
+                if (amountOfEnergy < station.getTotalEnergy()) {
+                    if (amountOfEnergy <= (vehicle.getBattery().getBatteryCapacity() - vehicle.getBattery().getRemAmount()))
                         energyToBeReceived = amountOfEnergy;
                     else
-                        energyToBeReceived = vehicle.reBattery().reBatteryCapacity() - vehicle.reBattery().reRemAmount();
-                    station.setTotalEnergy(energyToBeReceived);
+                        energyToBeReceived = vehicle.getBattery().getBatteryCapacity() - vehicle.getBattery().getRemAmount();
                 } else {
-                    if (station.reTotalEnergy() <= (vehicle.reBattery().reBatteryCapacity() - vehicle.reBattery().reRemAmount()))
-                        energyToBeReceived = station.reTotalEnergy();
+                    if (station.getTotalEnergy() <= (vehicle.getBattery().getBatteryCapacity() - vehicle.getBattery().getRemAmount()))
+                        energyToBeReceived = station.getTotalEnergy();
                     else
-                        energyToBeReceived = vehicle.reBattery().reBatteryCapacity() - vehicle.reBattery().reRemAmount();
-                    station.setTotalEnergy(energyToBeReceived);
+                        energyToBeReceived = vehicle.getBattery().getBatteryCapacity() - vehicle.getBattery().getRemAmount();
                     if (energyToBeReceived == 0) {
                         setCondition("parking");
                         ps.setParkingEvent(this);
@@ -88,9 +86,9 @@ public class ParkingEvent {
                         return;
                     }
                 }
-                setChargingTime((long) ((energyToBeReceived) / station.reInductiveRatio()));
+                setChargingTime((long) ((energyToBeReceived) / station.getInductiveRatio()));
                 if (timeOfCharging > parkingTime) {
-                    energyToBeReceived = parkingTime * station.reInductiveRatio();
+                    energyToBeReceived = parkingTime * station.getInductiveRatio();
                     timeOfCharging = parkingTime;
                 }
                 setCondition("charging");
@@ -134,7 +132,7 @@ public class ParkingEvent {
     /**
      * @return The ChargingStation the event is going to be executed.
      */
-    public ChargingStation reStation()
+    public ChargingStation getStation()
     {
         return station;
     }
@@ -142,7 +140,7 @@ public class ParkingEvent {
     /**
      * @return The energy to be given to the ElectricVehicle.
      */
-    public double reEnergyToBeReceived()
+    public double getEnergyToBeReceived()
     {
         return energyToBeReceived;
     }
@@ -158,7 +156,7 @@ public class ParkingEvent {
     /**
      * @return The elapsed charging time of the ParkingEvent.
      */
-    public long reElapsedChargingTime()
+    public long getElapsedChargingTime()
     {
         long diff = station.getTime() - timestamp1;
         if (timeOfCharging - diff >= 0)
@@ -170,7 +168,7 @@ public class ParkingEvent {
     /**
      * @return The charging time of the ElectricVehicle.
      */
-    public long reChargingTime()
+    public long getChargingTime()
     {
         return timeOfCharging;
     }
@@ -178,7 +176,7 @@ public class ParkingEvent {
     /**
      * @return The parking time.
      */
-    public long reParkingTime()
+    public long getParkingTime()
     {
         return parkingTime;
     }
@@ -214,7 +212,7 @@ public class ParkingEvent {
     /**
      * @return The condition of ParkingEvent.
      */
-    public String reCondition()
+    public String getCondition()
     {
         return condition;
     }
@@ -222,7 +220,7 @@ public class ParkingEvent {
     /**
      * @return The elapsed time the vehicle will be parking/charging.
      */
-    public long reElapsedParkingTime()
+    public long getElapsedParkingTime()
     {
         long diff = station.getTime() - timestamp2;
         if (parkingTime - diff >= 0)
@@ -244,7 +242,7 @@ public class ParkingEvent {
     /**
      * @return The id of this ParkingEvent.
      */
-    public int reId()
+    public int getId()
     {
         return id;
     }
@@ -252,7 +250,7 @@ public class ParkingEvent {
     /**
      * @return The energy the ElectricVehicle asked.
      */
-    public double reEnergyAmount()
+    public double getEnergyAmount()
     {
        return amountOfEnergy;
     }
@@ -260,7 +258,7 @@ public class ParkingEvent {
     /**
      * @return The cost of this ParkingEvent.
      */
-    public double reCost()
+    public double getCost()
     {
         return cost;
     }

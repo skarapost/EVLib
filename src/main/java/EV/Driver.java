@@ -34,7 +34,7 @@ public class Driver
     /**
      * @return The profit of the Driver.
      */
-    public double reProfit()
+    public double getProfit()
     {
         return profit;
     }
@@ -51,7 +51,7 @@ public class Driver
     /**
      * @return The debt of the Driver.
      */
-    public double reDebt()
+    public double getDebt()
     {
         return debt;
     }
@@ -59,7 +59,7 @@ public class Driver
     /**
      * @return The name of the Driver.
      */
-    public String reName()
+    public String getName()
     {
         return this.name;
     }
@@ -67,7 +67,7 @@ public class Driver
     /**
      * @return The id of this Driver.
      */
-    public int reId()
+    public int getId()
     {
         return id;
     }

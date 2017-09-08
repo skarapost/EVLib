@@ -11,7 +11,7 @@ public abstract class EnergySource
 
     public EnergySource(ChargingStation station)
     {
-        this.id = this.idGenerator.incrementAndGet();
+        this.id = idGenerator.incrementAndGet();
         this.station = station;
     }
 
@@ -23,7 +23,7 @@ public abstract class EnergySource
     /**
      * @return The id of the EnergySource.
      */
-    public int reId()
+    public int getId()
     {
         return id;
     }
@@ -31,7 +31,7 @@ public abstract class EnergySource
     /**
      * @return The ChagingStation of the EnergySource.
      */
-    public ChargingStation reStation()
+    public ChargingStation getStation()
     {
         return station;
     }

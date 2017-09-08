@@ -48,7 +48,7 @@ public class DisChargingEvent
     /**
      * @return The time the ElectricVehicle can wait.
      */
-    public long reWaitingTime()
+    public long getWaitingTime()
     {
         return waitingTime;
     }
@@ -56,7 +56,7 @@ public class DisChargingEvent
     /**
      * @return The ElectricVehicle of the ChargingEvent.
      */
-    public ElectricVehicle reElectricVehicle()
+    public ElectricVehicle getElectricVehicle()
     {
         return vehicle;
     }
@@ -68,16 +68,15 @@ public class DisChargingEvent
      */
     public void preProcessing()
     {
-        if (reElectricVehicle().reBattery().reActive()) {
+        if (getElectricVehicle().getBattery().getActive()) {
             if ((condition.equals("arrived")) || (condition.equals("wait"))) {
                 int qwe = station.checkDisChargers();
                 if ((qwe != -1) && (qwe != -2)) {
-                    station.setTotalEnergy(-amountOfEnergy);
                     setCondition("discharging");
-                    setDisChargingTime((long) (amountOfEnergy / station.reDisChargingRatio()));
+                    setDisChargingTime((long) (amountOfEnergy / station.getDisChargingRatio()));
                     disChargerId = qwe;
                     DisCharger dsc = station.searchDischarger(disChargerId);
-                    profit = amountOfEnergy * station.reDisUnitPrice();
+                    profit = amountOfEnergy * station.getDisUnitPrice();
                     dsc.setDisChargingEvent(this);
                     dsc.changeSituation();
                 } else if (qwe == -2)
@@ -124,7 +123,7 @@ public class DisChargingEvent
     /**
      * @return The ChargingStation object.
      */
-    public ChargingStation reStation()
+    public ChargingStation getStation()
     {
         return station;
     }
@@ -132,7 +131,7 @@ public class DisChargingEvent
     /**
      * @return The amount of energy to be given.
      */
-    public double reEnergyAmount()
+    public double getEnergyAmount()
     {
         return amountOfEnergy;
     }
@@ -140,7 +139,7 @@ public class DisChargingEvent
     /**
      * @return The condition of the DisChargingEvent.
      */
-    public String reCondition()
+    public String getCondition()
     {
         return condition;
     }
@@ -148,7 +147,7 @@ public class DisChargingEvent
     /**
      * @return The discharging time.
      */
-    public long reElapsedDisChargingTime()
+    public long getElapsedDisChargingTime()
     {
         long diff = station.getTime() - timestamp;
         if (disChargingTime - diff >= 0)
@@ -178,7 +177,7 @@ public class DisChargingEvent
     /**
      * @return The waiting time.
      */
-    public long reMaxWaitingTime()
+    public long getMaxWaitingTime()
     {
         return maxWaitingTime;
     }
@@ -196,7 +195,7 @@ public class DisChargingEvent
     /**
      * @return The discharging time of the DisChargingEvent
      */
-    public long reDisChargingTime()
+    public long getDisChargingTime()
     {
         return disChargingTime;
     }
@@ -206,23 +205,23 @@ public class DisChargingEvent
      */
     private long calDisWaitingTime()
     {
-        long[] counter1 = new long[station.reDisChargers().length];
+        long[] counter1 = new long[station.getDisChargers().length];
         long min = 1000000000;
         int index = 1000000000;
-        for (int i = 0; i<station.reDisChargers().length; i++)
+        for (int i = 0; i<station.getDisChargers().length; i++)
         {
-            long diff = station.reDisChargers()[i].reDisChargingEvent().reElapsedDisChargingTime();
+            long diff = station.getDisChargers()[i].getDisChargingEvent().getElapsedDisChargingTime();
             if (min > diff)if (min > diff) {
                 min = diff;
                 index = i;
             }
             counter1[i] = diff;
         }
-        WaitList o = station.reDischarging();
-        for(int i = 0; i < o.rSize() ;i++)
+        WaitList o = station.getDischarging();
+        for(int i = 0; i < o.getSize() ;i++)
         {
-            counter1[index] = counter1[index] + o.get(i).reDisChargingTime();
-            for(int j=0; j<station.reDisChargers().length; j++)
+            counter1[index] = counter1[index] + o.get(i).getDisChargingTime();
+            for(int j=0; j<station.getDisChargers().length; j++)
                 if ((counter1[j]<counter1[index])&&(counter1[j]!=0))
                     index = j;
         }
@@ -232,7 +231,7 @@ public class DisChargingEvent
     /**
      * @return The id of this DisChargingEvent.
      */
-    public int reId()
+    public int getId()
     {
        return id;
     }
@@ -240,7 +239,7 @@ public class DisChargingEvent
     /**
      * @return The profit of this DisChargingEvent.
      */
-    public double reProfit()
+    public double getProfit()
     {
         return profit;
     }

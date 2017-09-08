@@ -16,9 +16,9 @@ public class WaitList
     {
         this.id = idGenerator.incrementAndGet();
         if ("charging".equals(n))
-            list1 = new ArrayList<ChargingEvent>();
+            list1 = new ArrayList<>();
         else if ("discharging".equals(n))
-            list2 = new ArrayList<DisChargingEvent>();
+            list2 = new ArrayList<>();
     }
 
     /**
@@ -84,7 +84,7 @@ public class WaitList
      * Returns the size of the list for the ChargingEvent.
      * @return The size of ChargingEvent list.
      */
-    public int reSize()
+    public int size()
     {
         return list1.size();
     }
@@ -112,7 +112,7 @@ public class WaitList
      * Returns the first DisChargingEvent of the list.
      * @return The first DisChargingEvent of the list.
      */
-    public DisChargingEvent reFirst()
+    public DisChargingEvent getFirst()
     {
         return list2.get(0);
     }
@@ -132,7 +132,7 @@ public class WaitList
      * Returns the size of the DisChargingEvent list.
      * @return The size of the DisChargingEvent list.
      */
-    public int rSize()
+    public int getSize()
     {
         return list2.size();
     }
@@ -164,7 +164,7 @@ public class WaitList
     /**
      * @return The id of this WaitingList.
      */
-    public int reId()
+    public int getId()
     {
         return id;
     }

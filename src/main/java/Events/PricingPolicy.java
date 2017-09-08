@@ -40,7 +40,7 @@ public class PricingPolicy {
      * @param position The position of the price in the hierarchy.
      * @return The value of the price in this position of the pricing policy.
      */
-    public double reSpecificPrice(int position) {
+    public double getSpecificPrice(int position) {
         try {
             if (option == 2) {
                 Pair t = (Pair) this.prices.get(position);
@@ -50,12 +50,12 @@ public class PricingPolicy {
         }
         catch(Exception ex)
         {
-            return station.reUnitPrice();
+            return station.getUnitPrice();
         }
     }
 
 
-    public long reSpecificTimeSpace(int position)
+    public long getSpecificTimeSpace(int position)
     {
         try {
             if (option == 2) {
@@ -113,7 +113,7 @@ public class PricingPolicy {
     /**
      * @return The time space for every different price.
      */
-    public long reSpace() {
+    public long getSpace() {
         return space;
     }
 
@@ -146,7 +146,7 @@ public class PricingPolicy {
     /**
      * @return The id of this pricing policy.
      */
-    public int reId()
+    public int getId()
     {
         return id;
     }

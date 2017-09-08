@@ -29,7 +29,7 @@ public class ParkingSlot {
      * Executes the inductive charging phase of a parking slot. It works like the ChargingEvent.
      */
     public void parkingVehicle() {
-        if (inSwitch&&(e.reChargingTime()!=0))
+        if (inSwitch&&(e.getChargingTime()!=0))
         {
             new Thread(() ->
             {
@@ -39,31 +39,31 @@ public class ParkingSlot {
                 d2.start();
                 do {
                     en = d2.getTime();
-                } while (en < e.reChargingTime());
-                sdf = e.reEnergyToBeReceived();
-                HashMap<String, Double> keys = new HashMap<>(station.reMap());
+                } while (en < e.getChargingTime());
+                sdf = e.getEnergyToBeReceived();
+                HashMap<String, Double> keys = new HashMap<>(station.getMap());
                 for (HashMap.Entry<String, Double> energy : keys.entrySet()) {
-                    if (e.reEnergyToBeReceived() < station.reMap().get(energy.getKey())) {
-                        double ert = station.reMap().get(energy.getKey()) - sdf;
-                        e.reStation().setSpecificAmount(energy.getKey(), ert);
+                    if (e.getEnergyToBeReceived() < station.getMap().get(energy.getKey())) {
+                        double ert = station.getMap().get(energy.getKey()) - sdf;
+                        e.getStation().setSpecificAmount(energy.getKey(), ert);
                         break;
                     } else {
                         sdf -= energy.getValue();
-                        e.reStation().setSpecificAmount(energy.getKey(), 0);
+                        e.getStation().setSpecificAmount(energy.getKey(), 0);
                     }
                 }
-                e.reElectricVehicle().reBattery().setRemAmount(e.reEnergyToBeReceived() + e.reElectricVehicle().reBattery().reRemAmount());
-                if (e.reElectricVehicle().reDriver() != null)
-                    e.reElectricVehicle().reDriver().setDebt(e.reElectricVehicle().reDriver().reDebt() + station.calculatePrice(e));
-                System.out.println("The inductive charging " + e.reId() + " completed successfully");
+                e.getElectricVehicle().getBattery().setRemAmount(e.getEnergyToBeReceived() + e.getElectricVehicle().getBattery().getRemAmount());
+                if (e.getElectricVehicle().getDriver() != null)
+                    e.getElectricVehicle().getDriver().setDebt(e.getElectricVehicle().getDriver().getDebt() + station.calculatePrice(e));
+                System.out.println("The inductive charging " + e.getId() + " completed successfully");
                 e.setCondition("parking");
-                long diff = e.reParkingTime() - e.reChargingTime();
+                long diff = e.getParkingTime() - e.getChargingTime();
                 d2.reset();
                 d2.start();
                 do {
                     en = d2.getTime();
                 }while(en < diff);
-                System.out.println("The parking " + e.reId() + " completed successfully");
+                System.out.println("The parking " + e.getId() + " completed successfully");
                 e.setCondition("finished");
                 changeSituation();
                 setParkingEvent(null);
@@ -85,7 +85,7 @@ public class ParkingSlot {
      *
      * @return If the inductive charging is enabled or not, for this parking slot.
      */
-    public boolean reInSwitch()
+    public boolean getInSwitch()
     {
         return inSwitch;
     }
@@ -100,7 +100,7 @@ public class ParkingSlot {
     /**
      * @return True if it is busy, false if it is not busy.
      */
-    public boolean reBusy() {
+    public boolean getBusy() {
         return busy;
     }
 
@@ -113,14 +113,14 @@ public class ParkingSlot {
     /**
      * @return The ParkingEvent which is linked with the ParkingSlot.
      */
-    public ParkingEvent reParkingEvent() {
+    public ParkingEvent getParkingEvent() {
         return e;
     }
 
     /**
      * @return The id of the ParkingSlot object.
      */
-    public int reId() {
+    public int getId() {
         return id;
     }
 
@@ -136,7 +136,7 @@ public class ParkingSlot {
     /**
      * @return The chargingTime the vehicle will charge.
      */
-    public long reElapsedChargingTime()
+    public long getElapsedChargingTime()
     {
         return chargingTime;
     }
@@ -154,7 +154,7 @@ public class ParkingSlot {
     /**
      * @return The time the vehicle will be parked.
      */
-    public long reElapsedCommitTime()
+    public long getElapsedCommitTime()
     {
         long diff = station.getTime() - timestamp;
         if (commitTime - diff >= 0)

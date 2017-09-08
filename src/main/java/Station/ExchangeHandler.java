@@ -26,7 +26,7 @@ public class ExchangeHandler
     /**
      * @return The id of the ExchangeHandler.
      */
-    public int reId()
+    public int getId()
     {
         return id;
     }
@@ -43,7 +43,7 @@ public class ExchangeHandler
     /**
      * @return The ChargingEvent of the ExchangeHandler.
      */
-    public ChargingEvent reChargingEvent()
+    public ChargingEvent getChargingEvent()
     {
         return e;
     }
@@ -66,23 +66,23 @@ public class ExchangeHandler
             long st = d1.getTime();
             long en;
             Battery temp;
-            temp = e.reElectricVehicle().reBattery();
-            e.reElectricVehicle().vehicleJoinBattery(station.reBatteries().get(st2));
-            station.reBatteries().remove(st2);
+            temp = e.getElectricVehicle().getBattery();
+            e.getElectricVehicle().vehicleJoinBattery(station.getBatteries().get(st2));
+            station.getBatteries().remove(st2);
             StopWatch d2 = new StopWatch();
             d2.start();
             do
             {
                 en = d2.getTime();
-            }while(en - st < e.reChargingTime());
+            }while(en - st < e.getChargingTime());
             station.joinBattery(temp);
-            e.reElectricVehicle().reDriver().setDebt(e.reElectricVehicle().reDriver().reDebt() + station.calculatePrice(e));
-            System.out.println ("The exchange " + e.reId() + " completed successfully");
+            e.getElectricVehicle().getDriver().setDebt(e.getElectricVehicle().getDriver().getDebt() + station.calculatePrice(e));
+            System.out.println ("The exchange " + e.getId() + " completed successfully");
             e.setCondition("finished");
             changeSituation();
             joinChargingEvent(null);
             setCommitTime(0);
-            if (station.reQueueHandling())
+            if (station.getQueueHandling())
                 handleQueueEvents();
         }).start ();
     }
@@ -92,14 +92,14 @@ public class ExchangeHandler
      */
     public void handleQueueEvents()
     {
-        if (station.reExchange().reSize() != 0)
-                station.reExchange().removeFirst().execution();
+        if (station.getExchange().size() != 0)
+                station.getExchange().removeFirst().execution();
     }
 
     /**
      * @return If it is busy or not.
      */
-    public boolean reBusy()
+    public boolean getBusy()
     {
         return busy;
     }
@@ -115,7 +115,7 @@ public class ExchangeHandler
     /**
      * @return The time that the ExchangeHandler is going to be busy.
      */
-    public long reElapsedCommitTime() {
+    public long getElapsedCommitTime() {
         long diff = station.getTime() - timestamp;
         if (commitTime - diff >= 0)
             return commitTime - diff;

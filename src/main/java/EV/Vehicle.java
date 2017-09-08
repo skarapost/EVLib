@@ -26,7 +26,7 @@ public abstract class Vehicle
     /**
      * @return The brand of the Vehicle
      */
-    public String reBrand()
+    public String getBrand()
     {
         return brand;
     }
@@ -34,7 +34,7 @@ public abstract class Vehicle
     /**
      * @return The cubism of the Vehicle
      */
-    public int reCubism()
+    public int getCubism()
     {
         return cubism;
     }
@@ -42,7 +42,7 @@ public abstract class Vehicle
     /**
      * @return The id of this Vehicle.
      */
-    public int reId()
+    public int getId()
     {
         return id;
     }
