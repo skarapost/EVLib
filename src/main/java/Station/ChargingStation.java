@@ -307,7 +307,7 @@ public class ChargingStation {
      */
     public int checkChargers(String k) {
         for (int i = 0; i < getChargers().length; i++) {
-            if (k.equals(getChargers()[i].getKind()))
+            if (k.equals(getChargers()[i].getKindOfCharging()))
                 if (!getChargers()[i].getBusy())
                     return getChargers()[i].getId();
         }
