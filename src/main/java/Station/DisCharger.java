@@ -44,9 +44,9 @@ public class DisCharger
             do {
                 en = d2.getTime();
             } while (en - st < e.getDisChargingTime());
-            e.getElectricVehicle().getBattery().setRemAmount(e.getElectricVehicle().getBattery().getRemAmount() - e.getEnergyAmount());
+            e.getElectricVehicle().getBattery().setRemAmount(e.getElectricVehicle().getBattery().getRemAmount() - e.getAmountOfEnergy());
             e.getElectricVehicle().getDriver().setProfit(e.getElectricVehicle().getDriver().getProfit() + e.getProfit());
-            double energy = station.getMap().get("discharging") + e.getEnergyAmount();
+            double energy = station.getMap().get("discharging") + e.getAmountOfEnergy();
             station.setSpecificAmount("discharging", energy);
             System.out.println("The discharging " + e.getId() + " completed succesfully");
             e.setCondition("finished");

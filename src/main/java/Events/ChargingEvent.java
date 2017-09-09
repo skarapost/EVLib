@@ -247,7 +247,7 @@ public class ChargingEvent
     /**
      * @return The amount of energy the ElectricVehicle asks.
      */
-    public double getEnergyAmount()
+    public double getAmountOfEnergy()
     {
         return amountOfEnergy;
     }
@@ -347,7 +347,7 @@ public class ChargingEvent
         int index = 1000000000;
         if (!Objects.equals("exchange", getKind()))
             for (int i = 0; i < station.getChargers ().length; i++) {
-                if (Objects.equals(getKind(), station.getChargers()[i].getKind())) {
+                if (Objects.equals(getKind(), station.getChargers()[i].getKindOfCharging())) {
                     long diff = station.getChargers()[i].getChargingEvent().getElapsedChargingTime();
                     if (min > diff) {
                         min = diff;

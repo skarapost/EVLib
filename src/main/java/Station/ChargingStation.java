@@ -1143,7 +1143,7 @@ public class ChargingStation {
                 content.add("");
                 content.add("Vehicle: " + ev.getElectricVehicle().getBrand());
                 content.add("Cubism: " + ev.getElectricVehicle().getCubism());
-                content.add("Energy: " + ev.getEnergyAmount());
+                content.add("Energy: " + ev.getAmountOfEnergy());
                 content.add("Charging time: " + ev.getDisChargingTime());
                 content.add("Waiting time: " + ev.getMaxWaitingTime());
                 content.add("Profit: " + ev.getProfit());

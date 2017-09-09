@@ -131,7 +131,7 @@ public class DisChargingEvent
     /**
      * @return The amount of energy to be given.
      */
-    public double getEnergyAmount()
+    public double getAmountOfEnergy()
     {
         return amountOfEnergy;
     }

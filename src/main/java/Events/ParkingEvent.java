@@ -250,7 +250,7 @@ public class ParkingEvent {
     /**
      * @return The energy the ElectricVehicle asked.
      */
-    public double getEnergyAmount()
+    public double getAmountOfEnergy()
     {
        return amountOfEnergy;
     }

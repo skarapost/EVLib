@@ -82,7 +82,7 @@ public class Charger {
     /**
      * @return The kind of charging the Charger supports.
      */
-    public String getKind() {
+    public String getKindOfCharging() {
         return kindOfCharging;
     }
 
@@ -98,13 +98,13 @@ public class Charger {
      * Handles the list. It executes (if any) the first element of the list.
      */
     public void handleQueueEvents() {
-        if ("fast".equals(getKind())) {
+        if ("fast".equals(getKindOfCharging())) {
             if (station.getFast().size() != 0)
             {
                 station.getFast().takeFirst().preProcessing();
                 station.getFast().removeFirst().execution();
             }
-        } else if ("slow".equals(getKind())) {
+        } else if ("slow".equals(getKindOfCharging())) {
             if (station.getSlow().size() != 0) {
                 station.getSlow().takeFirst().preProcessing();
                 station.getSlow().removeFirst().execution();
