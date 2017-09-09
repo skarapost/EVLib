@@ -1119,10 +1119,10 @@ public class ChargingStation {
             content.add("Number of chargings: " + ChargingEvent.chargingLog.size());
             content.add("Number of dischargings: " + DisChargingEvent.dischargingLog.size());
             content.add("Number of battery swappings: " + ChargingEvent.exchangeLog.size());
-            content.add("Number of vehicles waiting for fast charging: " + fast.getSize());
-            content.add("Number of vehicles waiting for slow charging: " + slow.getSize());
+            content.add("Number of vehicles waiting for fast charging: " + fast.size());
+            content.add("Number of vehicles waiting for slow charging: " + slow.size());
             content.add("Number of vehicles waiting for discharging: " + discharging.getSize());
-            content.add("Number of vehicles waiting for battery swapping: " + exchange.getSize());
+            content.add("Number of vehicles waiting for battery swapping: " + exchange.size());
             content.add("Energy sources: ");
             for (String s : getSources())
                 content.add("  " + s + ": " + getSpecificAmount(s));
