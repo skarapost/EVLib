@@ -342,7 +342,7 @@ public class ChargingEvent
     private long calWaitingTime()
     {
         long[] counter1 = new long[station.getChargers().length];
-        long[] counter2 = new long[station.getChargers().length];
+        long[] counter2 = new long[station.getExchangeHandlers().length];
         long min = 1000000000;
         int index = 1000000000;
         if (!Objects.equals("exchange", getKind()))
@@ -366,12 +366,14 @@ public class ChargingEvent
                 }
                 counter2[i] = diff;
             }
+        ChargingEvent e = null;
         if ("slow".equals(getKind()))
         {
             WaitList o = station.getSlow();
-            for (int i = 0;i < o.size() ;i++)
+            for (int i = 0;i < o.getSize() ;i++)
             {
-                counter1[index] = counter1[index] + o.peek(i).getChargingTime();
+                e = (ChargingEvent) o.get(i);
+                counter1[index] = counter1[index] + e.getChargingTime();
                 for(int j=0; j<station.getChargers().length; j++)
                     if ((counter1[j]<counter1[index])&&(counter1[j]!=0))
                         index = j;
@@ -381,9 +383,10 @@ public class ChargingEvent
         if ("fast".equals(getKind()))
         {
             WaitList o = station.getFast();
-            for(int i = 0; i < o.size() ;i++)
+            for(int i = 0; i < o.getSize() ;i++)
             {
-                counter1[index] = counter1[index] + o.peek(i).getChargingTime();
+                e = (ChargingEvent) o.get(i);
+                counter1[index] = counter1[index] + e.getChargingTime();
                 for(int j=0; j<station.getChargers().length; j++)
                     if ((counter1[j]<counter1[index])&&(counter1[j]!=0))
                         index = j;
@@ -393,9 +396,10 @@ public class ChargingEvent
         if ("exchange".equals(getKind()))
         {
             WaitList o = station.getExchange();
-            for(int i = 0; i < o.size();i++)
+            for(int i = 0; i < o.getSize();i++)
             {
-                counter2[index] = counter2[index] + o.peek(i).getChargingTime();
+                e = (ChargingEvent) o.get(i);
+                counter2[index] = counter2[index] + e.getChargingTime();
                 for(int j=0; j < station.getChargers().length; j++)
                     if ((counter2[j]<counter2[index])&&(counter2[j]!=0))
                         index = j;

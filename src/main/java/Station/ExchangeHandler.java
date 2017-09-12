@@ -67,7 +67,7 @@ public class ExchangeHandler
             long en;
             Battery temp;
             temp = e.getElectricVehicle().getBattery();
-            e.getElectricVehicle().vehicleJoinBattery(station.getBatteries().get(st2));
+            e.getElectricVehicle().setBattery(station.getBatteries().get(st2));
             station.getBatteries().remove(st2);
             StopWatch d2 = new StopWatch();
             d2.start();
@@ -90,10 +90,11 @@ public class ExchangeHandler
     /**
      * Handles the list. It executes the first(if any) element of the list.
      */
-    public void handleQueueEvents()
-    {
-        if (station.getExchange().size() != 0)
-                station.getExchange().removeFirst().execution();
+    public void handleQueueEvents() {
+        if (station.getExchange().getSize() != 0) {
+            ChargingEvent e = (ChargingEvent) station.getExchange().moveFirst();
+            e.execution();
+        }
     }
 
     /**

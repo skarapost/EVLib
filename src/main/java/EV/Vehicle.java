@@ -7,20 +7,17 @@ public abstract class Vehicle
 {
     private int id;
     private String brand;
-    private int cubism;
     private static AtomicInteger idGenerator = new AtomicInteger(0);
 
     /**
      * Constructor of Vehicle class.
      * @param brand The brand of the Vehicle.
-     * @param cubism The cubism of the Vehicle.
      */
 
-    public Vehicle(String brand,int cubism)
+    public Vehicle(String brand)
     {
         this.id = idGenerator.incrementAndGet();
         this.brand = brand;
-        this.cubism = cubism;
     }
 
     /**
@@ -32,18 +29,18 @@ public abstract class Vehicle
     }
 
     /**
-     * @return The cubism of the Vehicle
-     */
-    public int getCubism()
-    {
-        return cubism;
-    }
-
-    /**
      * @return The id of this Vehicle.
      */
     public int getId()
     {
         return id;
+    }
+
+    /**
+     * Sets the brand for a Vehicle.
+     * @param brand The brand of the Vehicle.
+     */
+    public void setBrand(String brand) {
+        this.brand = brand;
     }
 }

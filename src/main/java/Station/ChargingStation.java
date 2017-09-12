@@ -64,10 +64,10 @@ public class ChargingStation {
         this.id = idGenerator.incrementAndGet();
         this.name = name;
         this.automaticQueueHandling = true;
-        this.slow = new WaitList("charging");
-        this.fast = new WaitList("charging");
-        this.exchange = new WaitList("charging");
-        this.discharging = new WaitList("discharging");
+        this.slow = new WaitList<ChargingEvent>();
+        this.fast = new WaitList<ChargingEvent>();
+        this.exchange = new WaitList<ChargingEvent>();
+        this.discharging = new WaitList<DisChargingEvent>();
         this.chargers = new ArrayList<>();
         this.dischargers = new ArrayList<>();
         this.exchangeHandlers = new ArrayList<>();
@@ -132,10 +132,10 @@ public class ChargingStation {
         this.amounts = new HashMap<>();
         this.id = idGenerator.incrementAndGet();
         this.name = name;
-        this.slow = new WaitList("charging");
-        this.fast = new WaitList("charging");
-        this.exchange = new WaitList("charging");
-        this.discharging = new WaitList("discharging");
+        this.slow = new WaitList<ChargingEvent>();
+        this.fast = new WaitList<ChargingEvent>();
+        this.exchange = new WaitList<ChargingEvent>();
+        this.discharging = new WaitList<DisChargingEvent>();
         this.automaticQueueHandling = true;
         this.chargers = new ArrayList<>();
         this.dischargers = new ArrayList<>();
@@ -200,10 +200,10 @@ public class ChargingStation {
         date.start();
         this.id = idGenerator.incrementAndGet();
         this.name = name;
-        this.slow = new WaitList("charging");
-        this.fast = new WaitList("charging");
-        this.exchange = new WaitList("charging");
-        this.discharging = new WaitList("discharging");
+        this.slow = new WaitList<ChargingEvent>();
+        this.fast = new WaitList<ChargingEvent>();
+        this.exchange = new WaitList<ChargingEvent>();
+        this.discharging = new WaitList<DisChargingEvent>();
         this.parkingSlots = new ArrayList<>();
         this.amounts = new HashMap<>();
         this.chargers = new ArrayList<>();
@@ -242,32 +242,28 @@ public class ChargingStation {
     /**
      * Adds a ChargingEvent in the corresponding waiting list.
      *
-     * @param y The ChargingEvent that is going to be added.
+     * @param event The ChargingEvent that is going to be added.
      */
-    public void updateQueue(ChargingEvent y) {
-        switch (y.getKind()) {
+    public void updateQueue(ChargingEvent event) {
+        switch (event.getKind()) {
             case "exchange":
-                exchange.insertElement(y);
+                exchange.add(event);
                 break;
             case "slow":
-                slow.insertElement(y);
+                slow.add(event);
                 break;
             case "fast":
-                fast.insertElement(y);
-                break;
-            default:
-                System.out.println("");
+                fast.add(event);
                 break;
         }
     }
 
     /**
      * Adds a DisChargingEvent in the waiting list.
-     *
-     * @param d The DisChargingEvent that is going to be added.
+     * @param event The DisChargingEvent that is going to be added.
      */
-    public void updateDisChargingQueue(DisChargingEvent d) {
-        discharging.insertElement(d);
+    public void updateDisChargingQueue(DisChargingEvent event) {
+        discharging.add(event);
     }
 
     /**
@@ -913,8 +909,8 @@ public class ChargingStation {
         ElectricVehicle r;
         for (Battery battery : batteries)
             if (battery.getRemAmount() < battery.getBatteryCapacity()) {
-                r = new ElectricVehicle(null, 0);
-                r.vehicleJoinBattery(battery);
+                r = new ElectricVehicle(null);
+                r.setBattery(battery);
                 e = new ChargingEvent(this, r, battery.getBatteryCapacity() - battery.getRemAmount(), kind);
                 if (checkChargers(e.getKind()) != -1)
                     e.execution();
@@ -1119,10 +1115,10 @@ public class ChargingStation {
             content.add("Number of chargings: " + ChargingEvent.chargingLog.size());
             content.add("Number of dischargings: " + DisChargingEvent.dischargingLog.size());
             content.add("Number of battery swappings: " + ChargingEvent.exchangeLog.size());
-            content.add("Number of vehicles waiting for fast charging: " + fast.size());
-            content.add("Number of vehicles waiting for slow charging: " + slow.size());
+            content.add("Number of vehicles waiting for fast charging: " + fast.getSize());
+            content.add("Number of vehicles waiting for slow charging: " + slow.getSize());
             content.add("Number of vehicles waiting for discharging: " + discharging.getSize());
-            content.add("Number of vehicles waiting for battery swapping: " + exchange.size());
+            content.add("Number of vehicles waiting for battery swapping: " + exchange.getSize());
             content.add("Energy sources: ");
             for (String s : getSources())
                 content.add("  " + s + ": " + getSpecificAmount(s));
@@ -1131,7 +1127,6 @@ public class ChargingStation {
             for (ChargingEvent ev : ChargingEvent.chargingLog) {
                 content.add("");
                 content.add("Vehicle: " + ev.getElectricVehicle().getBrand());
-                content.add("Cubism: " + ev.getElectricVehicle().getCubism());
                 content.add("Energy: " + ev.getEnergyToBeReceived());
                 content.add("Charging time: " + ev.getChargingTime());
                 content.add("Waiting time: " + ev.getMaxWaitingTime());
@@ -1142,7 +1137,6 @@ public class ChargingStation {
             for (DisChargingEvent ev : DisChargingEvent.dischargingLog) {
                 content.add("");
                 content.add("Vehicle: " + ev.getElectricVehicle().getBrand());
-                content.add("Cubism: " + ev.getElectricVehicle().getCubism());
                 content.add("Energy: " + ev.getAmountOfEnergy());
                 content.add("Charging time: " + ev.getDisChargingTime());
                 content.add("Waiting time: " + ev.getMaxWaitingTime());
@@ -1153,7 +1147,6 @@ public class ChargingStation {
             for (ChargingEvent ev : ChargingEvent.exchangeLog) {
                 content.add("");
                 content.add("Vehicle: " + ev.getElectricVehicle().getBrand());
-                content.add("Cubism: " + ev.getElectricVehicle().getCubism());
                 content.add("Waiting time: " + ev.getMaxWaitingTime());
                 content.add("Cost: " + ev.getCost());
             }

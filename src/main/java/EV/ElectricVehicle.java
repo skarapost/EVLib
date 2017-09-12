@@ -1,16 +1,13 @@
 package EV;
 
-
-import java.util.concurrent.atomic.AtomicInteger;
-
 public class ElectricVehicle extends Vehicle
 {
     private Battery battery;
     private Driver driver;
 
-    public ElectricVehicle(String brand, int cubism)
+    public ElectricVehicle(String brand)
     {
-        super(brand, cubism);
+        super(brand);
         battery = null;
         driver = null;
     }
@@ -25,28 +22,20 @@ public class ElectricVehicle extends Vehicle
 
     /**
     * Links the ElectricVehicle with a Battery.
-    * @param k The Battery.
+    * @param battery The Battery.
     */
-    public void vehicleJoinBattery(Battery k)
+    public void setBattery(Battery battery)
     {
-        battery = k;
-    }
-
-    /**
-    * Removes the Battery from the ElectricVehicle.
-    */
-    public void vehicleDeleteBattery()
-    {
-        battery = null;
+        this.battery = battery;
     }
 
     /**
     * Links the ElectricVehicle with a Driver.
-    * @param p The Driver to be linked.
+    * @param driver The Driver to be linked.
      */
-    public void setDriver(Driver p)
+    public void setDriver(Driver driver)
     {
-        this.driver = p;
+        this.driver = driver;
     }
 
     /**

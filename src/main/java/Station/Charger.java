@@ -98,16 +98,19 @@ public class Charger {
      * Handles the list. It executes (if any) the first element of the list.
      */
     public void handleQueueEvents() {
+        ChargingEvent e = null;
         if ("fast".equals(getKindOfCharging())) {
-            if (station.getFast().size() != 0)
+            if (station.getFast().getSize() != 0)
             {
-                station.getFast().takeFirst().preProcessing();
-                station.getFast().removeFirst().execution();
+                e = (ChargingEvent) station.getFast().moveFirst();
+                e.preProcessing();
+                e.execution();
             }
         } else if ("slow".equals(getKindOfCharging())) {
-            if (station.getSlow().size() != 0) {
-                station.getSlow().takeFirst().preProcessing();
-                station.getSlow().removeFirst().execution();
+            if (station.getSlow().getSize() != 0) {
+                e = (ChargingEvent) station.getSlow().moveFirst();
+                e.preProcessing();
+                e.execution();
             }
         }
     }

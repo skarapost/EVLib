@@ -56,11 +56,11 @@ The library also supports a number of secondary functions: The creation of a cha
   Driver a = new Driver("Tom");
   Driver b = new Driver("Ben");
   
-  ElectricVehicle vec1 = new ElectricVehicle("Honda", 1950);
-  ElectricVehicle vec2 = new ElectricVehicle("Toyota", 1400);
-  ElectricVehicle vec3 = new ElectricVehicle("Mitsubishi", 1500);
-  ElectricVehicle vec4 = new ElectricVehicle("Fiat", 1600);
-  ElectricVehicle vec5 = new ElectricVehicle("BMW", 2500);
+  ElectricVehicle vec1 = new ElectricVehicle("Honda");
+  ElectricVehicle vec2 = new ElectricVehicle("Toyota");
+  ElectricVehicle vec3 = new ElectricVehicle("Mitsubishi");
+  ElectricVehicle vec4 = new ElectricVehicle("Fiat");
+  ElectricVehicle vec5 = new ElectricVehicle("BMW");
   
   Battery bat1 = new Battery(1500, 5000);
   Battery bat2 = new Battery(2000, 6000);
@@ -73,15 +73,15 @@ The library also supports a number of secondary functions: The creation of a cha
   station.joinBattery(bat4);
   
   vec1.setDriver(a);
-  vec1.vehicleJoinBattery(bat1);
+  vec1.setBattery(bat1);
   vec2.setDriver(a);
-  vec2.vehicleJoinBattery(bat2);
+  vec2.setBattery(bat2);
   vec3.setDriver(a);
-  vec3.vehicleJoinBattery(bat3);
+  vec3.setBattery(bat3);
   vec4.setDriver(b);
-  vec4.vehicleJoinBattery(bat5);
+  vec4.setBattery(bat5);
   vec5.setDriver(b);
-  vec5.vehicleJoinBattery(bat6);
+  vec5.setBattery(bat6);
   
   //ChargingEvent
   ChargingEvent ev1 = new ChargingEvent(station, vec1, 300, "fast");

@@ -218,9 +218,11 @@ public class DisChargingEvent
             counter1[i] = diff;
         }
         WaitList o = station.getDischarging();
+        DisChargingEvent e = null;
         for(int i = 0; i < o.getSize() ;i++)
         {
-            counter1[index] = counter1[index] + o.get(i).getDisChargingTime();
+            e = (DisChargingEvent) o.get(i);
+            counter1[index] = counter1[index] + e.getDisChargingTime();
             for(int j=0; j<station.getDisChargers().length; j++)
                 if ((counter1[j]<counter1[index])&&(counter1[j]!=0))
                     index = j;

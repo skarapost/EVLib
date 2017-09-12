@@ -130,8 +130,9 @@ public class DisCharger
     {
         if (station.getDischarging().getSize() != 0)
         {
-            station.getDischarging().getFirst().preProcessing();
-            station.getDischarging().moveFirst().execution();
+            DisChargingEvent e = (DisChargingEvent) station.getDischarging().moveFirst();
+            e.preProcessing();
+            e.execution();
         }
     }
 }
