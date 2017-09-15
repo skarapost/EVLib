@@ -1,4 +1,4 @@
-package EV;
+package EVLib.EV;
 
 public class ElectricVehicle extends Vehicle
 {

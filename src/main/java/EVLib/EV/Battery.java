@@ -1,4 +1,4 @@
-package EV;
+package EVLib.EV;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -6,17 +6,17 @@ public class Battery
 {
     private int id;
     private double remAmount;
-    private double batteryCapacity;
+    private double capacity;
     private int numberOfChargings;
     private int maxNumberOfChargings;
     private boolean active;
     private static AtomicInteger idGenerator = new AtomicInteger(0);
 
-    public Battery(double remAmount, double batteryCapacity)
+    public Battery(double remAmount, double capacity)
     {
         this.id = idGenerator.incrementAndGet();
         this.remAmount = remAmount;
-        this.batteryCapacity = batteryCapacity;
+        this.capacity = capacity;
         this.maxNumberOfChargings = 100;
         active = true;
     }
@@ -40,11 +40,11 @@ public class Battery
 
     /**
      * Sets a Battery capacity.
-     * @param u Battery capacity to be inserted.
+     * @param capacity Battery capacity to be inserted.
      */
-    public void setBatteryCapacity(double u)
+    public void setCapacity(double capacity)
     {
-        batteryCapacity = u;
+        this.capacity = capacity;
     }
 
     /**
@@ -58,9 +58,9 @@ public class Battery
     /**
      * @return Battery capacity of the Battery.
      */
-    public double getBatteryCapacity()
+    public double getCapacity()
     {
-        return batteryCapacity;
+        return capacity;
     }
 
     /**
@@ -85,7 +85,7 @@ public class Battery
     /**
      * @return The maximum number of times a battery can be fully charged.
      */
-    public int getMaxNumberOfCharging()
+    public int getMaxNumberOfChargings()
     {
         return maxNumberOfChargings;
     }
