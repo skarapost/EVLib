@@ -48,12 +48,12 @@ public class PricingPolicy {
      * @param position The position in the hierarchy of the timeSpace.
      * @return The time duration of the timeSpace.
      */
-    public long getSpecificTimeSpace(int position)
+    public double getSpecificTimeSpace(int position)
     {
         try {
             if (option == 2) {
                 Pair t = (Pair) this.prices.get(position);
-                return (long) t.getL();
+                return (double) t.getL();
             }
             else
                 return space;
@@ -130,6 +130,24 @@ public class PricingPolicy {
         public void setR(R r) {
             this.r = r;
         }
+    }
+
+    /**
+     * Returns the time duration of this policy. If the policy has a fixed time space then it returns -1, because
+     * it cannot be counted.
+     * @return The time duration of the policy.
+     */
+    public double getDurationOfPolicy()
+    {
+        double counter = -1;
+        if(option == 2) {
+            counter = 0;
+            for (int i = 0; i < prices.size(); i++) {
+                Pair t = (Pair) prices.get(i);
+                counter += (double) t.getR();
+            }
+        }
+        return counter;
     }
 
     /**

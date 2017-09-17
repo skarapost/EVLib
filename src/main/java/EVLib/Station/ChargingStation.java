@@ -989,13 +989,18 @@ public class ChargingStation {
                 return w.getEnergyToBeReceived() * policy.getSpecificPrice((int) (diff / policy.getSpace()));
             } else {
                 long diff = System.currentTimeMillis() - timestamp;
-                long accumulator = 0;
-                int counter = 1;
-                while (accumulator <= diff) {
-                    accumulator += policy.getSpecificTimeSpace(counter);
-                    counter++;
+                if(policy.getDurationOfPolicy() > diff) {
+                    double accumulator = 0;
+                    int counter = 0;
+                    while (accumulator <= diff) {
+                        accumulator += policy.getSpecificTimeSpace(counter);
+                        if (accumulator <= diff)
+                            counter++;
+                    }
+                    return w.getEnergyToBeReceived() * policy.getSpecificPrice(counter);
                 }
-                return w.getEnergyToBeReceived() * policy.getSpecificPrice(counter);
+                else
+                    return w.getEnergyToBeReceived() * getUnitPrice();
             }
         }
     }

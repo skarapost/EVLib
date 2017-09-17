@@ -88,6 +88,7 @@ public class ExchangeHandler
     public void handleQueueEvents() {
         if (station.getExchange().getSize() != 0) {
             ChargingEvent e = (ChargingEvent) station.getExchange().moveFirst();
+            e.preProcessing();
             e.execution();
         }
     }

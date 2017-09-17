@@ -128,8 +128,7 @@ public class DisCharger
      */
     public void handleQueueEvents()
     {
-        if (station.getDischarging().getSize() != 0)
-        {
+        if (station.getDischarging().getSize() != 0) {
             DisChargingEvent e = (DisChargingEvent) station.getDischarging().moveFirst();
             e.preProcessing();
             e.execution();
