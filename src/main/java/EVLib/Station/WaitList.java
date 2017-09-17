@@ -77,4 +77,10 @@ public class WaitList<T>
     {
         return list.size();
     }
+
+    /**
+     * Sets the id for this WaitingList.
+     * @param id The id to be set.
+     */
+    public void setId(int id) { this.id = id; }
 }

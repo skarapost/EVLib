@@ -57,7 +57,7 @@ public class ParkingEvent {
 
     /**
      * Executes the preprocessing phase. Checks for any ParkingSlot,
-     * calculates the energy to be given to the Vehicle and calculates the charging time.
+     * calculates the energy to be given to the ElectricVehicle and calculates the charging time.
      * If there is not any empty ParkingSlot the ChargingEvent is charecterized as "nonExecutable".
      */
     public void preProcessing()
@@ -116,7 +116,6 @@ public class ParkingEvent {
             setParkingTime(parkingTime);
             timestamp2 = System.currentTimeMillis();
             station.searchParkingSlot(parkingSlotId).parkingVehicle();
-            parkLog.add(this);
         }
         else if (condition.equals("charging"))
         {
@@ -138,7 +137,6 @@ public class ParkingEvent {
                 }
             }
             station.searchParkingSlot(parkingSlotId).parkingVehicle();
-            parkLog.add(this);
         }
     }
 
@@ -275,4 +273,10 @@ public class ParkingEvent {
     {
         return cost;
     }
+
+    /**
+     * Sets the id for this ParkingEvent.
+     * @param id The id to be set.
+     */
+    public void setId(int id) { this.id = id; }
 }

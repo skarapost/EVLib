@@ -1129,7 +1129,7 @@ public class ChargingStation {
             content.add("***Charging events***");
             for (ChargingEvent ev : ChargingEvent.chargingLog) {
                 content.add("");
-                content.add("Vehicle: " + ev.getElectricVehicle().getBrand());
+                content.add("Electric vehicle: " + ev.getElectricVehicle().getBrand());
                 content.add("Energy: " + ev.getEnergyToBeReceived());
                 content.add("Charging time: " + ev.getChargingTime());
                 content.add("Waiting time: " + ev.getMaxWaitingTime());
@@ -1139,7 +1139,7 @@ public class ChargingStation {
             content.add("***DisCharging events***");
             for (DisChargingEvent ev : DisChargingEvent.dischargingLog) {
                 content.add("");
-                content.add("Vehicle: " + ev.getElectricVehicle().getBrand());
+                content.add("Electric vehicle: " + ev.getElectricVehicle().getBrand());
                 content.add("Energy: " + ev.getAmountOfEnergy());
                 content.add("Charging time: " + ev.getDisChargingTime());
                 content.add("Waiting time: " + ev.getMaxWaitingTime());
@@ -1149,7 +1149,7 @@ public class ChargingStation {
             content.add("***Exchange events***");
             for (ChargingEvent ev : ChargingEvent.exchangeLog) {
                 content.add("");
-                content.add("Vehicle: " + ev.getElectricVehicle().getBrand());
+                content.add("Electric vehicle: " + ev.getElectricVehicle().getBrand());
                 content.add("Waiting time: " + ev.getMaxWaitingTime());
                 content.add("Cost: " + ev.getCost());
             }
@@ -1181,4 +1181,10 @@ public class ChargingStation {
             }
         }
     }
+
+    /**
+     * Sets the id for this ChargingStation.
+     * @param id The id to be set.
+     */
+    public void setId(int id) { this.id = id; }
 }

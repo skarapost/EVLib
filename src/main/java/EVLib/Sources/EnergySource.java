@@ -30,6 +30,12 @@ public abstract class EnergySource
     }
 
     /**
+     * Sets the id for this EnergySource.
+     * @param id The id to be set.
+     */
+    public void setId(int id) { this.id = id; }
+
+    /**
      * @return The ChagingStation of the EnergySource.
      */
     public ChargingStation getStation()

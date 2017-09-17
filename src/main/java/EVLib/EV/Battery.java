@@ -109,4 +109,10 @@ public class Battery
     {
         return id;
     }
+
+    /**
+     * Sets the id for this Battery
+     * @param id The id to be set.
+     */
+    public void setId(int id) { this.id = id; }
 }

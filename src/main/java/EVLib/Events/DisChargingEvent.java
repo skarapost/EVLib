@@ -106,7 +106,6 @@ public class DisChargingEvent
             station.searchDischarger(disChargerId).setCommitTime(disChargingTime);
             timestamp = System.currentTimeMillis();
             station.searchDischarger(disChargerId).executeDisChargingEvent();
-            dischargingLog.add(this);
         }
     }
 
@@ -244,4 +243,10 @@ public class DisChargingEvent
     {
         return profit;
     }
+
+    /**
+     * Sets the id for this DisChargingEvent.
+     * @param id The id to be set.
+     */
+    public void setId(int id) { this.id = id; }
 }

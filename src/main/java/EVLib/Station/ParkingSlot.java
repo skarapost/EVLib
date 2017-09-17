@@ -58,6 +58,7 @@ public class ParkingSlot {
                 commitTime = 0;
                 chargingTime = 0;
             }
+            ParkingEvent.parkLog.add(e);
         });
         if(station.getDeamon())
             ch.setDaemon(true);
@@ -153,4 +154,10 @@ public class ParkingSlot {
         else
             return 0;
     }
+
+    /**
+     * Sets the id for this ParkingSlot.
+     * @param id The id to be set.
+     */
+    public void setId(int id) { this.id = id; }
 }

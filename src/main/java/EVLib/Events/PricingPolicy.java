@@ -110,24 +110,24 @@ public class PricingPolicy {
         private L l;
         private R r;
 
-        public Pair(L l, R r) {
+        Pair(L l, R r) {
             this.l = l;
             this.r = r;
         }
 
-        public L getL() {
+        L getL() {
             return l;
         }
 
-        public void setL(L l) {
+        void setL(L l) {
             this.l = l;
         }
 
-        public R getR() {
+        R getR() {
             return r;
         }
 
-        public void setR(R r) {
+        void setR(R r) {
             this.r = r;
         }
     }
@@ -142,8 +142,8 @@ public class PricingPolicy {
         double counter = -1;
         if(option == 2) {
             counter = 0;
-            for (int i = 0; i < prices.size(); i++) {
-                Pair t = (Pair) prices.get(i);
+            for (Object price : prices) {
+                Pair t = (Pair) price;
                 counter += (double) t.getR();
             }
         }
@@ -157,4 +157,10 @@ public class PricingPolicy {
     {
         return id;
     }
+
+    /**
+     * Sets the id for this PricingPolicy.
+     * @param id The id to be set.
+     */
+    public void setId(int id) { this.id = id; }
 }

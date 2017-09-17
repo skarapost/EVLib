@@ -79,7 +79,7 @@ public class ChargingEvent
 
     /**
      * Executes the charging phase. Checks for any Charger or exchange slot,
-     * calculates the energy to be given to the Vehicle and calculates the charging time.
+     * calculates the energy to be given to the ElectricVehicle and calculates the charging time.
      * If there is not any empty Charger or exchange slot the ChargingEvent is inserted
      * in the respectively waiting list.
      **/
@@ -197,7 +197,6 @@ public class ChargingEvent
                     }
                 }
                 station.searchCharger(chargerId).executeChargingEvent();
-                chargingLog.add(this);
             }
             else
             {
@@ -208,7 +207,6 @@ public class ChargingEvent
                 vehicle.setBattery(station.getBatteries().get(numberOfBattery));
                 station.getBatteries().remove(numberOfBattery);
                 station.searchExchangeHandler(chargerId).executeExchange(temp);
-                exchangeLog.add(this);
             }
         }
     }
@@ -354,7 +352,7 @@ public class ChargingEvent
 
     /**
      * Calculates the amount of time a Driver has to wait until his ElectricVehicle
-     * can be charged. This calculation happens in case a Vehicle adds has to
+     * can be charged. This calculation happens in case an ElectricVehicle adds has to
      * be added in the WaitingList.
      * @return The waiting time.
      */
@@ -443,4 +441,10 @@ public class ChargingEvent
     {
         return this.cost;
     }
+
+    /**
+     * Sets the id for this ChargingEvent.
+     * @param id The id to be set.
+     */
+    public void setId(int id) { this.id = id; }
 }

@@ -45,6 +45,7 @@ public class Charger {
                 changeSituation();
                 setChargingEvent(null);
                 commitTime = 0;
+                ChargingEvent.chargingLog.add(e);
             }
             if (station.getQueueHandling())
                 handleQueueEvents();
@@ -87,7 +88,7 @@ public class Charger {
     /**
      * Handles the list. It executes (if any) the first element of the list.
      */
-    public void handleQueueEvents() {
+    private void handleQueueEvents() {
         ChargingEvent e;
         if ("fast".equals(getKindOfCharging())) {
             if (station.getFast().getSize() != 0) {
@@ -137,4 +138,10 @@ public class Charger {
     public int getId() {
         return id;
     }
+
+    /**
+     * Sets the id for this Charger.
+     * @param id The id to be set.
+     */
+    public void setId(int id) { this.id = id; }
 }

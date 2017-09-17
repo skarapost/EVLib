@@ -71,4 +71,10 @@ public class Driver
     {
         return id;
     }
+
+    /**
+     * Sets the id for this Driver.
+     * @param id The id to be set.
+     */
+    public void setId(int id) { this.id = id; }
 }

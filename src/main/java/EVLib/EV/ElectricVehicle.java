@@ -1,15 +1,21 @@
 package EVLib.EV;
 
-public class ElectricVehicle extends Vehicle
+import java.util.concurrent.atomic.AtomicInteger;
+
+public class ElectricVehicle
 {
     private Battery battery;
     private Driver driver;
+    private String brand;
+    private static AtomicInteger idGenerator = new AtomicInteger(0);
+    private int id;
 
     public ElectricVehicle(String brand)
     {
-        super(brand);
-        battery = null;
-        driver = null;
+        this.id = idGenerator.incrementAndGet();
+        this.brand = brand;
+        this.battery = null;
+        this.driver = null;
     }
 
     /**
@@ -17,7 +23,7 @@ public class ElectricVehicle extends Vehicle
     */
     public Battery getBattery()
     {
-        return battery;
+        return this.battery;
     }
 
     /**
@@ -43,7 +49,37 @@ public class ElectricVehicle extends Vehicle
     */
     public Driver getDriver()
     {
-        return driver;
+        return this.driver;
     }
+
+    /**
+     * @return The brand of the ElectricVehicle
+     */
+    public String getBrand()
+    {
+        return this.brand;
+    }
+
+    /**
+     * Sets the brand for a ElectricVehicle.
+     * @param brand The brand of the ElectricVehicle.
+     */
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+
+    /**
+     * @return The id of this Driver.
+     */
+    public int getId()
+    {
+        return id;
+    }
+
+    /**
+     * Sets the id for this ElectricVehicle.
+     * @param id The id to be set.
+     */
+    public void setId(int id) { this.id = id; }
 
 }

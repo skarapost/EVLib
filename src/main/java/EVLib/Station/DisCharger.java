@@ -49,6 +49,7 @@ public class DisCharger
                 changeSituation();
                 setDisChargingEvent(null);
                 commitTime = 0;
+                DisChargingEvent.dischargingLog.add(e);
             }
             if (station.getQueueHandling())
                 handleQueueEvents();
@@ -126,7 +127,7 @@ public class DisCharger
      * executes the preProcessing function and then runs
      * the execution function.
      */
-    public void handleQueueEvents()
+    private void handleQueueEvents()
     {
         if (station.getDischarging().getSize() != 0) {
             DisChargingEvent e = (DisChargingEvent) station.getDischarging().moveFirst();
@@ -134,4 +135,10 @@ public class DisCharger
             e.execution();
         }
     }
+
+    /**
+     * Sets the id for this DisCharger.
+     * @param id The id to be set.
+     */
+    public void setId(int id) { this.id = id; }
 }

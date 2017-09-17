@@ -31,6 +31,12 @@ public class ExchangeHandler
     }
 
     /**
+     * Sets the id for this ExchangeHandler.
+     * @param id The id to be set.
+     */
+    public void setId(int id) { this.id = id; }
+
+    /**
      * Links a ChargingEvent with the ExchangeHandler.
      * @param e The ChargingEvent to be linked.
      */
@@ -73,6 +79,7 @@ public class ExchangeHandler
                 changeSituation();
                 joinChargingEvent(null);
                 commitTime = 0;
+                ChargingEvent.exchangeLog.add(e);
             }
             if (station.getQueueHandling())
                 handleQueueEvents();
@@ -85,7 +92,7 @@ public class ExchangeHandler
     /**
      * Handles the list. It executes the first(if any) element of the list.
      */
-    public void handleQueueEvents() {
+    private void handleQueueEvents() {
         if (station.getExchange().getSize() != 0) {
             ChargingEvent e = (ChargingEvent) station.getExchange().moveFirst();
             e.preProcessing();
