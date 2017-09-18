@@ -4,11 +4,11 @@ import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class PricingPolicy {
-    private static AtomicInteger idGenerator = new AtomicInteger(0);
+    private static final AtomicInteger idGenerator = new AtomicInteger(0);
     private int id;
     private long space;
-    private LinkedList prices;
-    private short option;
+    private final LinkedList prices;
+    private final short option;
 
     public PricingPolicy(long space, double[] prices) {
         this.id = idGenerator.incrementAndGet();

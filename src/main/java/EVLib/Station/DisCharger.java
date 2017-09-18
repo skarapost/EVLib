@@ -6,13 +6,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class DisCharger
 {
-    private ChargingStation station;
+    private final ChargingStation station;
     private int id;
     private DisChargingEvent e;
     private boolean busy;
     private long commitTime;
     private long timestamp;
-    private static AtomicInteger idGenerator = new AtomicInteger(0);
+    private static final AtomicInteger idGenerator = new AtomicInteger(0);
 
     public DisCharger(ChargingStation station)
     {

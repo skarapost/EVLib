@@ -5,19 +5,17 @@ import EVLib.Station.ChargingStation;
 import java.util.ArrayList;
 
 public class NonRenewable extends EnergySource{
-    private ArrayList<Double> energyAmount;
+    private final ArrayList<Double> energyAmount;
 
-    public NonRenewable(ChargingStation station, double[] energyAmoun)
+    public NonRenewable(double[] energyAmoun)
     {
-        super(station);
         energyAmount = new ArrayList<>();
         for (double anEnergyAmoun : energyAmoun)
             energyAmount.add(anEnergyAmoun);
     }
 
-    public NonRenewable(ChargingStation station)
+    public NonRenewable()
     {
-        super(station);
         energyAmount = new ArrayList<>();
     }
 

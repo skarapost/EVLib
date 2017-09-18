@@ -12,10 +12,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ParkingEvent {
 
     private int id;
-    private static AtomicInteger idGenerator = new AtomicInteger(0);
+    private static final AtomicInteger idGenerator = new AtomicInteger(0);
     private long parkingTime;
-    private ElectricVehicle vehicle;
-    private ChargingStation station;
+    private final ElectricVehicle vehicle;
+    private final ChargingStation station;
     private long timeOfCharging;
     private double amountOfEnergy;
     private double energyToBeReceived;
@@ -24,7 +24,7 @@ public class ParkingEvent {
     private long timestamp2;
     private String condition;
     private double cost;
-    public static List<ParkingEvent> parkLog = new ArrayList<>();
+    public static final List<ParkingEvent> parkLog = new ArrayList<>();
 
     public ParkingEvent(ChargingStation station, ElectricVehicle vehicle, long parkingTime)
     {

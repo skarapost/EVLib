@@ -7,7 +7,7 @@ public class ElectricVehicle
     private Battery battery;
     private Driver driver;
     private String brand;
-    private static AtomicInteger idGenerator = new AtomicInteger(0);
+    private static final AtomicInteger idGenerator = new AtomicInteger(0);
     private int id;
 
     public ElectricVehicle(String brand)

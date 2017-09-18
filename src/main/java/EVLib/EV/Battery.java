@@ -10,7 +10,7 @@ public class Battery
     private int numberOfChargings;
     private int maxNumberOfChargings;
     private boolean active;
-    private static AtomicInteger idGenerator = new AtomicInteger(0);
+    private static final AtomicInteger idGenerator = new AtomicInteger(0);
 
     public Battery(double remAmount, double capacity)
     {

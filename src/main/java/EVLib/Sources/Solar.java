@@ -6,19 +6,17 @@ import java.util.ArrayList;
 
 public class Solar extends EnergySource
 {
-    private ArrayList<Double> energyAmount;
+    private final ArrayList<Double> energyAmount;
 
-    public Solar(ChargingStation station, double[] energyAmoun)
+    public Solar(double[] energyAmoun)
     {
-        super(station);
         energyAmount = new ArrayList<>();
         for (double anEnergyAmoun : energyAmoun)
             energyAmount.add(anEnergyAmoun);
     }
 
-    public Solar(ChargingStation station)
+    public Solar()
     {
-        super(station);
         energyAmount = new ArrayList<>();
     }
 

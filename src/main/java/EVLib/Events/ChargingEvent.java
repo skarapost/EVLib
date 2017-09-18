@@ -16,12 +16,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ChargingEvent
 {
     private int id;
-    private static AtomicInteger idGenerator = new AtomicInteger(0);
-    private ChargingStation station;
+    private static final AtomicInteger idGenerator = new AtomicInteger(0);
+    private final ChargingStation station;
     private double amountOfEnergy;
-    private String kindOfCharging;
+    private final String kindOfCharging;
     private long waitingTime;
-    private ElectricVehicle vehicle;
+    private final ElectricVehicle vehicle;
     private long chargingTime;
     private String condition;
     private int chargerId;
@@ -30,8 +30,8 @@ public class ChargingEvent
     private long maxWaitingTime;
     private long timestamp;
     private double cost;
-    public static List<ChargingEvent> chargingLog = new ArrayList<>();
-    public static List<ChargingEvent> exchangeLog = new ArrayList<>();
+    public static final List<ChargingEvent> chargingLog = new ArrayList<>();
+    public static final List<ChargingEvent> exchangeLog = new ArrayList<>();
 
     public ChargingEvent(ChargingStation station, ElectricVehicle vehicle, double amEnerg, String kindOfCharging)
     {

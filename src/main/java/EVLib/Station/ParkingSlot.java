@@ -2,7 +2,6 @@ package EVLib.Station;
 
 import EVLib.Events.ParkingEvent;
 
-import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ParkingSlot {
@@ -11,8 +10,8 @@ public class ParkingSlot {
     private long commitTime;
     private long chargingTime;
     private ParkingEvent e;
-    private ChargingStation station;
-    private static AtomicInteger idGenerator = new AtomicInteger(0);
+    private final ChargingStation station;
+    private static final AtomicInteger idGenerator = new AtomicInteger(0);
     private boolean inSwitch;
     private long timestamp;
 

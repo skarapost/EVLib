@@ -6,19 +6,17 @@ import java.util.ArrayList;
 
 public class Wind extends EnergySource
 {
-    private ArrayList<Double> energyAmount;
+    private final ArrayList<Double> energyAmount;
 
-    public Wind(ChargingStation station, double[] energyAmoun)
+    public Wind(double[] energyAmoun)
     {
-        super(station);
         energyAmount = new ArrayList<>();
         for (double anEnergyAmoun : energyAmoun)
             energyAmount.add(anEnergyAmoun);
     }
 
-    public Wind(ChargingStation station)
+    public Wind()
     {
-        super(station);
         energyAmount = new ArrayList<>();
     }
 

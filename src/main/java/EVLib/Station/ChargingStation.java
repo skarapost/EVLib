@@ -16,24 +16,22 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ChargingStation {
     private int id;
-    private String name;
-    private WaitList slow;
-    private WaitList fast;
-    private WaitList discharging;
-    private WaitList exchange;
+    private final String name;
+    private final WaitList slow;
+    private final WaitList fast;
+    private final WaitList discharging;
+    private final WaitList exchange;
     private double chargingRatioSlow;
     private double chargingRatioFast;
     private double disChargingRatio;
-    private ArrayList<Charger> chargers;
-    private ArrayList<EnergySource> n;
+    private final ArrayList<Charger> chargers;
+    private final ArrayList<EnergySource> n;
     private ArrayList<DisCharger> dischargers;
-    private ArrayList<Battery> batteries;
-    private ArrayList<ExchangeHandler> exchangeHandlers;
-    private ArrayList<ParkingSlot> parkingSlots;
-    private Charger r;
-    private EnergySource c;
-    private HashMap<String, Double> amounts;
-    private ArrayList<String> sources;
+    private final ArrayList<Battery> batteries;
+    private final ArrayList<ExchangeHandler> exchangeHandlers;
+    private final ArrayList<ParkingSlot> parkingSlots;
+    private final HashMap<String, Double> amounts;
+    private final ArrayList<String> sources;
     private double unitPrice;
     private double disUnitPrice;
     private double inductivePrice;
@@ -42,11 +40,11 @@ public class ChargingStation {
     private int updateSpace;
     private long timeOfExchange;
     private double inductiveChargingRatio;
-    private static AtomicInteger idGenerator = new AtomicInteger(0);
+    private static final AtomicInteger idGenerator = new AtomicInteger(0);
     private long timestamp;
     private PricingPolicy policy;
     private boolean automaticUpdate;
-    private Statistics statistics = new Statistics();
+    private final Statistics statistics = new Statistics();
     private Timer timer;
     private boolean deamon;
 
@@ -83,42 +81,34 @@ public class ChargingStation {
         for (int i = 0; i < source.length; i++) {
             switch (source[i]) {
                 case "solar":
-                    c = new Solar(this, energAm[i]);
-                    n.add(i, c);
+                    n.add(i, new Solar(energAm[i]));
                     amounts.put("solar", 0.0);
                     break;
                 case "wind":
-                    c = new Wind(this, energAm[i]);
-                    n.add(i, c);
+                    n.add(i, new Wind(energAm[i]));
                     amounts.put("wind", 0.0);
                     break;
                 case "geothermal":
-                    c = new Geothermal(this, energAm[i]);
-                    n.add(i, c);
+                    n.add(i, new Geothermal(energAm[i]));
                     amounts.put("geothermal", 0.0);
                     break;
                 case "wave":
-                    c = new Wave(this, energAm[i]);
-                    n.add(i, c);
+                    n.add(i, new Wave(energAm[i]));
                     amounts.put("wave", 0.0);
                     break;
                 case "hydroelectric":
-                    c = new HydroElectric(this, energAm[i]);
-                    n.add(i, c);
+                    n.add(i, new HydroElectric(energAm[i]));
                     amounts.put("hydroelectric", 0.0);
                     break;
                 case "nonrenewable":
-                    c = new NonRenewable(this, energAm[i]);
-                    n.add(i, c);
+                    n.add(i, new NonRenewable(energAm[i]));
                     amounts.put("nonrenewable", 0.0);
                     break;
             }
         }
         for (int i = 0; i < kinds.length; i++) {
-            if (!kinds[i].equals("exchange")) {
-                r = new Charger(this, kinds[i]);
-                chargers.add(i, r);
-            }
+            if (!kinds[i].equals("exchange"))
+                chargers.add(i, new Charger(this, kinds[i]));
         }
         updateStorage();
     }
@@ -150,42 +140,34 @@ public class ChargingStation {
         for (int i = 0; i < source.length; i++) {
             switch (source[i]) {
                 case "solar":
-                    c = new Solar(this);
-                    n.add(i, c);
+                    n.add(i, new Solar());
                     amounts.put("solar", 0.0);
                     break;
                 case "wind":
-                    c = new Wind(this);
-                    n.add(i, c);
+                    n.add(i, new Wind());
                     amounts.put("wind", 0.0);
                     break;
                 case "geothermal":
-                    c = new Geothermal(this);
-                    n.add(i, c);
+                    n.add(i, new Geothermal());
                     amounts.put("geothermal", 0.0);
                     break;
                 case "wave":
-                    c = new Wave(this);
-                    n.add(i, c);
+                    n.add(i, new Wave());
                     amounts.put("wave", 0.0);
                     break;
                 case "hydroelectric":
-                    c = new HydroElectric(this);
-                    n.add(i, c);
+                    n.add(i, new HydroElectric());
                     amounts.put("hydroelectric", 0.0);
                     break;
                 case "nonrenewable":
-                    c = new NonRenewable(this);
-                    n.add(i, c);
+                    n.add(i, new NonRenewable());
                     amounts.put("nonrenewable", 0.0);
                     break;
             }
         }
         for (int i = 0; i < kinds.length; i++) {
-            if (!kinds[i].equals("exchange")) {
-                r = new Charger(this, kinds[i]);
-                chargers.add(i, r);
-            }
+            if (!kinds[i].equals("exchange"))
+                chargers.add(i, new Charger(this, kinds[i]));
         }
         updateStorage();
     }
@@ -1094,7 +1076,7 @@ public class ChargingStation {
     }
 
     private class Statistics {
-        private List<String> energyLog;
+        private final List<String> energyLog;
 
         Statistics() {
             energyLog = new ArrayList<>();

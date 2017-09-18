@@ -6,13 +6,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Charger {
     private int id;
-    private String kindOfCharging;
+    private final String kindOfCharging;
     private boolean busy;
     private long commitTime;
     private ChargingEvent e;
-    private ChargingStation station;
+    private final ChargingStation station;
     private long timestamp;
-    private static AtomicInteger idGenerator = new AtomicInteger(0);
+    private static final AtomicInteger idGenerator = new AtomicInteger(0);
 
     public Charger(ChargingStation station, String kindOfCharging) {
         this.id = idGenerator.incrementAndGet();

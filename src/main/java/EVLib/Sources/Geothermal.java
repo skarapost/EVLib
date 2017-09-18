@@ -6,19 +6,17 @@ import java.util.ArrayList;
 
 public class Geothermal extends EnergySource
 {
-    private ArrayList<Double> energyAmount;
+    private final ArrayList<Double> energyAmount;
 
-    public Geothermal(ChargingStation station, double[] energyAmoun)
+    public Geothermal(double[] energyAmoun)
         {
-            super(station);
             energyAmount = new ArrayList<>();
             for (double anEnergyAmoun : energyAmoun)
                 energyAmount.add(anEnergyAmoun);
         }
 
-    public Geothermal(ChargingStation station)
+    public Geothermal()
     {
-        super(station);
         energyAmount = new ArrayList<>();
     }
 

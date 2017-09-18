@@ -6,18 +6,16 @@ import java.util.ArrayList;
 
 public class Wave extends EnergySource
 {
-    private ArrayList<Double> energyAmount;
+    private final ArrayList<Double> energyAmount;
 
-    public Wave(ChargingStation station, double[] energyAmoun)
+    public Wave(double[] energyAmoun)
     {
-        super(station);
         energyAmount = new ArrayList<>();
         for (double anEnergyAmoun : energyAmoun) energyAmount.add(anEnergyAmoun);
     }
 
-    public Wave(ChargingStation station)
+    public Wave()
     {
-        super(station);
         energyAmount = new ArrayList<>();
     }
 

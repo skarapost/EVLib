@@ -7,13 +7,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 public abstract class EnergySource
 {
     private int id;
-    private ChargingStation station;
-    private static AtomicInteger idGenerator = new AtomicInteger(0);
+    private static final AtomicInteger idGenerator = new AtomicInteger(0);
 
-    public EnergySource(ChargingStation station)
+    public EnergySource()
     {
         this.id = idGenerator.incrementAndGet();
-        this.station = station;
     }
 
     public abstract double popAmount();
@@ -34,12 +32,4 @@ public abstract class EnergySource
      * @param id The id to be set.
      */
     public void setId(int id) { this.id = id; }
-
-    /**
-     * @return The ChagingStation of the EnergySource.
-     */
-    public ChargingStation getStation()
-    {
-        return station;
-    }
 }

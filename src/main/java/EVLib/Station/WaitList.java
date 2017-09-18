@@ -5,9 +5,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class WaitList<T>
 {
-    private ArrayList<T> list;
+    private final ArrayList<T> list;
     private int id;
-    private static AtomicInteger idGenerator = new AtomicInteger(0);
+    private static final AtomicInteger idGenerator = new AtomicInteger(0);
 
     public WaitList()
     {

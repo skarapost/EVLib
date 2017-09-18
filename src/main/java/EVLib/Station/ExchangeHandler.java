@@ -8,10 +8,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ExchangeHandler
 {
     private int id;
-    private ChargingStation station;
+    private final ChargingStation station;
     private ChargingEvent e;
     private boolean busy;
-    private static AtomicInteger idGenerator = new AtomicInteger(0);
+    private static final AtomicInteger idGenerator = new AtomicInteger(0);
     private long commitTime;
     private long timestamp;
 

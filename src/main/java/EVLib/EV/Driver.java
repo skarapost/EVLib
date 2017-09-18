@@ -5,10 +5,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Driver
 {
     private int id;
-    private String name;
+    private final String name;
     private double debt;
     private double profit;
-    private static AtomicInteger idGenerator = new AtomicInteger(0);
+    private static final AtomicInteger idGenerator = new AtomicInteger(0);
 
     public Driver(String name)
     {
