@@ -19,7 +19,7 @@ public class ChargingEvent
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
     private final ChargingStation station;
     private double amountOfEnergy;
-    private final String kindOfCharging;
+    private String kindOfCharging;
     private long waitingTime;
     private final ElectricVehicle vehicle;
     private long chargingTime;
@@ -92,6 +92,7 @@ public class ChargingEvent
                     if ((qwe != -1) && (qwe != -2)) {
                         chargerId = qwe;
                         Charger ch = station.searchCharger(chargerId);
+                        ch.setChargingEvent(this);
                         if (amountOfEnergy < station.getTotalEnergy()) {
                             if (amountOfEnergy <= (vehicle.getBattery().getCapacity() - vehicle.getBattery().getRemAmount()))
                                 energyToBeReceived = amountOfEnergy;
@@ -106,6 +107,7 @@ public class ChargingEvent
                         }
                         if (energyToBeReceived == 0) {
                             setCondition("nonExecutable");
+                            ch.setChargingEvent(null);
                             return;
                         }
                         if ("fast".equals(kindOfCharging))
@@ -113,20 +115,19 @@ public class ChargingEvent
                         else
                             setChargingTime((long) (energyToBeReceived / station.getChargingRatioSlow()));
                         this.cost = station.calculatePrice(this);
-                        ch.setChargingEvent(this);
-                        ch.changeSituation();
                         setCondition("charging");
                     } else if (qwe == -2)
                         setCondition("nonExecutable");
-                    else {
-                        maxWaitingTime = calWaitingTime();
-                        if (maxWaitingTime < waitingTime) {
-                            if (!condition.equals("wait"))
-                                station.updateQueue(this);
-                            setCondition("wait");
-                        } else
-                            setCondition("nonExecutable");
-                    }
+                    else
+                        if(!condition.equals("wait")) {
+                            maxWaitingTime = calWaitingTime();
+                            if (maxWaitingTime < waitingTime) {
+                                if (!condition.equals("wait"))
+                                    station.updateQueue(this);
+                                setCondition("wait");
+                            } else
+                                setCondition("nonExecutable");
+                        }
                 } else {
                     int qwe = station.checkExchangeHandlers();
                     if ((qwe != -1) && (qwe != -2)) {
@@ -135,35 +136,39 @@ public class ChargingEvent
                         int state2 = station.checkBatteries();
                         if ((state2 != -1) && (state2 != -2)) {
                             numberOfBattery = state2;
-                        } else if (state2 == -1) {
-                            maxWaitingTime = calWaitingTime();
-                            if (maxWaitingTime < waitingTime) {
-                                if (!condition.equals("wait"))
-                                    station.updateQueue(this);
-                                setCondition("wait");
-                            } else {
-                                setCondition("nonExecutable");
-                                return;
+                        } else if (state2 == -1)
+                            if(!condition.equals("wait"))
+                            {
+                                maxWaitingTime = calWaitingTime();
+                                if (maxWaitingTime < waitingTime) {
+                                    if (!condition.equals("wait"))
+                                        station.updateQueue(this);
+                                    setCondition("wait");
+                                } else {
+                                    setCondition("nonExecutable");
+                                    return;
+                                }
                             }
-                        } else {
+                        else {
                             setCondition("nonExecutable");
                             return;
                         }
                         setChargingTime(station.getTimeOfExchange());
                         this.cost = station.getExchangePrice();
-                        eh.joinChargingEvent(this);
-                        eh.changeSituation();
+                        eh.setChargingEvent(this);
                         setCondition("swapping");
                     } else if (qwe == -2)
                         setCondition("nonExecutable");
-                    else {
-                        maxWaitingTime = calWaitingTime();
-                        if (maxWaitingTime < waitingTime) {
-                            setCondition("wait");
-                            station.updateQueue(this);
-                        } else
-                            setCondition("nonExecutable");
-                    }
+                    else
+                        if(!condition.equals("wait"))
+                        {
+                            maxWaitingTime = calWaitingTime();
+                            if (maxWaitingTime < waitingTime) {
+                                setCondition("wait");
+                                station.updateQueue(this);
+                            } else
+                                setCondition("nonExecutable");
+                        }
                 }
             }
         }
@@ -181,7 +186,6 @@ public class ChargingEvent
         {
             if (!kindOfCharging.equals("exchange"))
             {
-                station.searchCharger(chargerId).setCommitTime(chargingTime);
                 timestamp = System.currentTimeMillis();
                 double sdf;
                 sdf = energyToBeReceived;
@@ -200,7 +204,6 @@ public class ChargingEvent
             }
             else
             {
-                station.searchExchangeHandler(chargerId).setCommitTime(chargingTime);
                 timestamp = System.currentTimeMillis();
                 Battery temp;
                 temp = vehicle.getBattery();
@@ -443,8 +446,18 @@ public class ChargingEvent
     }
 
     /**
+     * Sets the cost for this ChargingEvent.
+     * @param cost The cost to be set.
+     */
+    public void setCost(double cost)
+    {
+        this.cost = cost;
+    }
+
+    /**
      * Sets the id for this ChargingEvent.
      * @param id The id to be set.
      */
     public void setId(int id) { this.id = id; }
+
 }

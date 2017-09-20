@@ -7,17 +7,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Charger {
     private int id;
     private final String kindOfCharging;
-    private boolean busy;
-    private long commitTime;
     private ChargingEvent e;
     private final ChargingStation station;
-    private long timestamp;
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
+    private volatile boolean running = true;
 
     public Charger(ChargingStation station, String kindOfCharging) {
         this.id = idGenerator.incrementAndGet();
         this.kindOfCharging = kindOfCharging;
-        this.busy = false;
         this.station = station;
         this.e = null;
     }
@@ -31,43 +28,27 @@ public class Charger {
     public void executeChargingEvent() {
         Thread ch = new Thread(() ->
         {
-            try {
-                Thread.sleep(e.getChargingTime());
-            } catch (InterruptedException e1) {
-                e1.printStackTrace();
-            }
+            long timestamp1 = System.currentTimeMillis();
+            long timestamp2;
+            do {
+                timestamp2 = System.currentTimeMillis();
+            }while(running&&(timestamp2-timestamp1<e.getChargingTime()));
             synchronized (this) {
                 e.getElectricVehicle().getBattery().setRemAmount(e.getEnergyToBeReceived() + e.getElectricVehicle().getBattery().getRemAmount());
                 if (e.getElectricVehicle().getDriver() != null)
                     e.getElectricVehicle().getDriver().setDebt(e.getElectricVehicle().getDriver().getDebt() + e.getCost());
                 System.out.println("The charging " + e.getId() + " completed succesfully");
                 e.setCondition("finished");
-                changeSituation();
-                setChargingEvent(null);
-                commitTime = 0;
                 ChargingEvent.chargingLog.add(e);
+                setChargingEvent(null);
             }
             if (station.getQueueHandling())
                 handleQueueEvents();
         });
         if(station.getDeamon())
             ch.setDaemon(true);
+        ch.setName("Charger: " + String.valueOf(id));
         ch.start();
-    }
-
-
-    /**
-     * Changes the situation of the Charger.
-     */
-    public void changeSituation() {
-        this.busy = !busy;
-    }
-
-    /**
-     * @return True if it is busy, false if it is not busy.
-     */
-    public boolean getBusy() {
-        return busy;
     }
 
     /**
@@ -113,26 +94,6 @@ public class Charger {
     }
 
     /**
-     * @return The time that the Charger is going to be busy.
-     */
-    public long reElapsedCommitTime() {
-        long diff = System.currentTimeMillis() - timestamp;
-        if (commitTime - diff >= 0)
-            return commitTime - diff;
-        else
-            return 0;
-    }
-
-    /**
-     * Sets the time the Charger is going to be busy.
-     * @param time The commit time.
-     */
-    public void setCommitTime(long time) {
-        timestamp = System.currentTimeMillis();
-        commitTime = time;
-    }
-
-    /**
      * @return The id of Charger.
      */
     public int getId() {
@@ -144,4 +105,12 @@ public class Charger {
      * @param id The id to be set.
      */
     public void setId(int id) { this.id = id; }
+
+    /**
+     * Stops the operation of the Charger.
+     */
+    public void stopCharger()
+    {
+        running = false;
+    }
 }

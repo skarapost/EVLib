@@ -133,20 +133,20 @@ public class PricingPolicy {
     }
 
     /**
-     * Returns the time duration of this policy. If the policy has a fixed time space then it returns -1, because
-     * it cannot be counted.
+     * Returns the time duration of this policy.
      * @return The time duration of the policy.
      */
     public double getDurationOfPolicy()
     {
-        double counter = -1;
-        if(option == 2) {
-            counter = 0;
+        double counter = 0;
+        if(option == 2)
             for (Object price : prices) {
                 Pair t = (Pair) price;
                 counter += (double) t.getR();
             }
-        }
+        else
+            for (Object price : prices)
+                counter = prices.size() * space;
         return counter;
     }
 

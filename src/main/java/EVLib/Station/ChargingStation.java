@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ChargingStation {
     private int id;
-    private final String name;
+    private String name;
     private final WaitList slow;
     private final WaitList fast;
     private final WaitList discharging;
@@ -47,6 +47,8 @@ public class ChargingStation {
     private final Statistics statistics = new Statistics();
     private Timer timer;
     private boolean deamon;
+    public int FAST_CHARGERS;
+    public int SLOW_CHARGERS;
 
     private class checkUpdate extends TimerTask {
         public void run() {
@@ -106,9 +108,18 @@ public class ChargingStation {
                     break;
             }
         }
-        for (int i = 0; i < kinds.length; i++) {
-            if (!kinds[i].equals("exchange"))
-                chargers.add(i, new Charger(this, kinds[i]));
+        for (String kind : kinds) {
+            if (kind.equals("slow") || kind.equals("fast")) {
+                chargers.add(new Charger(this, kind));
+                if(kind.equals("slow"))
+                    ++SLOW_CHARGERS;
+                else
+                    ++FAST_CHARGERS;
+            }
+            else if (kind.equals("exchange"))
+                exchangeHandlers.add(new ExchangeHandler(this));
+            else if (kind.equals("park"))
+                parkingSlots.add(new ParkingSlot(this));
         }
         updateStorage();
     }
@@ -165,9 +176,13 @@ public class ChargingStation {
                     break;
             }
         }
-        for (int i = 0; i < kinds.length; i++) {
-            if (!kinds[i].equals("exchange"))
-                chargers.add(i, new Charger(this, kinds[i]));
+        for (String kind : kinds) {
+            if (kind.equals("slow") || kind.equals("fast"))
+                chargers.add(new Charger(this, kind));
+            else if (kind.equals("exchange"))
+                exchangeHandlers.add(new ExchangeHandler(this));
+            else if (kind.equals("park"))
+                parkingSlots.add(new ParkingSlot(this));
         }
         updateStorage();
     }
@@ -196,6 +211,15 @@ public class ChargingStation {
         this.disChargingRatio = 1;
         this.inductiveChargingRatio = 0.5;
         updateStorage();
+    }
+
+    /**
+     * Sets a name to the ChargingStation.
+     * @param name The name to be set.
+     */
+    public void setName(String name)
+    {
+        this.name = name;
     }
 
     /**
@@ -270,7 +294,7 @@ public class ChargingStation {
     public int checkChargers(String k) {
         for (int i = 0; i < getChargers().length; i++) {
             if (k.equals(getChargers()[i].getKindOfCharging()))
-                if (!getChargers()[i].getBusy())
+                if (getChargers()[i].getChargingEvent() == null)
                     return getChargers()[i].getId();
         }
         if (getChargers().length == 0)
@@ -286,7 +310,7 @@ public class ChargingStation {
      */
     public int checkDisChargers() {
         for (int i = 0; i < getDisChargers().length; i++) {
-            if (!getDisChargers()[i].getBusy())
+            if (getDisChargers()[i].getDisChargingEvent() == null)
                 return getDisChargers()[i].getId();
         }
         if (getDisChargers().length == 0)
@@ -302,7 +326,7 @@ public class ChargingStation {
      */
     public int checkExchangeHandlers() {
         for (int i = 0; i < getExchangeHandlers().length; i++) {
-            if (!getExchangeHandlers()[i].getBusy())
+            if (getExchangeHandlers()[i].getChargingEvent() == null)
                 return getExchangeHandlers()[i].getId();
         }
         if (getExchangeHandlers().length == 0)
@@ -318,7 +342,7 @@ public class ChargingStation {
      */
     public int checkParkingSlots() {
         for (ParkingSlot p : getParkingSlots()) {
-            if (!p.getBusy())
+            if (p.getParkingEvent() == null)
                 return p.getId();
         }
         if (parkingSlots.size() == 0)
@@ -367,6 +391,10 @@ public class ChargingStation {
      */
     public void addCharger(Charger y) {
         chargers.add(y);
+        if(y.getKindOfCharging().equals("slow"))
+            ++SLOW_CHARGERS;
+        else if(y.getKindOfCharging().equals("fast"))
+            ++FAST_CHARGERS;
     }
 
     /**

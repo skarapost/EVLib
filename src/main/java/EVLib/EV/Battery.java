@@ -111,8 +111,26 @@ public class Battery
     }
 
     /**
-     * Sets the id for this Battery
+     * Sets the id for this Battery.
      * @param id The id to be set.
      */
     public void setId(int id) { this.id = id; }
+
+    /**
+     * Sets either the battery is active or not.
+     * @param active The value for the condition of the battery.
+     */
+    public void setActive(boolean active)
+    {
+        this.active = active;
+    }
+
+    /**
+     * Sets the number a battery has been charged until now.
+     * @param numberOfChargings The number of chargings.
+     */
+    public void setNumberOfChargings(int numberOfChargings)
+    {
+        this.numberOfChargings = numberOfChargings;
+    }
 }

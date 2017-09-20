@@ -66,6 +66,7 @@ public class ParkingEvent {
         if ((qwe != -1) && (qwe != -2)) {
             parkingSlotId = qwe;
             ParkingSlot ps = station.searchParkingSlot(parkingSlotId);
+            ps.setParkingEvent(this);
             if (ps.getInSwitch()&&(vehicle.getBattery().getActive())) {
                 if (amountOfEnergy < station.getTotalEnergy()) {
                     if (amountOfEnergy <= (vehicle.getBattery().getCapacity() - vehicle.getBattery().getRemAmount()))
@@ -79,8 +80,6 @@ public class ParkingEvent {
                         energyToBeReceived = vehicle.getBattery().getCapacity() - vehicle.getBattery().getRemAmount();
                     if (energyToBeReceived == 0) {
                         setCondition("parking");
-                        ps.setParkingEvent(this);
-                        ps.changeSituation();
                         return;
                     }
                 }
@@ -91,15 +90,9 @@ public class ParkingEvent {
                 }
                 setCondition("charging");
                 cost = station.calculatePrice(this);
-                ps.setParkingEvent(this);
-                ps.changeSituation();
             }
             else
-            {
                 setCondition("parking");
-                ps.setParkingEvent(this);
-                ps.changeSituation();
-            }
         }
         else
             setCondition("nonExecutable");
@@ -112,17 +105,14 @@ public class ParkingEvent {
     {
         if (condition.equals("parking"))
         {
-            station.searchParkingSlot(parkingSlotId).setCommitTime(parkingTime);
             setParkingTime(parkingTime);
             timestamp2 = System.currentTimeMillis();
             station.searchParkingSlot(parkingSlotId).parkingVehicle();
         }
         else if (condition.equals("charging"))
         {
-            station.searchParkingSlot(parkingSlotId).setCommitTime(parkingTime);
             setParkingTime(parkingTime);
             timestamp1 = System.currentTimeMillis();
-            station.searchParkingSlot(parkingSlotId).setChargingTime(timeOfCharging);
             double sdf;
             sdf = energyToBeReceived;
             HashMap<String, Double> keys = new HashMap<>(station.getMap());
@@ -265,6 +255,12 @@ public class ParkingEvent {
     {
        return amountOfEnergy;
     }
+
+    /**
+     * Sets the cost for this ParkingEvent.
+     * @param cost Teh cost to be set.
+     */
+    public void setCost(double cost) { this.cost = cost; }
 
     /**
      * @return The cost of this ParkingEvent.

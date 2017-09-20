@@ -15,7 +15,7 @@ public class DisChargingEvent
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
     private final ElectricVehicle vehicle;
     private final ChargingStation station;
-    private final double amountOfEnergy;
+    private double amountOfEnergy;
     private long disChargingTime;
     private String condition;
     private int disChargerId;
@@ -73,22 +73,22 @@ public class DisChargingEvent
                 if ((qwe != -1) && (qwe != -2)) {
                     disChargerId = qwe;
                     DisCharger dsc = station.searchDischarger(disChargerId);
+                    dsc.setDisChargingEvent(this);
                     setDisChargingTime((long) (amountOfEnergy / station.getDisChargingRatio()));
                     setCondition("discharging");
                     profit = amountOfEnergy * station.getDisUnitPrice();
-                    dsc.setDisChargingEvent(this);
-                    dsc.changeSituation();
                 } else if (qwe == -2)
                     setCondition("nonExecutable");
-                else {
-                    maxWaitingTime = calDisWaitingTime();
-                    if (maxWaitingTime < waitingTime) {
-                        if (!condition.equals("wait"))
-                            station.updateDisChargingQueue(this);
-                        setCondition("wait");
-                    } else
-                        setCondition("nonExecutable");
-                }
+                else
+                    if(!condition.equals("wait")) {
+                        maxWaitingTime = calDisWaitingTime();
+                        if (maxWaitingTime < waitingTime) {
+                            if (!condition.equals("wait"))
+                                station.updateDisChargingQueue(this);
+                            setCondition("wait");
+                        } else
+                            setCondition("nonExecutable");
+                    }
             }
         }
         else
@@ -103,7 +103,6 @@ public class DisChargingEvent
     {
         if(condition.equals("discharging"))
         {
-            station.searchDischarger(disChargerId).setCommitTime(disChargingTime);
             timestamp = System.currentTimeMillis();
             station.searchDischarger(disChargerId).executeDisChargingEvent();
         }
@@ -243,6 +242,12 @@ public class DisChargingEvent
     {
         return profit;
     }
+
+    /**
+     * Sets the profit for this DisChargingEvent.
+     * @param profit The profit to be set.
+     */
+    public void setProfit(double profit) { this.profit = profit; }
 
     /**
      * Sets the id for this DisChargingEvent.

@@ -9,15 +9,12 @@ public class DisCharger
     private final ChargingStation station;
     private int id;
     private DisChargingEvent e;
-    private boolean busy;
-    private long commitTime;
-    private long timestamp;
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
+    private volatile boolean running = true;
 
     public DisCharger(ChargingStation station)
     {
         this.id = idGenerator.incrementAndGet();
-        this.busy = false;
         this.station = station;
         this.e = null;
         if (station.getSpecificAmount("discharging") == 0f)
@@ -34,11 +31,11 @@ public class DisCharger
     public void executeDisChargingEvent()
     {
         Thread dsch = new Thread(() -> {
-            try {
-                Thread.sleep(e.getDisChargingTime());
-            } catch (InterruptedException e1) {
-                e1.printStackTrace();
-            }
+            long timestamp1 = System.currentTimeMillis();
+            long timestamp2;
+            do {
+                timestamp2 = System.currentTimeMillis();
+            }while(running&&(timestamp2-timestamp1<e.getDisChargingTime()));
             synchronized(this) {
                 e.getElectricVehicle().getBattery().setRemAmount(e.getElectricVehicle().getBattery().getRemAmount() - e.getAmountOfEnergy());
                 e.getElectricVehicle().getDriver().setProfit(e.getElectricVehicle().getDriver().getProfit() + e.getProfit());
@@ -46,33 +43,16 @@ public class DisCharger
                 station.setSpecificAmount("discharging", energy);
                 System.out.println("The discharging " + e.getId() + " completed succesfully");
                 e.setCondition("finished");
-                changeSituation();
-                setDisChargingEvent(null);
-                commitTime = 0;
                 DisChargingEvent.dischargingLog.add(e);
+                setDisChargingEvent(null);
             }
             if (station.getQueueHandling())
                 handleQueueEvents();
         });
         if(station.getDeamon())
             dsch.setDaemon(true);
+        dsch.setName("DisCharger: " + String.valueOf(id));
         dsch.start();
-    }
-
-    /**
-     * Changes the situation of the DisCharger.
-     */
-    public void changeSituation()
-    {
-        this.busy = !busy;
-    }
-
-    /**
-     * @return Returns true if it is busy, false if it is not busy.
-     */
-    public boolean getBusy()
-    {
-        return busy;
     }
 
     /**
@@ -85,33 +65,11 @@ public class DisCharger
     }
 
     /**
-     * Sets the time the DisCharger is going to be occupied.
-     * @param time The busy time.
-     */
-    public void setCommitTime(long time)
-    {
-        timestamp = System.currentTimeMillis();
-        this.commitTime = time;
-    }
-
-    /**
      * @return The DisChargingEvent od the DisCharger.
      */
     public DisChargingEvent getDisChargingEvent()
     {
         return e;
-    }
-
-    /**
-     * @return The busy time.
-     */
-    public long getElapsedCommitTime()
-    {
-        long diff = System.currentTimeMillis() - timestamp;
-        if (commitTime - diff >= 0)
-            return commitTime - diff;
-        else
-            return 0;
     }
 
     /**
@@ -141,4 +99,12 @@ public class DisCharger
      * @param id The id to be set.
      */
     public void setId(int id) { this.id = id; }
+
+    /**
+     * Stops the operation of the DisCharger.
+     */
+    public void stopDisCharger()
+    {
+        running = false;
+    }
 }

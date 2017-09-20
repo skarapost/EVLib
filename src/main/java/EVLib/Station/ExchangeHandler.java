@@ -10,10 +10,8 @@ public class ExchangeHandler
     private int id;
     private final ChargingStation station;
     private ChargingEvent e;
-    private boolean busy;
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
-    private long commitTime;
-    private long timestamp;
+    private volatile boolean running = true;
 
     public ExchangeHandler(ChargingStation station)
     {
@@ -40,7 +38,7 @@ public class ExchangeHandler
      * Links a ChargingEvent with the ExchangeHandler.
      * @param e The ChargingEvent to be linked.
      */
-    public void joinChargingEvent(ChargingEvent e)
+    public void setChargingEvent(ChargingEvent e)
     {
         this.e = e;
     }
@@ -66,26 +64,25 @@ public class ExchangeHandler
     public void executeExchange(Battery bat)
     {
         Thread ch = new Thread (() -> {
-            try {
-                Thread.sleep(e.getChargingTime());
-            } catch (InterruptedException e1) {
-                e1.printStackTrace();
-            }
+            long timestamp1 = System.currentTimeMillis();
+            long timestamp2;
+            do {
+                timestamp2 = System.currentTimeMillis();
+            }while(running&&(timestamp2-timestamp1<e.getChargingTime()));
             station.joinBattery(bat);
             synchronized(this) {
                 e.getElectricVehicle().getDriver().setDebt(e.getElectricVehicle().getDriver().getDebt() + station.calculatePrice(e));
                 System.out.println("The exchange " + e.getId() + " completed successfully");
                 e.setCondition("finished");
-                changeSituation();
-                joinChargingEvent(null);
-                commitTime = 0;
                 ChargingEvent.exchangeLog.add(e);
+                setChargingEvent(null);
             }
             if (station.getQueueHandling())
                 handleQueueEvents();
         });
         if(station.getDeamon())
             ch.setDaemon(true);
+        ch.setName("ExchangeHandler: " + String.valueOf(id));
         ch.start();
     }
 
@@ -101,38 +98,10 @@ public class ExchangeHandler
     }
 
     /**
-     * @return If it is busy or not.
+     * Stops the operation of the ExchangeHandler.
      */
-    public boolean getBusy()
+    public void stopExchangeHandler()
     {
-        return busy;
-    }
-
-    /**
-     * Changes the situation of the ExchangeHandler. It works like a switch.
-     */
-    public void changeSituation()
-    {
-        busy = !busy;
-    }
-
-    /**
-     * @return The time that the ExchangeHandler is going to be busy.
-     */
-    public long getElapsedCommitTime() {
-        long diff = System.currentTimeMillis() - timestamp;
-        if (commitTime - diff >= 0)
-            return commitTime - diff;
-        else
-            return 0;
-    }
-
-    /**
-     * Sets the time the ExchangeHandler is going to be busy.
-     * @param time The commit time.
-     */
-    public void setCommitTime(long time) {
-        timestamp = System.currentTimeMillis();
-        commitTime = time;
+        running = false;
     }
 }

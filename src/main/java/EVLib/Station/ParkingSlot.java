@@ -6,20 +6,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ParkingSlot {
     private int id;
-    private boolean busy;
-    private long commitTime;
-    private long chargingTime;
     private ParkingEvent e;
     private final ChargingStation station;
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
     private boolean inSwitch;
-    private long timestamp;
+    private volatile boolean running = true;
 
     public ParkingSlot(ChargingStation station)
     {
         this.id = idGenerator.incrementAndGet();
         this.station = station;
-        this.busy = false;
         inSwitch = true;
     }
 
@@ -30,11 +26,11 @@ public class ParkingSlot {
         Thread ch = new Thread(() ->
         {
             if(e.getCondition().equals("charging")) {
-                try {
-                    Thread.sleep(e.getChargingTime());
-                } catch (InterruptedException e1) {
-                    e1.printStackTrace();
-                }
+                long timestamp1 = System.currentTimeMillis();
+                long timestamp2;
+                do {
+                    timestamp2 = System.currentTimeMillis();
+                }while(running&&(timestamp2-timestamp1<e.getChargingTime()));
                 synchronized (this) {
                     e.getElectricVehicle().getBattery().setRemAmount(e.getEnergyToBeReceived() + e.getElectricVehicle().getBattery().getRemAmount());
                     if (e.getElectricVehicle().getDriver() != null)
@@ -44,32 +40,30 @@ public class ParkingSlot {
             }
             e.setCondition("parking");
             long diff = e.getParkingTime() - e.getChargingTime();
-            try {
-                Thread.sleep(diff);
-            } catch (InterruptedException e1) {
-                e1.printStackTrace();
-            }
+            long timestamp1 = System.currentTimeMillis();
+            long timestamp2;
+            do {
+                timestamp2 = System.currentTimeMillis();
+            }while(running&&(timestamp2-timestamp1<diff));
             synchronized (this) {
                 System.out.println("The parking " + e.getId() + " completed successfully");
                 e.setCondition("finished");
-                changeSituation();
+                ParkingEvent.parkLog.add(e);
                 setParkingEvent(null);
-                commitTime = 0;
-                chargingTime = 0;
             }
-            ParkingEvent.parkLog.add(e);
         });
         if(station.getDeamon())
             ch.setDaemon(true);
+        ch.setName("ParkingSlot: " + String.valueOf(id));
         ch.start();
     }
 
     /**
      * Enables or disables the inductive charging of a parking slot.
      */
-    public void changeInSwitch()
+    public void setInSwitch(boolean inSwitch)
     {
-        this.inSwitch = !inSwitch;
+        this.inSwitch = inSwitch;
     }
 
     /**
@@ -79,20 +73,6 @@ public class ParkingSlot {
     public boolean getInSwitch()
     {
         return inSwitch;
-    }
-
-    /**
-     * Changes the situation of the Charger.
-     */
-    public void changeSituation() {
-        this.busy = !busy;
-    }
-
-    /**
-     * @return True if it is busy, false if it is not busy.
-     */
-    public boolean getBusy() {
-        return busy;
     }
 
     /**
@@ -116,47 +96,16 @@ public class ParkingSlot {
     }
 
     /**
-     * Sets the time the vehicle will use the parking slot for charging.
-     * @param chargingTime The time the vehicle will use the parking slot for charging.
-     */
-    public void setChargingTime(long chargingTime)
-    {
-        this.chargingTime = chargingTime;
-    }
-
-    /**
-     * @return The chargingTime the vehicle will charge.
-     */
-    public long getElapsedChargingTime()
-    {
-        return chargingTime;
-    }
-
-    /**
-     * Sets the time the vehicle will park.
-     * @param parkingTime The time the vehicle will be parked.
-     */
-    public void setCommitTime(long parkingTime)
-    {
-        timestamp = System.currentTimeMillis();
-        this.commitTime = parkingTime;
-    }
-
-    /**
-     * @return The time the vehicle will be parked.
-     */
-    public long getElapsedCommitTime()
-    {
-        long diff = System.currentTimeMillis() - timestamp;
-        if (commitTime - diff >= 0)
-            return commitTime - diff;
-        else
-            return 0;
-    }
-
-    /**
      * Sets the id for this ParkingSlot.
      * @param id The id to be set.
      */
     public void setId(int id) { this.id = id; }
+
+    /**
+     * Stops the operation of the ParkingSlot.
+     */
+    public void stopParkingSlot()
+    {
+        running = false;
+    }
 }
