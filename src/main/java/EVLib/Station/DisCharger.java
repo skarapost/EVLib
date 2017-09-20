@@ -11,14 +11,14 @@ public class DisCharger
     private DisChargingEvent e;
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
     private volatile boolean running = true;
+    private String name;
 
     public DisCharger(ChargingStation station)
     {
         this.id = idGenerator.incrementAndGet();
         this.station = station;
         this.e = null;
-        if (station.getSpecificAmount("discharging") == 0f)
-            station.setSpecificAmount("discharging", 0f);
+        this.name = "DisCharger" + String.valueOf(id);
     }
 
     /**
@@ -106,5 +106,22 @@ public class DisCharger
     public void stopDisCharger()
     {
         running = false;
+    }
+
+    /**
+     * Sets a name for this DisCharger.
+     * @param name The name to be set.
+     */
+    public void setName(String name)
+    {
+        this.name = name;
+    }
+
+    /**
+     * @return The name of the DisCharger.
+     */
+    public String getName()
+    {
+        return name;
     }
 }

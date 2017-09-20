@@ -960,7 +960,7 @@ public class ChargingStation {
             } else if (getEnergySources()[j] instanceof NonRenewable) {
                 Calendar calendar = Calendar.getInstance();
                 statistics.addEnergy("Nonrenewable, " + energy + ", " + dateFormat.format(calendar.getTime()));
-                energy += getSpecificAmount("nonreneable");
+                energy += getSpecificAmount("nonrenewable");
                 amounts.put("nonrenewable", energy);
             } else if (getEnergySources()[j] instanceof HydroElectric) {
                 Calendar calendar = Calendar.getInstance();

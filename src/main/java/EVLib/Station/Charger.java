@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Charger {
     private int id;
     private final String kindOfCharging;
+    private String name;
     private ChargingEvent e;
     private final ChargingStation station;
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
@@ -17,6 +18,24 @@ public class Charger {
         this.kindOfCharging = kindOfCharging;
         this.station = station;
         this.e = null;
+        this.name = "Charger " + String.valueOf(id);
+    }
+
+    /**
+     * Sets a name for the Charger.
+     * @param name The name to be set.
+     */
+    public void setName(String name)
+    {
+        this.name = name;
+    }
+
+    /**
+     * @return The name of the Charger.
+     */
+    public String getName()
+    {
+        return this.name;
     }
 
     /**

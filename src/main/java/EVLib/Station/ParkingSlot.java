@@ -11,12 +11,31 @@ public class ParkingSlot {
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
     private boolean inSwitch;
     private volatile boolean running = true;
+    private String name;
 
     public ParkingSlot(ChargingStation station)
     {
         this.id = idGenerator.incrementAndGet();
         this.station = station;
         inSwitch = true;
+        this.name = "ParkingSlot " + String.valueOf(id);
+    }
+
+    /**
+     * Sets a name for the ParkingSlot.
+     * @param name The name to be set.
+     */
+    public void setName(String name)
+    {
+        this.name = name;
+    }
+
+    /**
+     * @return The name of the ParkingSlot.
+     */
+    public String getName()
+    {
+        return this.name;
     }
 
     /**

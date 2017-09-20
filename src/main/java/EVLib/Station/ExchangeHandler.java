@@ -12,12 +12,31 @@ public class ExchangeHandler
     private ChargingEvent e;
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
     private volatile boolean running = true;
+    private String name;
 
     public ExchangeHandler(ChargingStation station)
     {
         this.id = idGenerator.incrementAndGet();
         this.station = station;
         e = null;
+        this.name = "ExchangeHandler " + String.valueOf(id);
+    }
+
+    /**
+     * Sets a name for the ExchangeHandler.
+     * @param name The name to be set.
+     */
+    public void setName(String name)
+    {
+        this.name = name;
+    }
+
+    /**
+     * @return The name of the ExchangeHandler.
+     */
+    public String getName()
+    {
+        return this.name;
     }
 
     /**
