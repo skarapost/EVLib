@@ -922,34 +922,48 @@ public class ChargingStation {
         if (Objects.equals("slow", kind)||Objects.equals("fast", kind))
             for (int i = 0; i < chargers.size(); i++) {
                 if (Objects.equals(kind, chargers.get(i).getKindOfCharging())) {
-                    long diff = chargers.get(i).getChargingEvent().getElapsedChargingTime();
-                    if (min > diff) {
-                        min = diff;
-                        index = i;
+                    if(chargers.get(i).getChargingEvent() != null) {
+                        long diff = chargers.get(i).getChargingEvent().getElapsedChargingTime();
+                        if (min > diff) {
+                            min = diff;
+                            index = i;
+                        }
+                        counter1[i] = diff;
                     }
-                    counter1[i] = diff;
+                    else
+                        return 0;
                 }
             }
         else if(Objects.equals("exchange", kind))
             for (int i = 0; i<exchangeHandlers.size(); i++)
             {
-                long diff = exchangeHandlers.get(i).getChargingEvent().getElapsedChargingTime();
-                if (min > diff) {
-                    min = diff;
-                    index = i;
+                if (exchangeHandlers.get(i).getChargingEvent() != null) {
+                    long diff = exchangeHandlers.get(i).getChargingEvent().getElapsedChargingTime();
+                    if (min > diff) {
+                        min = diff;
+                        index = i;
+                    }
+                    counter2[i] = diff;
                 }
-                counter2[i] = diff;
+                else
+                    return 0;
             }
-        else
+        else if(Objects.equals("discharging", kind))
             for (int i = 0; i<dischargers.size(); i++)
             {
-                long diff = dischargers.get(i).getDisChargingEvent().getElapsedDisChargingTime();
-                if (min > diff) {
-                    min = diff;
-                    index = i;
+                if (dischargers.get(i).getDisChargingEvent() != null) {
+                    long diff = dischargers.get(i).getDisChargingEvent().getElapsedDisChargingTime();
+                    if (min > diff) {
+                        min = diff;
+                        index = i;
+                    }
+                    counter3[i] = diff;
                 }
-                counter3[i] = diff;
+                else
+                    return 0;
             }
+        else
+            return 0;
         ChargingEvent e;
         DisChargingEvent ey;
         if ("slow".equals(kind))
