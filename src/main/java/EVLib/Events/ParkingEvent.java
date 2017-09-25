@@ -14,9 +14,9 @@ public class ParkingEvent {
     private int id;
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
     private long parkingTime;
-    private final ElectricVehicle vehicle;
+    private ElectricVehicle vehicle;
     private final ChargingStation station;
-    private long timeOfCharging;
+    private long chargingTime;
     private double amountOfEnergy;
     private double energyToBeReceived;
     private int parkingSlotId;
@@ -56,6 +56,12 @@ public class ParkingEvent {
     }
 
     /**
+     * Sets the vehicle of the ParkingEvent.
+     * @param vehicle The vehicle to be set.
+     */
+    public void setElectricVehicle(ElectricVehicle vehicle) { this.vehicle = vehicle; }
+
+    /**
      * Executes the preprocessing phase. Checks for any ParkingSlot,
      * calculates the energy to be given to the ElectricVehicle and calculates the charging time.
      * If there is not any empty ParkingSlot the ChargingEvent is charecterized as "nonExecutable".
@@ -79,20 +85,20 @@ public class ParkingEvent {
                     else
                         energyToBeReceived = vehicle.getBattery().getCapacity() - vehicle.getBattery().getRemAmount();
                     if (energyToBeReceived == 0) {
-                        setCondition("parking");
+                        setCondition("ready");
                         return;
                     }
                 }
-                setChargingTime((long) ((energyToBeReceived) / station.getInductiveRatio()));
-                if (timeOfCharging > parkingTime) {
+                chargingTime = (long) ((energyToBeReceived) / station.getInductiveRatio());
+                if (chargingTime > parkingTime) {
                     energyToBeReceived = parkingTime * station.getInductiveRatio();
-                    timeOfCharging = parkingTime;
+                    chargingTime = parkingTime;
                 }
-                setCondition("charging");
+                setCondition("ready");
                 cost = station.calculatePrice(this);
             }
             else
-                setCondition("parking");
+                setCondition("ready");
         }
         else
             setCondition("nonExecutable");
@@ -103,31 +109,15 @@ public class ParkingEvent {
      */
     public void execution()
     {
-        if (condition.equals("parking"))
-        {
-            setParkingTime(parkingTime);
-            timestamp2 = System.currentTimeMillis();
-            station.searchParkingSlot(parkingSlotId).parkingVehicle();
-        }
-        else if (condition.equals("charging"))
-        {
-            setParkingTime(parkingTime);
-            timestamp1 = System.currentTimeMillis();
-            double sdf;
-            sdf = energyToBeReceived;
-            HashMap<String, Double> keys = new HashMap<>(station.getMap());
-            for (HashMap.Entry<String, Double> energy : keys.entrySet()) {
-                if (energyToBeReceived < station.getMap().get(energy.getKey())) {
-                    double ert = station.getMap().get(energy.getKey()) - sdf;
-                    station.setSpecificAmount(energy.getKey(), ert);
-                    break;
-                } else {
-                    sdf -= energy.getValue();
-                    station.setSpecificAmount(energy.getKey(), 0);
-                }
+        if (condition.equals("ready"))
+            if(chargingTime != 0 ) {
+                setCondition("charging");
+                station.searchParkingSlot(parkingSlotId).parkingVehicle();
             }
-            station.searchParkingSlot(parkingSlotId).parkingVehicle();
-        }
+            else {
+                setCondition("parking");
+                station.searchParkingSlot(parkingSlotId).parkingVehicle();
+            }
     }
 
     /**
@@ -147,12 +137,10 @@ public class ParkingEvent {
     }
 
     /**
-     * Sets the value of e, as the energy to be given in the ElectricVehicle.
-     * @param e Energy to be given.
+     * Sets the energy to be received by the ParkingEvent.It also calculates the charging time.
+     * @param energyToBeReceived The energy to be received.
      */
-    public void setEnergyToBeReceived(double e) {
-        energyToBeReceived = e;
-    }
+    public void setEnergyToBeReceived(double energyToBeReceived) { this.energyToBeReceived = energyToBeReceived; }
 
     /**
      * @return The elapsed charging time of the ParkingEvent.
@@ -160,8 +148,8 @@ public class ParkingEvent {
     public long getElapsedChargingTime()
     {
         long diff = System.currentTimeMillis() - timestamp1;
-        if (timeOfCharging - diff >= 0)
-            return timeOfCharging - diff;
+        if ((chargingTime - diff >= 0)&&(!condition.equals("arrived")))
+            return chargingTime - diff;
         else
             return 0;
     }
@@ -171,7 +159,7 @@ public class ParkingEvent {
      */
     public long getChargingTime()
     {
-        return timeOfCharging;
+        return chargingTime;
     }
 
     /**
@@ -189,7 +177,7 @@ public class ParkingEvent {
     public void setChargingTime(long time)
     {
         timestamp1 = System.currentTimeMillis();
-        this.timeOfCharging = time;
+        this.chargingTime = time;
     }
 
     /**
@@ -223,8 +211,9 @@ public class ParkingEvent {
      */
     public long getElapsedParkingTime()
     {
+
         long diff = System.currentTimeMillis() - timestamp2;
-        if (parkingTime - diff >= 0)
+        if ((parkingTime - diff >= 0)&&(!condition.equals("arrived")))
             return parkingTime - diff;
         else
             return 0;
@@ -254,6 +243,14 @@ public class ParkingEvent {
     public double getAmountOfEnergy()
     {
        return amountOfEnergy;
+    }
+
+    /**
+     * Sets the amount of energy the ParkingEvent demands.
+     * @param energy The energy to be set.
+     */
+    public void setAmountOfEnergy(double energy){
+        this.amountOfEnergy = energy;
     }
 
     /**

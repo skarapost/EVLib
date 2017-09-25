@@ -1,26 +1,18 @@
 package EVLib.Sources;
 
-import EVLib.Station.ChargingStation;
-
 import java.util.ArrayList;
 
-public class NonRenewable extends EnergySource{
+public class Hydroelectric extends EnergySource{
     private final ArrayList<Double> energyAmount;
 
-    public NonRenewable(double[] energyAmoun)
-    {
+    public Hydroelectric(double[] energyAmoun){
         energyAmount = new ArrayList<>();
-        for (double anEnergyAmoun : energyAmoun)
-            energyAmount.add(anEnergyAmoun);
+        for (double anEnergyAmoun : energyAmoun) energyAmount.add(anEnergyAmoun);
     }
 
-    public NonRenewable()
-    {
-        energyAmount = new ArrayList<>();
-    }
+    public Hydroelectric() { energyAmount = new ArrayList<>(); }
 
-    public double popAmount()
-    {
+    public double popAmount() {
         if ((energyAmount == null)||(energyAmount.size() == 0))
             return 0;
         else

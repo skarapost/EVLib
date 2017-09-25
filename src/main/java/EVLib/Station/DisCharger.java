@@ -30,7 +30,9 @@ public class DisCharger
      */
     public void executeDisChargingEvent()
     {
+        running = true;
         Thread dsch = new Thread(() -> {
+            e.setDisChargingTime(e.getDisChargingTime());
             long timestamp1 = System.currentTimeMillis();
             long timestamp2;
             do {
@@ -39,8 +41,8 @@ public class DisCharger
             synchronized(this) {
                 e.getElectricVehicle().getBattery().setRemAmount(e.getElectricVehicle().getBattery().getRemAmount() - e.getAmountOfEnergy());
                 e.getElectricVehicle().getDriver().setProfit(e.getElectricVehicle().getDriver().getProfit() + e.getProfit());
-                double energy = station.getMap().get("discharging") + e.getAmountOfEnergy();
-                station.setSpecificAmount("discharging", energy);
+                double energy = station.getMap().get("DisCharging") + e.getAmountOfEnergy();
+                station.setSpecificAmount("DisCharging", energy);
                 System.out.println("The discharging " + e.getId() + " completed succesfully");
                 e.setCondition("finished");
                 DisChargingEvent.dischargingLog.add(e);

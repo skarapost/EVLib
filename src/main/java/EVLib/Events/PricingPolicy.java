@@ -1,5 +1,7 @@
 package EVLib.Events;
 
+import EVLib.Station.ChargingStation;
+
 import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -7,24 +9,26 @@ public class PricingPolicy {
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
     private int id;
     private long space;
-    private final LinkedList prices;
+    private LinkedList<Double> prices;
+    private LinkedList<Long> spaces;
     private final short option;
 
     public PricingPolicy(long space, double[] prices) {
         this.id = idGenerator.incrementAndGet();
         this.space = space;
-        this.prices = new LinkedList();
+        this.prices = new LinkedList<>();
         for (double price : prices)
             this.prices.add(price);
         this.option = 1;
     }
 
-    public PricingPolicy(double[][] prices) {
+    public PricingPolicy(long[] spaces, double[] prices) {
         this.id = idGenerator.incrementAndGet();
-        this.prices = new LinkedList<Pair>();
-        for (double price[] : prices) {
-            Pair pair = new Pair(price[0], price[1]);
-            this.prices.add(pair);
+        this.prices = new LinkedList<>();
+        this.spaces = new LinkedList<>();
+        for (int i=0; i<prices.length; i++) {
+            this.spaces.add(spaces[i]);
+            this.prices.add(prices[i]);
         }
         this.option = 2;
     }
@@ -35,25 +39,21 @@ public class PricingPolicy {
      */
     public double getSpecificPrice(int position) {
         try {
-            if (option == 2) {
-                Pair t = (Pair) this.prices.get(position);
-                return (double) t.getR();
-            } else
-                return (double) prices.get(position);
+            return this.prices.get(position);
         }
-        catch(Exception ex) { return 0; }
+        catch (Exception ex)
+        { return 0; }
     }
 
     /**
      * @param position The position in the hierarchy of the timeSpace.
      * @return The time duration of the timeSpace.
      */
-    public double getSpecificTimeSpace(int position)
+    public long getSpecificTimeSpace(int position)
     {
         try {
             if (option == 2) {
-                Pair t = (Pair) this.prices.get(position);
-                return (double) t.getL();
+                return spaces.get(position);
             }
             else
                 return space;
@@ -69,11 +69,10 @@ public class PricingPolicy {
      */
     public void setSpecificSpacePrice(int position, long timeSpace, double price) {
         if (option == 2) {
-            Pair t = (Pair) this.prices.get(position);
-            t.setL(timeSpace);
-            t.setR(price);
+            this.spaces.remove(position);
+            this.spaces.add(position, timeSpace);
             this.prices.remove(position);
-            this.prices.add(position, t);
+            this.prices.add(position, price);
         }
     }
 
@@ -106,47 +105,18 @@ public class PricingPolicy {
         return space;
     }
 
-    private class Pair<L, R> {
-        private L l;
-        private R r;
-
-        Pair(L l, R r) {
-            this.l = l;
-            this.r = r;
-        }
-
-        L getL() {
-            return l;
-        }
-
-        void setL(L l) {
-            this.l = l;
-        }
-
-        R getR() {
-            return r;
-        }
-
-        void setR(R r) {
-            this.r = r;
-        }
-    }
-
     /**
      * Returns the time duration of this policy.
      * @return The time duration of the policy.
      */
-    public double getDurationOfPolicy()
+    public long getDurationOfPolicy()
     {
-        double counter = 0;
+        long counter = 0;
         if(option == 2)
-            for (Object price : prices) {
-                Pair t = (Pair) price;
-                counter += (double) t.getR();
-            }
+            for (long space : spaces)
+                counter += space;
         else
-            for (Object price : prices)
-                counter = prices.size() * space;
+            counter = prices.size() * space;
         return counter;
     }
 

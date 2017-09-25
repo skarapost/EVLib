@@ -6,9 +6,7 @@ import EVLib.Station.Charger;
 import EVLib.Station.ChargingStation;
 import EVLib.Station.ExchangeHandler;
 import EVLib.Station.WaitList;
-
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -21,7 +19,7 @@ public class ChargingEvent
     private double amountOfEnergy;
     private String kindOfCharging;
     private long waitingTime;
-    private final ElectricVehicle vehicle;
+    private ElectricVehicle vehicle;
     private long chargingTime;
     private String condition;
     private int chargerId;
@@ -42,10 +40,6 @@ public class ChargingEvent
         this.chargerId = -1;
         this.vehicle = vehicle;
         this.condition = "arrived";
-        if ("fast".equals(kindOfCharging))
-            chargingTime = (long) (this.amountOfEnergy / station.getChargingRatioFast());
-        else
-            chargingTime = (long) (this.amountOfEnergy / station.getChargingRatioSlow());
     }
 
     public ChargingEvent(ChargingStation station, ElectricVehicle vehicle, String kindOfCharging, double money)
@@ -60,10 +54,6 @@ public class ChargingEvent
             this.amountOfEnergy = money/station.getUnitPrice();
         else
             this.amountOfEnergy = station.getTotalEnergy();
-        if ("fast".equals(kindOfCharging))
-            chargingTime = (long) (this.amountOfEnergy / station.getChargingRatioFast());
-        else
-            chargingTime = (long) (this.amountOfEnergy / station.getChargingRatioSlow());
     }
 
     public ChargingEvent(ChargingStation station, ElectricVehicle vehicle)
@@ -111,11 +101,11 @@ public class ChargingEvent
                             return;
                         }
                         if ("fast".equals(kindOfCharging))
-                            setChargingTime((long) (energyToBeReceived / station.getChargingRatioFast()));
+                            chargingTime = ((long) (energyToBeReceived / station.getChargingRatioFast()));
                         else
-                            setChargingTime((long) (energyToBeReceived / station.getChargingRatioSlow()));
+                            chargingTime = ((long) (energyToBeReceived / station.getChargingRatioSlow()));
                         this.cost = station.calculatePrice(this);
-                        setCondition("charging");
+                        setCondition("ready");
                     } else if (qwe == -2)
                         setCondition("nonExecutable");
                     else
@@ -153,10 +143,10 @@ public class ChargingEvent
                             setCondition("nonExecutable");
                             return;
                         }
-                        setChargingTime(station.getTimeOfExchange());
+                        chargingTime = station.getTimeOfExchange();
                         this.cost = station.getExchangePrice();
                         eh.setChargingEvent(this);
-                        setCondition("swapping");
+                        setCondition("ready");
                     } else if (qwe == -2)
                         setCondition("nonExecutable");
                     else
@@ -182,34 +172,17 @@ public class ChargingEvent
      */
     public void execution()
     {
-        if ((condition.equals("charging"))||(condition.equals("swapping")))
+        if ((condition.equals("ready")))
         {
             if (!kindOfCharging.equals("exchange"))
             {
-                timestamp = System.currentTimeMillis();
-                double sdf;
-                sdf = energyToBeReceived;
-                HashMap<String, Double> keys = new HashMap<>(station.getMap());
-                for (HashMap.Entry<String, Double> energy : keys.entrySet()) {
-                    if (sdf < energy.getValue()) {
-                        double ert = station.getMap().get(energy.getKey()) - sdf;
-                        station.setSpecificAmount(energy.getKey(), ert);
-                        break;
-                    } else {
-                        sdf -= energy.getValue();
-                        station.setSpecificAmount(energy.getKey(), 0);
-                    }
-                }
+                setCondition("charging");
                 station.searchCharger(chargerId).executeChargingEvent();
             }
             else
             {
-                timestamp = System.currentTimeMillis();
-                Battery temp;
-                temp = vehicle.getBattery();
-                vehicle.setBattery(station.getBatteries().get(numberOfBattery));
-                station.getBatteries().remove(numberOfBattery);
-                station.searchExchangeHandler(chargerId).executeExchange(temp);
+                setCondition("swapping");
+                station.searchExchangeHandler(chargerId).executeExchange(numberOfBattery);
             }
         }
     }
@@ -221,6 +194,12 @@ public class ChargingEvent
     {
         return vehicle;
     }
+
+    /**
+     * Sets a vehicle to the ChargingEvent.
+     * @param vehicle The vehicle to be set.
+     */
+    public void setElectricVehicle(ElectricVehicle vehicle) { this.vehicle = vehicle; }
 
     /**
      * Sets the condition of ChargingEvent.
@@ -256,13 +235,15 @@ public class ChargingEvent
     }
 
     /**
-     * Sets the value of e, as the energy to be given in the ElectricVehicle.
-     * @param e Energy to be set.
+     * Sets the energy to be received by the vehicle. It also calculates the charging time.
+     * @param energyToBeReceived The energy to be set.
      */
-    public void setEnergyToBeReceived(double e)
+    public void setEnergyToBeReceived(double energyToBeReceived)
     {
-        energyToBeReceived = e;
+        this.energyToBeReceived = energyToBeReceived;
     }
+
+    public void setMaxWaitingTime(long maxWaitingTime) { this.maxWaitingTime = maxWaitingTime; }
 
     /**
      * @return The amount of energy the ElectricVehicle asks.
@@ -271,6 +252,12 @@ public class ChargingEvent
     {
         return amountOfEnergy;
     }
+
+    /**
+     * Sets the amount of energy the ChargingEvent demands.
+     * @param energy The energy to be set.
+     */
+    public void setAmountOfEnergy(double energy) { this.amountOfEnergy = energy; }
 
     /**
      * Sets the waiting time the Driver is able to wait.
@@ -295,7 +282,7 @@ public class ChargingEvent
     public long getElapsedChargingTime()
     {
         long diff = System.currentTimeMillis() - timestamp;
-        if (chargingTime - diff >= 0)
+        if ((chargingTime - diff >= 0)&&(!condition.equals("arrived")))
             return chargingTime - diff;
         else
             return 0;
@@ -326,15 +313,6 @@ public class ChargingEvent
     public String getCondition()
     {
         return condition;
-    }
-
-    /**
-     * Sets the time the ElectricVehicle have to wait to be charged, in case it was inserted in the list.
-     * @param time The maximum time that is going to wait until an inserted ChargingEvent is going to be charged.
-     */
-    public void setMaxWaitingTime(long time)
-    {
-        this.maxWaitingTime = time;
     }
 
     /**
@@ -393,7 +371,7 @@ public class ChargingEvent
             for (int i = 0;i < o.getSize() ;i++)
             {
                 e = (ChargingEvent) o.get(i);
-                counter1[index] = counter1[index] + e.getChargingTime();
+                counter1[index] = counter1[index] + ((long) (e.getAmountOfEnergy()/station.getChargingRatioSlow()));
                 for(int j=0; j<station.getChargers().length; j++)
                     if ((counter1[j]<counter1[index])&&(counter1[j]!=0))
                         index = j;
@@ -406,7 +384,7 @@ public class ChargingEvent
             for(int i = 0; i < o.getSize() ;i++)
             {
                 e = (ChargingEvent) o.get(i);
-                counter1[index] = counter1[index] + e.getChargingTime();
+                counter1[index] = counter1[index] + ((long) (e.getAmountOfEnergy()/station.getChargingRatioFast()));
                 for(int j=0; j<station.getChargers().length; j++)
                     if ((counter1[j]<counter1[index])&&(counter1[j]!=0))
                         index = j;
@@ -415,11 +393,9 @@ public class ChargingEvent
         }
         if ("exchange".equals(getKindOfCharging()))
         {
-            WaitList o = station.getExchange();
-            for(int i = 0; i < o.getSize();i++)
+            for(int i = 0; i < station.getExchange().getSize();i++)
             {
-                e = (ChargingEvent) o.get(i);
-                counter2[index] = counter2[index] + e.getChargingTime();
+                counter2[index] = counter2[index] + station.getTimeOfExchange();
                 for(int j=0; j < station.getChargers().length; j++)
                     if ((counter2[j]<counter2[index])&&(counter2[j]!=0))
                         index = j;
@@ -459,5 +435,4 @@ public class ChargingEvent
      * @param id The id to be set.
      */
     public void setId(int id) { this.id = id; }
-
 }

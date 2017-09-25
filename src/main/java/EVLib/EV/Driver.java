@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Driver
 {
     private int id;
-    private final String name;
+    private String name;
     private double debt;
     private double profit;
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
@@ -63,6 +63,11 @@ public class Driver
     {
         return this.name;
     }
+
+    /**
+     * Sets the name of the Driver.
+     */
+    public void setName(String name) { this.name = name; }
 
     /**
      * @return The id of this Driver.

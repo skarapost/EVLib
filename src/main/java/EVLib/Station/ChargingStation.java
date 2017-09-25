@@ -1,6 +1,7 @@
 package EVLib.Station;
 
 import EVLib.EV.Battery;
+import EVLib.EV.Driver;
 import EVLib.EV.ElectricVehicle;
 import EVLib.Events.ChargingEvent;
 import EVLib.Events.DisChargingEvent;
@@ -71,8 +72,8 @@ public class ChargingStation {
         this.parkingSlots = new ArrayList<>();
         this.n = new ArrayList<>();
         this.sources = new ArrayList<>();
-        this.sources.add("discharging");
-        this.amounts.put("discharging", 0.0);
+        this.sources.add("DisCharging");
+        this.amounts.put("DisCharging", 0.0);
         this.batteries = new ArrayList<>();
         for (int q = 0; q < source.length; q++)
             sources.add(q, source[q]);
@@ -82,29 +83,29 @@ public class ChargingStation {
         this.inductiveChargingRatio = 0.5;
         for (int i = 0; i < source.length; i++) {
             switch (source[i]) {
-                case "solar":
+                case "Solar":
                     n.add(i, new Solar(energAm[i]));
-                    amounts.put("solar", 0.0);
+                    amounts.put("Solar", 0.0);
                     break;
-                case "wind":
+                case "Wind":
                     n.add(i, new Wind(energAm[i]));
-                    amounts.put("wind", 0.0);
+                    amounts.put("Wind", 0.0);
                     break;
-                case "geothermal":
+                case "Geothermal":
                     n.add(i, new Geothermal(energAm[i]));
-                    amounts.put("geothermal", 0.0);
+                    amounts.put("Geothermal", 0.0);
                     break;
-                case "wave":
+                case "Wave":
                     n.add(i, new Wave(energAm[i]));
-                    amounts.put("wave", 0.0);
+                    amounts.put("Wave", 0.0);
                     break;
-                case "hydroelectric":
-                    n.add(i, new HydroElectric(energAm[i]));
-                    amounts.put("hydroelectric", 0.0);
+                case "Hydroelectric":
+                    n.add(i, new Hydroelectric(energAm[i]));
+                    amounts.put("Hydroelectric", 0.0);
                     break;
-                case "nonrenewable":
-                    n.add(i, new NonRenewable(energAm[i]));
-                    amounts.put("nonrenewable", 0.0);
+                case "Nonrenewable":
+                    n.add(i, new Nonrenewable(energAm[i]));
+                    amounts.put("Nonrenewable", 0.0);
                     break;
             }
         }
@@ -140,8 +141,8 @@ public class ChargingStation {
         this.parkingSlots = new ArrayList<>();
         this.n = new ArrayList<>();
         this.sources = new ArrayList<>();
-        this.sources.add("discharging");
-        this.amounts.put("discharging", 0.0);
+        this.sources.add("DisCharging");
+        this.amounts.put("DisCharging", 0.0);
         for (int q = 0; q < source.length; q++)
             sources.add(q, source[q]);
         this.chargingRatioSlow = 1;
@@ -150,29 +151,29 @@ public class ChargingStation {
         this.inductiveChargingRatio = 0.5;
         for (int i = 0; i < source.length; i++) {
             switch (source[i]) {
-                case "solar":
+                case "Solar":
                     n.add(i, new Solar());
-                    amounts.put("solar", 0.0);
+                    amounts.put("Solar", 0.0);
                     break;
-                case "wind":
+                case "Wind":
                     n.add(i, new Wind());
-                    amounts.put("wind", 0.0);
+                    amounts.put("Wind", 0.0);
                     break;
-                case "geothermal":
+                case "Geothermal":
                     n.add(i, new Geothermal());
-                    amounts.put("geothermal", 0.0);
+                    amounts.put("Geothermal", 0.0);
                     break;
-                case "wave":
+                case "Wave":
                     n.add(i, new Wave());
-                    amounts.put("wave", 0.0);
+                    amounts.put("Wave", 0.0);
                     break;
-                case "hydroelectric":
-                    n.add(i, new HydroElectric());
-                    amounts.put("hydroelectric", 0.0);
+                case "Hydroelectric":
+                    n.add(i, new Hydroelectric());
+                    amounts.put("Hydroelectric", 0.0);
                     break;
-                case "nonrenewable":
-                    n.add(i, new NonRenewable());
-                    amounts.put("nonrenewable", 0.0);
+                case "Nonrenewable":
+                    n.add(i, new Nonrenewable());
+                    amounts.put("Nonrenewable", 0.0);
                     break;
             }
         }
@@ -203,8 +204,8 @@ public class ChargingStation {
         this.dischargers = new ArrayList<>();
         this.n = new ArrayList<>();
         this.sources = new ArrayList<>();
-        this.sources.add("discharging");
-        this.amounts.put("discharging", 0.0);
+        this.sources.add("DisCharging");
+        this.amounts.put("DisCharging", 0.0);
         this.automaticQueueHandling = true;
         this.chargingRatioSlow = 1;
         this.chargingRatioFast = 2;
@@ -432,23 +433,23 @@ public class ChargingStation {
     public void addEnergySource(EnergySource z) {
         n.add(z);
         if (z instanceof Solar) {
-            sources.add("solar");
-            amounts.put("solar", 0.0);
+            sources.add("Solar");
+            amounts.put("Solar", 0.0);
         } else if (z instanceof Wave) {
-            sources.add("wave");
-            amounts.put("wave", 0.0);
+            sources.add("Wave");
+            amounts.put("Wave", 0.0);
         } else if (z instanceof Wind) {
-            sources.add("wind");
-            amounts.put("wind", 0.0);
-        } else if (z instanceof HydroElectric) {
-            sources.add("hydroelectric");
-            amounts.put("hydroelectric", 0.0);
+            sources.add("Wind");
+            amounts.put("Wind", 0.0);
+        } else if (z instanceof Hydroelectric) {
+            sources.add("Hydroelectric");
+            amounts.put("Hydroelectric", 0.0);
         } else if (z instanceof Geothermal) {
-            sources.add("geothermal");
-            amounts.put("geothermal", 0.0);
-        } else if (z instanceof NonRenewable) {
-            sources.add("nonrenewable");
-            amounts.put("nonrenewable", 0.0);
+            sources.add("Geothermal");
+            amounts.put("Geothermal", 0.0);
+        } else if (z instanceof Nonrenewable) {
+            sources.add("Nonrenewable");
+            amounts.put("Nonrenewable", 0.0);
         }
     }
 
@@ -460,23 +461,23 @@ public class ChargingStation {
     public void deleteEnergySource(EnergySource z) {
         n.remove(z);
         if (z instanceof Solar) {
-            amounts.remove("solar");
-            sources.remove("solar");
+            amounts.remove("Solar");
+            sources.remove("Solar");
         } else if (z instanceof Wave) {
-            amounts.remove("wave");
-            sources.remove("wave");
+            amounts.remove("Wave");
+            sources.remove("Wave");
         } else if (z instanceof Wind) {
-            amounts.remove("wind");
-            sources.remove("wind");
-        } else if (z instanceof HydroElectric) {
-            amounts.remove("hydroelectric");
-            sources.remove("hydroelectric");
-        } else if (z instanceof NonRenewable) {
-            amounts.remove("nonrenewable");
-            sources.remove("nonrenewable");
+            amounts.remove("Wind");
+            sources.remove("Wind");
+        } else if (z instanceof Hydroelectric) {
+            amounts.remove("Hydroelectric");
+            sources.remove("Hydroelectric");
+        } else if (z instanceof Nonrenewable) {
+            amounts.remove("Nonrenewable");
+            sources.remove("Nonrenewable");
         } else if (z instanceof Geothermal) {
-            amounts.remove("geothermal");
-            sources.remove("geothermal");
+            amounts.remove("Geothermal");
+            sources.remove("Geothermal");
         }
     }
 
@@ -767,36 +768,35 @@ public class ChargingStation {
      * @return An EnergySource object.
      */
     public EnergySource getEnergySource(String source) {
-        if ("solar".equals(source)) {
-            for (EnergySource aN : n) {
+        if ("Solar".equals(source)) {
+            for (EnergySource aN : n)
                 if (aN instanceof Solar)
                     return aN;
-            }
-        } else if ("wind".equals(source)) {
-            for (EnergySource aN : n) {
+        }
+        else if ("Wind".equals(source)) {
+            for (EnergySource aN : n)
                 if (aN instanceof Wind)
                     return aN;
-            }
-        } else if ("wave".equals(source)) {
-            for (EnergySource aN : n) {
+        }
+        else if ("Wave".equals(source)) {
+            for (EnergySource aN : n)
                 if (aN instanceof Wave)
                     return aN;
-            }
-        } else if ("hydroelectric".equals(source)) {
-            for (EnergySource aN : n) {
-                if (aN instanceof HydroElectric)
+        }
+        else if ("Hydroelectric".equals(source)) {
+            for (EnergySource aN : n)
+                if (aN instanceof Hydroelectric)
                     return aN;
-            }
-        } else if ("geothermal".equals(source)) {
-            for (EnergySource aN : n) {
+        }
+        else if ("Geothermal".equals(source)) {
+            for (EnergySource aN : n)
                 if (aN instanceof Geothermal)
                     return aN;
-            }
-        } else if ("nonrenewable".equals(source)) {
-            for (EnergySource aN : n) {
-                if (aN instanceof NonRenewable)
+        }
+        else if ("Nonrenewable".equals(source)) {
+            for (EnergySource aN : n)
+                if (aN instanceof Nonrenewable)
                     return aN;
-            }
         }
         return null;
     }
@@ -893,21 +893,116 @@ public class ChargingStation {
 
     /**
      * Checks the batteries which are for battery exchange to confirm which of them
-     * need charging. After that charges those as the free Charger objects.
-     *
+     * need charging. Then, it charges as the empty Chargers.
      * @param kind The kind of charging the user wants to charge the batteries.
      **/
     public void batteriesCharging(String kind) {
         ChargingEvent e;
         ElectricVehicle r;
+        Driver driver;
         for (Battery battery : batteries)
             if (battery.getRemAmount() < battery.getCapacity()) {
-                r = new ElectricVehicle(null);
+                r = new ElectricVehicle("Station");
                 r.setBattery(battery);
+                driver = new Driver("Station");
+                r.setDriver(driver);
                 e = new ChargingEvent(this, r, battery.getCapacity() - battery.getRemAmount(), kind);
-                if (checkChargers(e.getKindOfCharging()) != -1)
-                    e.execution();
+                e.preProcessing();
+                e.execution();
             }
+    }
+
+    public long getWaitingTime(String kind)
+    {
+        long[] counter1 = new long[chargers.size()];
+        long[] counter2 = new long[exchangeHandlers.size()];
+        long[] counter3 = new long[dischargers.size()];
+        long min = 1000000000;
+        int index = 1000000000;
+        if (Objects.equals("slow", kind)||Objects.equals("fast", kind))
+            for (int i = 0; i < chargers.size(); i++) {
+                if (Objects.equals(kind, chargers.get(i).getKindOfCharging())) {
+                    long diff = chargers.get(i).getChargingEvent().getElapsedChargingTime();
+                    if (min > diff) {
+                        min = diff;
+                        index = i;
+                    }
+                    counter1[i] = diff;
+                }
+            }
+        else if(Objects.equals("exchange", kind))
+            for (int i = 0; i<exchangeHandlers.size(); i++)
+            {
+                long diff = exchangeHandlers.get(i).getChargingEvent().getElapsedChargingTime();
+                if (min > diff) {
+                    min = diff;
+                    index = i;
+                }
+                counter2[i] = diff;
+            }
+        else
+            for (int i = 0; i<dischargers.size(); i++)
+            {
+                long diff = dischargers.get(i).getDisChargingEvent().getElapsedDisChargingTime();
+                if (min > diff) {
+                    min = diff;
+                    index = i;
+                }
+                counter3[i] = diff;
+            }
+        ChargingEvent e;
+        DisChargingEvent ey;
+        if ("slow".equals(kind))
+        {
+            WaitList o = this.slow;
+            for (int i = 0;i < o.getSize() ;i++)
+            {
+                e = (ChargingEvent) o.get(i);
+                counter1[index] = counter1[index] + ((long) (e.getAmountOfEnergy()/chargingRatioSlow));
+                for(int j=0; j<chargers.size(); j++)
+                    if ((counter1[j]<counter1[index])&&(counter1[j]!=0))
+                        index = j;
+            }
+            return counter1[index];
+        }
+        if ("fast".equals(kind))
+        {
+            WaitList o = this.fast;
+            for(int i = 0; i < o.getSize() ;i++)
+            {
+                e = (ChargingEvent) o.get(i);
+                counter1[index] = counter1[index] + ((long) (e.getAmountOfEnergy()/chargingRatioFast));
+                for(int j=0; j<chargers.size(); j++)
+                    if ((counter1[j]<counter1[index])&&(counter1[j]!=0))
+                        index = j;
+            }
+            return counter1[index];
+        }
+        if ("exchange".equals(kind))
+        {
+            for(int i = 0; i < this.exchange.getSize();i++)
+            {
+                counter2[index] = counter2[index] + timeOfExchange;
+                for(int j=0; j < chargers.size(); j++)
+                    if ((counter2[j]<counter2[index])&&(counter2[j]!=0))
+                        index = j;
+            }
+            return counter2[index];
+        }
+        if ("discharging".equals(kind))
+        {
+            WaitList o = this.discharging;
+            for(int i = 0; i < o.getSize() ;i++)
+            {
+                ey = (DisChargingEvent) o.get(i);
+                counter3[index] = counter3[index] + ((long) (ey.getAmountOfEnergy()/disChargingRatio));
+                for(int j=0; j<dischargers.size(); j++)
+                    if ((counter3[j]<counter3[index])&&(counter3[j]!=0))
+                        index = j;
+            }
+            return counter3[index];
+        }
+        return 0;
     }
 
     /**
@@ -941,44 +1036,71 @@ public class ChargingStation {
      * of each source.
      */
     public void updateStorage() {
-        double counter = 0;
         double energy;
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         for (int j = 0; j < getEnergySources().length; j++) {
             energy = getEnergySources()[j].popAmount();
-            counter += energy;
-            if (getEnergySources()[j] instanceof Solar) {
-                Calendar calendar = Calendar.getInstance();
-                statistics.addEnergy("Solar, " + energy + ", " + dateFormat.format(calendar.getTime()));
-                energy += getSpecificAmount("solar");
-                amounts.put("solar", energy);
-            } else if (getEnergySources()[j] instanceof Geothermal) {
-                Calendar calendar = Calendar.getInstance();
-                statistics.addEnergy("Geothermal, " + energy + ", " + dateFormat.format(calendar.getTime()));
-                energy += getSpecificAmount("geothermal");
-                amounts.put("geothermal", energy);
-            } else if (getEnergySources()[j] instanceof NonRenewable) {
-                Calendar calendar = Calendar.getInstance();
-                statistics.addEnergy("Nonrenewable, " + energy + ", " + dateFormat.format(calendar.getTime()));
-                energy += getSpecificAmount("nonrenewable");
-                amounts.put("nonrenewable", energy);
-            } else if (getEnergySources()[j] instanceof HydroElectric) {
-                Calendar calendar = Calendar.getInstance();
-                statistics.addEnergy("Hydroelectric, " + energy + ", " + dateFormat.format(calendar.getTime()));
-                energy += getSpecificAmount("hydroelectric");
-                amounts.put("hydroelectric", energy);
-            } else if (getEnergySources()[j] instanceof Wave) {
-                Calendar calendar = Calendar.getInstance();
-                statistics.addEnergy("Wave, " + energy + ", " + dateFormat.format(calendar.getTime()));
-                energy += getSpecificAmount("wave");
-                amounts.put("wave", energy);
-            } else if (getEnergySources()[j] instanceof Wind) {
-                Calendar calendar = Calendar.getInstance();
-                statistics.addEnergy("Wind, " + energy + ", " + dateFormat.format(calendar.getTime()));
-                energy += getSpecificAmount("wind");
-                amounts.put("wind", energy);
+            if (energy != 0) {
+                if (getEnergySources()[j] instanceof Solar) {
+                    Calendar calendar = Calendar.getInstance();
+                    statistics.addEnergy("Solar, " + energy + ", " + dateFormat.format(calendar.getTime()));
+                    energy += getSpecificAmount("Solar");
+                    amounts.put("Solar", energy);
+                } else if (getEnergySources()[j] instanceof Geothermal) {
+                    Calendar calendar = Calendar.getInstance();
+                    statistics.addEnergy("Geothermal, " + energy + ", " + dateFormat.format(calendar.getTime()));
+                    energy += getSpecificAmount("Geothermal");
+                    amounts.put("Geothermal", energy);
+                } else if (getEnergySources()[j] instanceof Nonrenewable) {
+                    Calendar calendar = Calendar.getInstance();
+                    statistics.addEnergy("Nonrenewable, " + energy + ", " + dateFormat.format(calendar.getTime()));
+                    energy += getSpecificAmount("Nonrenewable");
+                    amounts.put("Nonrenewable", energy);
+                } else if (getEnergySources()[j] instanceof Hydroelectric) {
+                    Calendar calendar = Calendar.getInstance();
+                    statistics.addEnergy("Hydroelectric, " + energy + ", " + dateFormat.format(calendar.getTime()));
+                    energy += getSpecificAmount("Hydroelectric");
+                    amounts.put("Hydroelectric", energy);
+                } else if (getEnergySources()[j] instanceof Wave) {
+                    Calendar calendar = Calendar.getInstance();
+                    statistics.addEnergy("Wave, " + energy + ", " + dateFormat.format(calendar.getTime()));
+                    energy += getSpecificAmount("Wave");
+                    amounts.put("Wave", energy);
+                } else if (getEnergySources()[j] instanceof Wind) {
+                    Calendar calendar = Calendar.getInstance();
+                    statistics.addEnergy("Wind, " + energy + ", " + dateFormat.format(calendar.getTime()));
+                    energy += getSpecificAmount("Wind");
+                    amounts.put("Wind", energy);
+                }
             }
         }
+    }
+
+
+    /**
+     * @return The price per energy unit a ChargingEvent will be charged.
+     */
+    public double getCurrentPrice()
+    {
+        double diff = System.currentTimeMillis() - timestamp;
+        if (getPricingPolicy() == null)
+            return unitPrice;
+        else if (diff > policy.getDurationOfPolicy())
+            return unitPrice;
+        else
+            if(policy.getSpace() != 0)
+                return policy.getSpecificPrice((int) (diff / policy.getSpace()));
+            else
+            {
+                double accumulator = 0;
+                int counter = 0;
+                while (accumulator <= diff) {
+                    accumulator += policy.getSpecificTimeSpace(counter);
+                    if (accumulator <= diff)
+                        counter++;
+                }
+                return policy.getSpecificPrice(counter);
+            }
     }
 
     /**
@@ -987,30 +1109,33 @@ public class ChargingStation {
      * @param w The ChargingEvent that executed.
      * @return The cost of the charging.
      */
-    public double calculatePrice(ChargingEvent w) {
-        if (policy == null) {
+    public double calculatePrice(ChargingEvent w)
+    {
+        if (policy == null)
             if (!"exchange".equals(w.getKindOfCharging()))
                 return w.getEnergyToBeReceived() * getUnitPrice();
             else
                 return getExchangePrice();
-        } else {
+        else if (policy.getDurationOfPolicy() < System.currentTimeMillis() - timestamp)
+            if (!"exchange".equals(w.getKindOfCharging()))
+                return w.getEnergyToBeReceived() * getUnitPrice();
+            else
+                return getExchangePrice();
+        else {
+            long diff = System.currentTimeMillis() - timestamp;
             if (policy.getSpace() != 0) {
-                long diff = System.currentTimeMillis() - timestamp;
                 return w.getEnergyToBeReceived() * policy.getSpecificPrice((int) (diff / policy.getSpace()));
-            } else {
-                long diff = System.currentTimeMillis() - timestamp;
-                if(policy.getDurationOfPolicy() > diff) {
-                    double accumulator = 0;
-                    int counter = 0;
-                    while (accumulator <= diff) {
-                        accumulator += policy.getSpecificTimeSpace(counter);
-                        if (accumulator <= diff)
-                            counter++;
-                    }
-                    return w.getEnergyToBeReceived() * policy.getSpecificPrice(counter);
+            }
+            else {
+                double accumulator = 0;
+                int counter = 0;
+                while (accumulator <= diff)
+                {
+                    accumulator += policy.getSpecificTimeSpace(counter);
+                    if (accumulator <= diff)
+                        counter++;
                 }
-                else
-                    return w.getEnergyToBeReceived() * getUnitPrice();
+                return w.getEnergyToBeReceived() * policy.getSpecificPrice(counter);
             }
         }
     }
@@ -1030,7 +1155,8 @@ public class ChargingStation {
      *
      * @param policy The policy to be linked with.
      */
-    public void setPricingPolicy(PricingPolicy policy) {
+    public void setPricingPolicy(PricingPolicy policy)
+    {
         timestamp = System.currentTimeMillis();
         this.policy = policy;
     }
@@ -1052,8 +1178,7 @@ public class ChargingStation {
         else if(!update)
         {
             this.automaticUpdate = false;
-            if(timer != null)
-            {
+            if(timer != null) {
                 timer.cancel();
                 timer.purge();
             }

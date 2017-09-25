@@ -2,6 +2,7 @@ package EVLib.Station;
 
 import EVLib.Events.ParkingEvent;
 
+import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ParkingSlot {
@@ -42,9 +43,26 @@ public class ParkingSlot {
      * Executes the inductive charging phase of a parking slot. It works like the ChargingEvent.
      */
     public void parkingVehicle() {
+        running = true;
         Thread ch = new Thread(() ->
         {
             if(e.getCondition().equals("charging")) {
+                synchronized(this) {
+                    e.setChargingTime(e.getChargingTime());
+                    double sdf;
+                    sdf = e.getEnergyToBeReceived();
+                    HashMap<String, Double> keys = new HashMap<>(station.getMap());
+                    for (HashMap.Entry<String, Double> energy : keys.entrySet()) {
+                        if (e.getEnergyToBeReceived() < station.getMap().get(energy.getKey())) {
+                            double ert = station.getMap().get(energy.getKey()) - sdf;
+                            station.setSpecificAmount(energy.getKey(), ert);
+                            break;
+                        } else {
+                            sdf -= energy.getValue();
+                            station.setSpecificAmount(energy.getKey(), 0);
+                        }
+                    }
+                }
                 long timestamp1 = System.currentTimeMillis();
                 long timestamp2;
                 do {
@@ -58,6 +76,7 @@ public class ParkingSlot {
                 }
             }
             e.setCondition("parking");
+            e.setParkingTime(e.getParkingTime());
             long diff = e.getParkingTime() - e.getChargingTime();
             long timestamp1 = System.currentTimeMillis();
             long timestamp2;

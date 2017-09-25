@@ -4,15 +4,17 @@ import EVLib.Station.ChargingStation;
 
 import java.util.ArrayList;
 
-public class HydroElectric extends EnergySource{
+public class Nonrenewable extends EnergySource{
     private final ArrayList<Double> energyAmount;
 
-    public HydroElectric(double[] energyAmoun){
+    public Nonrenewable(double[] energyAmoun)
+    {
         energyAmount = new ArrayList<>();
-        for (double anEnergyAmoun : energyAmoun) energyAmount.add(anEnergyAmoun);
+        for (double anEnergyAmoun : energyAmoun)
+            energyAmount.add(anEnergyAmoun);
     }
 
-    public HydroElectric()
+    public Nonrenewable()
     {
         energyAmount = new ArrayList<>();
     }
@@ -23,7 +25,7 @@ public class HydroElectric extends EnergySource{
             return 0;
         else
             return energyAmount.remove(0);
-        }
+    }
 
     public void insertAmount(double am)
     {

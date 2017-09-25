@@ -45,8 +45,24 @@ public class Charger {
      * the Charger checks the waiting list.
      */
     public void executeChargingEvent() {
+        running = true;
         Thread ch = new Thread(() ->
         {
+            synchronized(this) {
+                e.setChargingTime(e.getChargingTime());
+                double sdf;
+                sdf = e.getEnergyToBeReceived();
+                for (String s : station.getSources()) {
+                    if (sdf < station.getMap().get(s)) {
+                        double ert = station.getMap().get(s) - sdf;
+                        station.setSpecificAmount(s, ert);
+                        break;
+                    } else {
+                        sdf -= station.getMap().get(s);
+                        station.setSpecificAmount(s, 0);
+                    }
+                }
+            }
             long timestamp1 = System.currentTimeMillis();
             long timestamp2;
             do {

@@ -1,7 +1,5 @@
 package EVLib.Sources;
 
-import EVLib.Station.ChargingStation;
-
 import java.util.ArrayList;
 
 public class Geothermal extends EnergySource
@@ -15,13 +13,9 @@ public class Geothermal extends EnergySource
                 energyAmount.add(anEnergyAmoun);
         }
 
-    public Geothermal()
-    {
-        energyAmount = new ArrayList<>();
-    }
+    public Geothermal() { energyAmount = new ArrayList<>(); }
 
-    public double popAmount()
-    {
+    public double popAmount() {
         if ((energyAmount == null)||(energyAmount.size() == 0))
             return 0;
         else

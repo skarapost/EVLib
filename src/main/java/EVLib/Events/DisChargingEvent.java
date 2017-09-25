@@ -13,7 +13,7 @@ public class DisChargingEvent
 {
     private int id;
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
-    private final ElectricVehicle vehicle;
+    private ElectricVehicle vehicle;
     private final ChargingStation station;
     private double amountOfEnergy;
     private long disChargingTime;
@@ -61,6 +61,12 @@ public class DisChargingEvent
     }
 
     /**
+     * Sets the vehicle of the DisChargingEvent.
+     * @param vehicle The vehicle to be set.
+     */
+    public void setElectricVehicle(ElectricVehicle vehicle) { this.vehicle = vehicle; }
+
+    /**
      * Executes the pre-processing phase. Checks for any DisCharger
      * and calculates the discharging time. If there is not any empty DisCharger
      * the DisChargingEvent object is inserted in the WaitingList.
@@ -74,8 +80,8 @@ public class DisChargingEvent
                     disChargerId = qwe;
                     DisCharger dsc = station.searchDischarger(disChargerId);
                     dsc.setDisChargingEvent(this);
-                    setDisChargingTime((long) (amountOfEnergy / station.getDisChargingRatio()));
-                    setCondition("discharging");
+                    disChargingTime = (long) (amountOfEnergy / station.getDisChargingRatio());
+                    setCondition("ready");
                     profit = amountOfEnergy * station.getDisUnitPrice();
                 } else if (qwe == -2)
                     setCondition("nonExecutable");
@@ -101,9 +107,9 @@ public class DisChargingEvent
      */
     public void execution()
     {
-        if(condition.equals("discharging"))
+        if(condition.equals("ready"))
         {
-            timestamp = System.currentTimeMillis();
+            setCondition("discharging");
             station.searchDischarger(disChargerId).executeDisChargingEvent();
         }
     }
@@ -134,6 +140,12 @@ public class DisChargingEvent
     }
 
     /**
+     * Sets the amount of energy the DisChargingEvent will give.
+     * @param energy The energy to be set.
+     */
+    public void setAmountOfEnergy(double energy) { this.amountOfEnergy = energy; }
+
+    /**
      * @return The condition of the DisChargingEvent.
      */
     public String getCondition()
@@ -147,7 +159,7 @@ public class DisChargingEvent
     public long getElapsedDisChargingTime()
     {
         long diff = System.currentTimeMillis() - timestamp;
-        if (disChargingTime - diff >= 0)
+        if ((disChargingTime - diff >= 0)&&(!condition.equals("arrived")))
             return disChargingTime - diff;
         else
             return 0;
@@ -174,20 +186,13 @@ public class DisChargingEvent
     /**
      * @return The waiting time.
      */
-    public long getMaxWaitingTime()
-    {
-        return maxWaitingTime;
-    }
+    public long getMaxWaitingTime() { return maxWaitingTime; }
 
     /**
-     * Sets the time the ElectricVehicle has to wait in the list, until it can
-     * be discharged.
-     * @param time The waiting time.
+     * Sets the maximum time the DisChargingEvent should wait to be discharged.
+     * @param maxWaitingTime The time to be set.
      */
-    public void setMaxWaitingTime(long time)
-    {
-        this.maxWaitingTime = time;
-    }
+    public void setMaxWaitingTime(long maxWaitingTime) { this.maxWaitingTime = maxWaitingTime; }
 
     /**
      * @return The discharging time of the DisChargingEvent
@@ -219,7 +224,7 @@ public class DisChargingEvent
         for(int i = 0; i < o.getSize() ;i++)
         {
             e = (DisChargingEvent) o.get(i);
-            counter1[index] = counter1[index] + e.getDisChargingTime();
+            counter1[index] = counter1[index] + ((long) (e.getAmountOfEnergy()/station.getDisChargingRatio()));
             for(int j=0; j<station.getDisChargers().length; j++)
                 if ((counter1[j]<counter1[index])&&(counter1[j]!=0))
                     index = j;

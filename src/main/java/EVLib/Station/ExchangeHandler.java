@@ -73,22 +73,27 @@ public class ExchangeHandler
     /**
      * Executes the ChargingEvent(exchange of battery). It lasts as much as ChargingEvent's
      * exchange time demands. Removes the Battery of the ElectricVehicle and it adds to the
-     * batteries linked with the ChargingStation. Takes the st2 Battery from those which are linked
+     * batteries linked with the ChargingStation. Takes the numberOfBattery Battery from those which are linked
      * with the ChargingStation in the ArrayList structure and puts in the ElectricVehicle.
      * The condition of ChargingEvent gets "finished". In the end if the automatic queue's handling
      * is activated, the ExchangeHandler checks the list.
-     *
-     * @param bat The battery to be given to the station.
+     * @param numberOfBattery The number int the row of batteries to be given for exchange.
      */
-    public void executeExchange(Battery bat)
+    public void executeExchange(int numberOfBattery)
     {
+        e.setChargingTime(station.getTimeOfExchange());
+        Battery temp;
+        temp = station.getBatteries().get(numberOfBattery);
+        station.getBatteries().remove(numberOfBattery);
+        running = true;
         Thread ch = new Thread (() -> {
             long timestamp1 = System.currentTimeMillis();
             long timestamp2;
             do {
                 timestamp2 = System.currentTimeMillis();
             }while(running&&(timestamp2-timestamp1<e.getChargingTime()));
-            station.joinBattery(bat);
+            station.joinBattery(e.getElectricVehicle().getBattery());
+            e.getElectricVehicle().setBattery(temp);
             synchronized(this) {
                 e.getElectricVehicle().getDriver().setDebt(e.getElectricVehicle().getDriver().getDebt() + station.calculatePrice(e));
                 System.out.println("The exchange " + e.getId() + " completed successfully");
