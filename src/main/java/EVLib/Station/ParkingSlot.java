@@ -48,6 +48,7 @@ public class ParkingSlot {
         {
             if(e.getCondition().equals("charging")) {
                 synchronized(this) {
+                    e.setParkingTime(e.getParkingTime());
                     e.setChargingTime(e.getChargingTime());
                     double sdf;
                     sdf = e.getEnergyToBeReceived();
@@ -76,7 +77,6 @@ public class ParkingSlot {
                 }
             }
             e.setCondition("parking");
-            e.setParkingTime(e.getParkingTime());
             long diff = e.getParkingTime() - e.getChargingTime();
             long timestamp1 = System.currentTimeMillis();
             long timestamp2;

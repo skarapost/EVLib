@@ -15,8 +15,10 @@ public class DisChargingEvent
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
     private ElectricVehicle vehicle;
     private final ChargingStation station;
+    private final String chargingStationName;
     private double amountOfEnergy;
     private long disChargingTime;
+    private long remainingDisChargingTime;
     private String condition;
     private int disChargerId;
     private long waitingTime;
@@ -33,6 +35,7 @@ public class DisChargingEvent
         this.vehicle = vehicle;
         this.disChargerId = -1;
         this.condition = "arrived";
+        this.chargingStationName = station.getName();
     }
 
     /**
@@ -132,6 +135,13 @@ public class DisChargingEvent
     }
 
     /**
+     * @return The name of the ChargingStation.
+     */
+    public String getChargingStationName() {
+        return chargingStationName;
+    }
+
+    /**
      * @return The amount of energy to be given.
      */
     public double getAmountOfEnergy()
@@ -154,15 +164,16 @@ public class DisChargingEvent
     }
 
     /**
-     * @return The discharging time.
+     * @return The remaining discharging time.
      */
-    public long getElapsedDisChargingTime()
+    public long getRemainingDisChargingTime()
     {
         long diff = System.currentTimeMillis() - timestamp;
         if ((disChargingTime - diff >= 0)&&(!condition.equals("arrived")))
-            return disChargingTime - diff;
+            this.remainingDisChargingTime = disChargingTime - diff;
         else
             return 0;
+        return remainingDisChargingTime;
     }
 
     /**
@@ -212,7 +223,7 @@ public class DisChargingEvent
         int index = 1000000000;
         for (int i = 0; i<station.getDisChargers().length; i++)
         {
-            long diff = station.getDisChargers()[i].getDisChargingEvent().getElapsedDisChargingTime();
+            long diff = station.getDisChargers()[i].getDisChargingEvent().getRemainingDisChargingTime();
             if (min > diff)if (min > diff) {
                 min = diff;
                 index = i;

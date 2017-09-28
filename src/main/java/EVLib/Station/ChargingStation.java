@@ -110,19 +110,23 @@ public class ChargingStation {
             }
         }
         for (String kind : kinds) {
-            if (kind.equals("slow") || kind.equals("fast")) {
-                chargers.add(new Charger(this, kind));
-                if(kind.equals("slow"))
-                    ++SLOW_CHARGERS;
-                else
-                    ++FAST_CHARGERS;
+            switch (kind) {
+                case "slow":
+                case "fast":
+                    chargers.add(new Charger(this, kind));
+                    if (kind.equals("slow"))
+                        ++SLOW_CHARGERS;
+                    else
+                        ++FAST_CHARGERS;
+                    break;
+                case "exchange":
+                    exchangeHandlers.add(new ExchangeHandler(this));
+                    break;
+                case "park":
+                    parkingSlots.add(new ParkingSlot(this));
+                    break;
             }
-            else if (kind.equals("exchange"))
-                exchangeHandlers.add(new ExchangeHandler(this));
-            else if (kind.equals("park"))
-                parkingSlots.add(new ParkingSlot(this));
         }
-        updateStorage();
     }
 
     public ChargingStation(String name, String[] kinds, String[] source) {
@@ -178,14 +182,19 @@ public class ChargingStation {
             }
         }
         for (String kind : kinds) {
-            if (kind.equals("slow") || kind.equals("fast"))
-                chargers.add(new Charger(this, kind));
-            else if (kind.equals("exchange"))
-                exchangeHandlers.add(new ExchangeHandler(this));
-            else if (kind.equals("park"))
-                parkingSlots.add(new ParkingSlot(this));
+            switch (kind) {
+                case "slow":
+                case "fast":
+                    chargers.add(new Charger(this, kind));
+                    break;
+                case "exchange":
+                    exchangeHandlers.add(new ExchangeHandler(this));
+                    break;
+                case "park":
+                    parkingSlots.add(new ParkingSlot(this));
+                    break;
+            }
         }
-        updateStorage();
     }
 
     public ChargingStation(String name) {
@@ -211,7 +220,6 @@ public class ChargingStation {
         this.chargingRatioFast = 2;
         this.disChargingRatio = 1;
         this.inductiveChargingRatio = 0.5;
-        updateStorage();
     }
 
     /**
@@ -923,7 +931,7 @@ public class ChargingStation {
             for (int i = 0; i < chargers.size(); i++) {
                 if (Objects.equals(kind, chargers.get(i).getKindOfCharging())) {
                     if(chargers.get(i).getChargingEvent() != null) {
-                        long diff = chargers.get(i).getChargingEvent().getElapsedChargingTime();
+                        long diff = chargers.get(i).getChargingEvent().getRemainingChargingTime();
                         if (min > diff) {
                             min = diff;
                             index = i;
@@ -938,7 +946,7 @@ public class ChargingStation {
             for (int i = 0; i<exchangeHandlers.size(); i++)
             {
                 if (exchangeHandlers.get(i).getChargingEvent() != null) {
-                    long diff = exchangeHandlers.get(i).getChargingEvent().getElapsedChargingTime();
+                    long diff = exchangeHandlers.get(i).getChargingEvent().getRemainingChargingTime();
                     if (min > diff) {
                         min = diff;
                         index = i;
@@ -952,7 +960,7 @@ public class ChargingStation {
             for (int i = 0; i<dischargers.size(); i++)
             {
                 if (dischargers.get(i).getDisChargingEvent() != null) {
-                    long diff = dischargers.get(i).getDisChargingEvent().getElapsedDisChargingTime();
+                    long diff = dischargers.get(i).getDisChargingEvent().getRemainingDisChargingTime();
                     if (min > diff) {
                         min = diff;
                         index = i;

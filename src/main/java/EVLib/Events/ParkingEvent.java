@@ -5,7 +5,6 @@ import EVLib.Station.ChargingStation;
 import EVLib.Station.ParkingSlot;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -14,9 +13,12 @@ public class ParkingEvent {
     private int id;
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
     private long parkingTime;
+    private final String chargingStationName;
     private ElectricVehicle vehicle;
     private final ChargingStation station;
+    private long remainingParkingTime;
     private long chargingTime;
+    private long remainingChargingTime;
     private double amountOfEnergy;
     private double energyToBeReceived;
     private int parkingSlotId;
@@ -34,6 +36,7 @@ public class ParkingEvent {
         this.parkingSlotId = -1;
         this.condition = "arrived";
         this.parkingTime = parkingTime;
+        this.chargingStationName = station.getName();
     }
 
     public ParkingEvent(ChargingStation station, ElectricVehicle vehicle, long parkingTime, double amountOfEnergy)
@@ -45,6 +48,7 @@ public class ParkingEvent {
         this.parkingSlotId = -1;
         this.condition = "arrived";
         this.parkingTime = parkingTime;
+        this.chargingStationName = station.getName();
     }
 
     /**
@@ -129,6 +133,13 @@ public class ParkingEvent {
     }
 
     /**
+     * @return The name of the ChargingStation.
+     */
+    public String getChargingStationName() {
+        return chargingStationName;
+    }
+
+    /**
      * @return The energy to be given to the ElectricVehicle.
      */
     public double getEnergyToBeReceived()
@@ -143,19 +154,20 @@ public class ParkingEvent {
     public void setEnergyToBeReceived(double energyToBeReceived) { this.energyToBeReceived = energyToBeReceived; }
 
     /**
-     * @return The elapsed charging time of the ParkingEvent.
+     * @return The remaining charging time of the ParkingEvent.
      */
-    public long getElapsedChargingTime()
+    public long getRemainingChargingTime()
     {
         long diff = System.currentTimeMillis() - timestamp1;
         if ((chargingTime - diff >= 0)&&(!condition.equals("arrived")))
-            return chargingTime - diff;
+            this.remainingChargingTime = chargingTime - diff;
         else
             return 0;
+        return remainingChargingTime;
     }
 
     /**
-     * @return The charging time of the ElectricVehicle.
+     * @return The charging time.
      */
     public long getChargingTime()
     {
@@ -207,16 +219,17 @@ public class ParkingEvent {
     }
 
     /**
-     * @return The elapsed time the vehicle will be parking/charging.
+     * @return The remaining time the vehicle will be parking/charging.
      */
-    public long getElapsedParkingTime()
+    public long getReaminingParkingTime()
     {
 
         long diff = System.currentTimeMillis() - timestamp2;
         if ((parkingTime - diff >= 0)&&(!condition.equals("arrived")))
-            return parkingTime - diff;
+            remainingParkingTime = parkingTime - diff;
         else
             return 0;
+        return remainingParkingTime;
     }
 
     /**

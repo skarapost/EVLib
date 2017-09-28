@@ -1,11 +1,11 @@
 package EVLib.Events;
 
-import EVLib.EV.Battery;
 import EVLib.EV.ElectricVehicle;
 import EVLib.Station.Charger;
 import EVLib.Station.ChargingStation;
 import EVLib.Station.ExchangeHandler;
 import EVLib.Station.WaitList;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -16,11 +16,13 @@ public class ChargingEvent
     private int id;
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
     private final ChargingStation station;
+    private final String chargingStationName;
     private double amountOfEnergy;
     private String kindOfCharging;
     private long waitingTime;
     private ElectricVehicle vehicle;
     private long chargingTime;
+    private long remainingChargingTime;
     private String condition;
     private int chargerId;
     private int numberOfBattery;
@@ -40,6 +42,7 @@ public class ChargingEvent
         this.chargerId = -1;
         this.vehicle = vehicle;
         this.condition = "arrived";
+        this.chargingStationName = station.getName();
     }
 
     public ChargingEvent(ChargingStation station, ElectricVehicle vehicle, String kindOfCharging, double money)
@@ -54,6 +57,7 @@ public class ChargingEvent
             this.amountOfEnergy = money/station.getUnitPrice();
         else
             this.amountOfEnergy = station.getTotalEnergy();
+        this.chargingStationName = station.getName();
     }
 
     public ChargingEvent(ChargingStation station, ElectricVehicle vehicle)
@@ -65,6 +69,7 @@ public class ChargingEvent
         this.vehicle = vehicle;
         this.chargingTime = station.getTimeOfExchange();
         this.condition = "arrived";
+        this.chargingStationName = station.getName();
     }
 
     /**
@@ -227,6 +232,13 @@ public class ChargingEvent
     }
 
     /**
+     * @return The name of the ChargingStation.
+     */
+    public String getChargingStationName() {
+        return chargingStationName;
+    }
+
+    /**
      * @return The energy to be received by ElectricVehicle.
      */
     public double getEnergyToBeReceived()
@@ -243,6 +255,11 @@ public class ChargingEvent
         this.energyToBeReceived = energyToBeReceived;
     }
 
+    /**
+     * Sets the maximum time a ChargingEvent has to wait in the waiting list.
+     *
+     * @param maxWaitingTime The time to be set.
+     */
     public void setMaxWaitingTime(long maxWaitingTime) { this.maxWaitingTime = maxWaitingTime; }
 
     /**
@@ -277,15 +294,16 @@ public class ChargingEvent
     }
 
     /**
-     * @return The charging time of the ChargingEvent.
+     * @return The remaining charging time of the ChargingEvent.
      */
-    public long getElapsedChargingTime()
+    public long getRemainingChargingTime()
     {
         long diff = System.currentTimeMillis() - timestamp;
         if ((chargingTime - diff >= 0)&&(!condition.equals("arrived")))
-            return chargingTime - diff;
+            this.remainingChargingTime = chargingTime - diff;
         else
             return 0;
+        return remainingChargingTime;
     }
 
     /**
@@ -346,7 +364,7 @@ public class ChargingEvent
         if (!Objects.equals("exchange", getKindOfCharging()))
             for (int i = 0; i < station.getChargers ().length; i++) {
                 if (Objects.equals(getKindOfCharging(), station.getChargers()[i].getKindOfCharging())) {
-                    long diff = station.getChargers()[i].getChargingEvent().getElapsedChargingTime();
+                    long diff = station.getChargers()[i].getChargingEvent().getRemainingChargingTime();
                     if (min > diff) {
                         min = diff;
                         index = i;
@@ -355,9 +373,8 @@ public class ChargingEvent
                 }
             }
         else
-            for (int i = 0; i<station.getExchangeHandlers().length; i++)
-            {
-                long diff = station.getExchangeHandlers()[i].getChargingEvent().getElapsedChargingTime();
+            for (int i = 0; i < station.getExchangeHandlers().length; i++) {
+                long diff = station.getExchangeHandlers()[i].getChargingEvent().getRemainingChargingTime();
                 if (min > diff) {
                     min = diff;
                     index = i;
