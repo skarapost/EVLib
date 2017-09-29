@@ -78,7 +78,7 @@ public class ChargingEvent
      * If there is not any empty Charger or exchange slot the ChargingEvent is inserted
      * in the respectively waiting list.
      **/
-    public void preProcessing()
+    public synchronized void preProcessing()
     {
         if (vehicle.getBattery().getActive()) {
             if ((condition.equals("arrived")) || (condition.equals("wait"))) {
@@ -111,6 +111,18 @@ public class ChargingEvent
                             chargingTime = ((long) (energyToBeReceived / station.getChargingRatioSlow()));
                         this.cost = station.calculatePrice(this);
                         setCondition("ready");
+                        double sdf;
+                        sdf = energyToBeReceived;
+                        for (String s : station.getSources()) {
+                            if (sdf < station.getMap().get(s)) {
+                                double ert = station.getMap().get(s) - sdf;
+                                station.setSpecificAmount(s, ert);
+                                break;
+                            } else {
+                                sdf -= station.getMap().get(s);
+                                station.setSpecificAmount(s, 0);
+                            }
+                        }
                     } else if (qwe == -2)
                         setCondition("nonExecutable");
                     else
@@ -152,6 +164,7 @@ public class ChargingEvent
                         this.cost = station.getExchangePrice();
                         eh.setChargingEvent(this);
                         setCondition("ready");
+                        eh.setGivenBattery(station.getBatteries().remove(numberOfBattery));
                     } else if (qwe == -2)
                         setCondition("nonExecutable");
                     else
@@ -177,8 +190,7 @@ public class ChargingEvent
      */
     public void execution()
     {
-        if ((condition.equals("ready")))
-        {
+        if (condition.equals("ready"))
             if (!kindOfCharging.equals("exchange"))
             {
                 setCondition("charging");
@@ -187,9 +199,8 @@ public class ChargingEvent
             else
             {
                 setCondition("swapping");
-                station.searchExchangeHandler(chargerId).executeExchange(numberOfBattery);
+                station.searchExchangeHandler(chargerId).executeExchange();
             }
-        }
     }
 
     /**

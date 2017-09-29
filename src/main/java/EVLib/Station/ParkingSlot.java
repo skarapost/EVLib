@@ -2,7 +2,6 @@ package EVLib.Station;
 
 import EVLib.Events.ParkingEvent;
 
-import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ParkingSlot {
@@ -44,50 +43,38 @@ public class ParkingSlot {
      */
     public void parkingVehicle() {
         running = true;
-        Thread ch = new Thread(() ->
+        Thread ch = new Thread(new Runnable()
         {
-            if(e.getCondition().equals("charging")) {
-                synchronized(this) {
+            @Override
+            public void run() {
+                if (e.getCondition().equals("charging")) {
                     e.setParkingTime(e.getParkingTime());
                     e.setChargingTime(e.getChargingTime());
-                    double sdf;
-                    sdf = e.getEnergyToBeReceived();
-                    HashMap<String, Double> keys = new HashMap<>(station.getMap());
-                    for (HashMap.Entry<String, Double> energy : keys.entrySet()) {
-                        if (e.getEnergyToBeReceived() < station.getMap().get(energy.getKey())) {
-                            double ert = station.getMap().get(energy.getKey()) - sdf;
-                            station.setSpecificAmount(energy.getKey(), ert);
-                            break;
-                        } else {
-                            sdf -= energy.getValue();
-                            station.setSpecificAmount(energy.getKey(), 0);
-                        }
+                    long timestamp1 = System.currentTimeMillis();
+                    long timestamp2;
+                    do {
+                        timestamp2 = System.currentTimeMillis();
+                    } while (running && (timestamp2 - timestamp1 < e.getChargingTime()));
+                    synchronized (this) {
+                        e.getElectricVehicle().getBattery().setRemAmount(e.getEnergyToBeReceived() + e.getElectricVehicle().getBattery().getRemAmount());
+                        if (e.getElectricVehicle().getDriver() != null)
+                            e.getElectricVehicle().getDriver().setDebt(e.getElectricVehicle().getDriver().getDebt() + station.calculatePrice(e));
+                        System.out.println("The inductive charging " + e.getId() + " completed successfully");
                     }
                 }
+                e.setCondition("parking");
+                long diff = e.getParkingTime() - e.getChargingTime();
                 long timestamp1 = System.currentTimeMillis();
                 long timestamp2;
                 do {
                     timestamp2 = System.currentTimeMillis();
-                }while(running&&(timestamp2-timestamp1<e.getChargingTime()));
+                } while (running && (timestamp2 - timestamp1 < diff));
                 synchronized (this) {
-                    e.getElectricVehicle().getBattery().setRemAmount(e.getEnergyToBeReceived() + e.getElectricVehicle().getBattery().getRemAmount());
-                    if (e.getElectricVehicle().getDriver() != null)
-                        e.getElectricVehicle().getDriver().setDebt(e.getElectricVehicle().getDriver().getDebt() + station.calculatePrice(e));
-                    System.out.println("The inductive charging " + e.getId() + " completed successfully");
+                    System.out.println("The parking " + e.getId() + " completed successfully");
+                    e.setCondition("finished");
+                    ParkingEvent.parkLog.add(e);
+                    setParkingEvent(null);
                 }
-            }
-            e.setCondition("parking");
-            long diff = e.getParkingTime() - e.getChargingTime();
-            long timestamp1 = System.currentTimeMillis();
-            long timestamp2;
-            do {
-                timestamp2 = System.currentTimeMillis();
-            }while(running&&(timestamp2-timestamp1<diff));
-            synchronized (this) {
-                System.out.println("The parking " + e.getId() + " completed successfully");
-                e.setCondition("finished");
-                ParkingEvent.parkLog.add(e);
-                setParkingEvent(null);
             }
         });
         if(station.getDeamon())
@@ -122,7 +109,7 @@ public class ParkingSlot {
     /**
      * @return The ParkingEvent which is linked with the ParkingSlot.
      */
-    public ParkingEvent getParkingEvent() {
+    public synchronized ParkingEvent getParkingEvent() {
         return e;
     }
 

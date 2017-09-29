@@ -5,6 +5,7 @@ import EVLib.Station.ChargingStation;
 import EVLib.Station.ParkingSlot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -70,7 +71,7 @@ public class ParkingEvent {
      * calculates the energy to be given to the ElectricVehicle and calculates the charging time.
      * If there is not any empty ParkingSlot the ChargingEvent is charecterized as "nonExecutable".
      */
-    public void preProcessing()
+    public synchronized void preProcessing()
     {
         int qwe = station.checkParkingSlots();
         if ((qwe != -1) && (qwe != -2)) {
@@ -100,6 +101,19 @@ public class ParkingEvent {
                 }
                 setCondition("ready");
                 cost = station.calculatePrice(this);
+                double sdf;
+                sdf = energyToBeReceived;
+                HashMap<String, Double> keys = new HashMap<>(station.getMap());
+                for (HashMap.Entry<String, Double> energy : keys.entrySet()) {
+                    if (energyToBeReceived < station.getMap().get(energy.getKey())) {
+                        double ert = station.getMap().get(energy.getKey()) - sdf;
+                        station.setSpecificAmount(energy.getKey(), ert);
+                        break;
+                    } else {
+                        sdf -= energy.getValue();
+                        station.setSpecificAmount(energy.getKey(), 0);
+                    }
+                }
             }
             else
                 setCondition("ready");

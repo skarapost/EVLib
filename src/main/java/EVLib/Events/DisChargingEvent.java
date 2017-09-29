@@ -74,7 +74,7 @@ public class DisChargingEvent
      * and calculates the discharging time. If there is not any empty DisCharger
      * the DisChargingEvent object is inserted in the WaitingList.
      */
-    public void preProcessing()
+    public synchronized void preProcessing()
     {
         if (getElectricVehicle().getBattery().getActive()) {
             if ((condition.equals("arrived")) || (condition.equals("wait"))) {

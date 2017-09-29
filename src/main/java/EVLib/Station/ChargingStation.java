@@ -664,7 +664,7 @@ public class ChargingStation {
      * @param source The kind of energy in which the energy will be added.
      * @param amount The amount of energy will be added.
      */
-    public void setSpecificAmount(String source, double amount) {
+    public synchronized void setSpecificAmount(String source, double amount) {
         amounts.put(source, amount);
     }
 

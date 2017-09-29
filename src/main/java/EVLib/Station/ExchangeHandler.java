@@ -13,6 +13,7 @@ public class ExchangeHandler
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
     private volatile boolean running = true;
     private String name;
+    private Battery givenBattery;
 
     public ExchangeHandler(ChargingStation station)
     {
@@ -71,29 +72,37 @@ public class ExchangeHandler
     }
 
     /**
-     * Executes the ChargingEvent(exchange of battery). It lasts as much as ChargingEvent's
-     * exchange time demands. Removes the Battery of the ElectricVehicle and it adds to the
-     * batteries linked with the ChargingStation. Takes the numberOfBattery Battery from those which are linked
-     * with the ChargingStation in the ArrayList structure and puts in the ElectricVehicle.
-     * The condition of ChargingEvent gets "finished". In the end if the automatic queue's handling
-     * is activated, the ExchangeHandler checks the list.
-     * @param numberOfBattery The number int the row of batteries to be given for exchange.
+     * @return The Battery to be given.
      */
-    public void executeExchange(int numberOfBattery)
+    public Battery getGivenBattery() {
+        return givenBattery;
+    }
+
+    /**
+     * Sets the Battery to be given.
+     *
+     * @param givenBattery The Battery to be given.
+     */
+    public void setGivenBattery(Battery givenBattery) {
+        this.givenBattery = givenBattery;
+    }
+
+    /**
+     * It executes the swapping battery phase.
+     * In the end, if the automatic queue handling is enabled checks the waiting list.
+     */
+    public void executeExchange()
     {
-        e.setChargingTime(station.getTimeOfExchange());
-        Battery temp;
-        temp = station.getBatteries().get(numberOfBattery);
-        station.getBatteries().remove(numberOfBattery);
         running = true;
         Thread ch = new Thread (() -> {
+            e.setChargingTime(station.getTimeOfExchange());
             long timestamp1 = System.currentTimeMillis();
             long timestamp2;
             do {
                 timestamp2 = System.currentTimeMillis();
             }while(running&&(timestamp2-timestamp1<e.getChargingTime()));
             station.joinBattery(e.getElectricVehicle().getBattery());
-            e.getElectricVehicle().setBattery(temp);
+            e.getElectricVehicle().setBattery(givenBattery);
             synchronized(this) {
                 e.getElectricVehicle().getDriver().setDebt(e.getElectricVehicle().getDriver().getDebt() + station.calculatePrice(e));
                 System.out.println("The exchange " + e.getId() + " completed successfully");
