@@ -48,6 +48,7 @@ public class ChargingStation {
     private final Statistics statistics = new Statistics();
     private Timer timer;
     private boolean deamon;
+    private Object lock = new Object();
     public int FAST_CHARGERS;
     public int SLOW_CHARGERS;
 
@@ -73,7 +74,7 @@ public class ChargingStation {
         this.n = new ArrayList<>();
         this.sources = new ArrayList<>();
         this.sources.add("DisCharging");
-        this.amounts.put("DisCharging", 0.0);
+        setSpecificAmount("DisCharging", 0.0);
         this.batteries = new ArrayList<>();
         for (int q = 0; q < source.length; q++)
             sources.add(q, source[q]);
@@ -85,27 +86,27 @@ public class ChargingStation {
             switch (source[i]) {
                 case "Solar":
                     n.add(i, new Solar(energAm[i]));
-                    amounts.put("Solar", 0.0);
+                    setSpecificAmount("Solar", 0.0);
                     break;
                 case "Wind":
                     n.add(i, new Wind(energAm[i]));
-                    amounts.put("Wind", 0.0);
+                    setSpecificAmount("Wind", 0.0);
                     break;
                 case "Geothermal":
                     n.add(i, new Geothermal(energAm[i]));
-                    amounts.put("Geothermal", 0.0);
+                    setSpecificAmount("Geothermal", 0.0);
                     break;
                 case "Wave":
                     n.add(i, new Wave(energAm[i]));
-                    amounts.put("Wave", 0.0);
+                    setSpecificAmount("Wave", 0.0);
                     break;
                 case "Hydroelectric":
                     n.add(i, new Hydroelectric(energAm[i]));
-                    amounts.put("Hydroelectric", 0.0);
+                    setSpecificAmount("Hydroelectric", 0.0);
                     break;
                 case "Nonrenewable":
                     n.add(i, new Nonrenewable(energAm[i]));
-                    amounts.put("Nonrenewable", 0.0);
+                    setSpecificAmount("Nonrenewable", 0.0);
                     break;
             }
         }
@@ -146,7 +147,7 @@ public class ChargingStation {
         this.n = new ArrayList<>();
         this.sources = new ArrayList<>();
         this.sources.add("DisCharging");
-        this.amounts.put("DisCharging", 0.0);
+        setSpecificAmount("DisCharging", 0.0);
         for (int q = 0; q < source.length; q++)
             sources.add(q, source[q]);
         this.chargingRatioSlow = 1;
@@ -157,27 +158,27 @@ public class ChargingStation {
             switch (source[i]) {
                 case "Solar":
                     n.add(i, new Solar());
-                    amounts.put("Solar", 0.0);
+                    setSpecificAmount("Solar", 0.0);
                     break;
                 case "Wind":
                     n.add(i, new Wind());
-                    amounts.put("Wind", 0.0);
+                    setSpecificAmount("Wind", 0.0);
                     break;
                 case "Geothermal":
                     n.add(i, new Geothermal());
-                    amounts.put("Geothermal", 0.0);
+                    setSpecificAmount("Geothermal", 0.0);
                     break;
                 case "Wave":
                     n.add(i, new Wave());
-                    amounts.put("Wave", 0.0);
+                    setSpecificAmount("Wave", 0.0);
                     break;
                 case "Hydroelectric":
                     n.add(i, new Hydroelectric());
-                    amounts.put("Hydroelectric", 0.0);
+                    setSpecificAmount("Hydroelectric", 0.0);
                     break;
                 case "Nonrenewable":
                     n.add(i, new Nonrenewable());
-                    amounts.put("Nonrenewable", 0.0);
+                    setSpecificAmount("Nonrenewable", 0.0);
                     break;
             }
         }
@@ -214,7 +215,7 @@ public class ChargingStation {
         this.n = new ArrayList<>();
         this.sources = new ArrayList<>();
         this.sources.add("DisCharging");
-        this.amounts.put("DisCharging", 0.0);
+        setSpecificAmount("DisCharging", 0.0);
         this.automaticQueueHandling = true;
         this.chargingRatioSlow = 1;
         this.chargingRatioFast = 2;
@@ -442,22 +443,22 @@ public class ChargingStation {
         n.add(z);
         if (z instanceof Solar) {
             sources.add("Solar");
-            amounts.put("Solar", 0.0);
+            setSpecificAmount("Solar", 0.0);
         } else if (z instanceof Wave) {
             sources.add("Wave");
-            amounts.put("Wave", 0.0);
+            setSpecificAmount("Wave", 0.0);
         } else if (z instanceof Wind) {
             sources.add("Wind");
-            amounts.put("Wind", 0.0);
+            setSpecificAmount("Wind", 0.0);
         } else if (z instanceof Hydroelectric) {
             sources.add("Hydroelectric");
-            amounts.put("Hydroelectric", 0.0);
+            setSpecificAmount("Hydroelectric", 0.0);
         } else if (z instanceof Geothermal) {
             sources.add("Geothermal");
-            amounts.put("Geothermal", 0.0);
+            setSpecificAmount("Geothermal", 0.0);
         } else if (z instanceof Nonrenewable) {
             sources.add("Nonrenewable");
-            amounts.put("Nonrenewable", 0.0);
+            setSpecificAmount("Nonrenewable", 0.0);
         }
     }
 
@@ -664,8 +665,10 @@ public class ChargingStation {
      * @param source The kind of energy in which the energy will be added.
      * @param amount The amount of energy will be added.
      */
-    public synchronized void setSpecificAmount(String source, double amount) {
-        amounts.put(source, amount);
+    public void setSpecificAmount(String source, double amount) {
+        synchronized (lock) {
+            amounts.put(source, amount);
+        }
     }
 
     /**
@@ -1067,32 +1070,32 @@ public class ChargingStation {
                     Calendar calendar = Calendar.getInstance();
                     statistics.addEnergy("Solar, " + energy + ", " + dateFormat.format(calendar.getTime()));
                     energy += getSpecificAmount("Solar");
-                    amounts.put("Solar", energy);
+                    setSpecificAmount("Solar", energy);
                 } else if (getEnergySources()[j] instanceof Geothermal) {
                     Calendar calendar = Calendar.getInstance();
                     statistics.addEnergy("Geothermal, " + energy + ", " + dateFormat.format(calendar.getTime()));
                     energy += getSpecificAmount("Geothermal");
-                    amounts.put("Geothermal", energy);
+                    setSpecificAmount("Geothermal", energy);
                 } else if (getEnergySources()[j] instanceof Nonrenewable) {
                     Calendar calendar = Calendar.getInstance();
                     statistics.addEnergy("Nonrenewable, " + energy + ", " + dateFormat.format(calendar.getTime()));
                     energy += getSpecificAmount("Nonrenewable");
-                    amounts.put("Nonrenewable", energy);
+                    setSpecificAmount("Nonrenewable", energy);
                 } else if (getEnergySources()[j] instanceof Hydroelectric) {
                     Calendar calendar = Calendar.getInstance();
                     statistics.addEnergy("Hydroelectric, " + energy + ", " + dateFormat.format(calendar.getTime()));
                     energy += getSpecificAmount("Hydroelectric");
-                    amounts.put("Hydroelectric", energy);
+                    setSpecificAmount("Hydroelectric", energy);
                 } else if (getEnergySources()[j] instanceof Wave) {
                     Calendar calendar = Calendar.getInstance();
                     statistics.addEnergy("Wave, " + energy + ", " + dateFormat.format(calendar.getTime()));
                     energy += getSpecificAmount("Wave");
-                    amounts.put("Wave", energy);
+                    setSpecificAmount("Wave", energy);
                 } else if (getEnergySources()[j] instanceof Wind) {
                     Calendar calendar = Calendar.getInstance();
                     statistics.addEnergy("Wind, " + energy + ", " + dateFormat.format(calendar.getTime()));
                     energy += getSpecificAmount("Wind");
-                    amounts.put("Wind", energy);
+                    setSpecificAmount("Wind", energy);
                 }
             }
         }

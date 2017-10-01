@@ -37,17 +37,15 @@ public class DisCharger
             long timestamp2;
             do {
                 timestamp2 = System.currentTimeMillis();
-            }while(running&&(timestamp2-timestamp1<e.getDisChargingTime()));
-            synchronized(this) {
-                e.getElectricVehicle().getBattery().setRemAmount(e.getElectricVehicle().getBattery().getRemAmount() - e.getAmountOfEnergy());
-                e.getElectricVehicle().getDriver().setProfit(e.getElectricVehicle().getDriver().getProfit() + e.getProfit());
-                double energy = station.getMap().get("DisCharging") + e.getAmountOfEnergy();
-                station.setSpecificAmount("DisCharging", energy);
-                System.out.println("The discharging " + e.getId() + " completed succesfully");
-                e.setCondition("finished");
-                DisChargingEvent.dischargingLog.add(e);
-                setDisChargingEvent(null);
-            }
+            } while (running && (timestamp2 - timestamp1 < e.getDisChargingTime()));
+            e.getElectricVehicle().getBattery().setRemAmount(e.getElectricVehicle().getBattery().getRemAmount() - e.getAmountOfEnergy());
+            e.getElectricVehicle().getDriver().setProfit(e.getElectricVehicle().getDriver().getProfit() + e.getProfit());
+            double energy = station.getMap().get("DisCharging") + e.getAmountOfEnergy();
+            station.setSpecificAmount("DisCharging", energy);
+            System.out.println("The discharging " + e.getId() + " completed succesfully");
+            e.setCondition("finished");
+            DisChargingEvent.dischargingLog.add(e);
+            setDisChargingEvent(null);
             if (station.getQueueHandling())
                 handleQueueEvents();
         });

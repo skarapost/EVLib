@@ -125,7 +125,7 @@ public class ParkingEvent {
     /**
      * Executes the parking/charging phase of a vehicle.
      */
-    public void execution()
+    public synchronized void execution()
     {
         if (condition.equals("ready"))
             if(chargingTime != 0 ) {

@@ -100,16 +100,14 @@ public class ExchangeHandler
             long timestamp2;
             do {
                 timestamp2 = System.currentTimeMillis();
-            }while(running&&(timestamp2-timestamp1<e.getChargingTime()));
+            } while (running && (timestamp2 - timestamp1 < e.getChargingTime()));
             station.joinBattery(e.getElectricVehicle().getBattery());
             e.getElectricVehicle().setBattery(givenBattery);
-            synchronized(this) {
-                e.getElectricVehicle().getDriver().setDebt(e.getElectricVehicle().getDriver().getDebt() + station.calculatePrice(e));
-                System.out.println("The exchange " + e.getId() + " completed successfully");
-                e.setCondition("finished");
-                ChargingEvent.exchangeLog.add(e);
-                setChargingEvent(null);
-            }
+            e.getElectricVehicle().getDriver().setDebt(e.getElectricVehicle().getDriver().getDebt() + station.calculatePrice(e));
+            System.out.println("The exchange " + e.getId() + " completed successfully");
+            e.setCondition("finished");
+            ChargingEvent.exchangeLog.add(e);
+            setChargingEvent(null);
             if (station.getQueueHandling())
                 handleQueueEvents();
         });

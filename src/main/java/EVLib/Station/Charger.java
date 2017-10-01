@@ -54,15 +54,13 @@ public class Charger {
             do {
                 timestamp2 = System.currentTimeMillis();
             }while(running&&(timestamp2-timestamp1<e.getChargingTime()));
-            synchronized (this) {
-                e.getElectricVehicle().getBattery().setRemAmount(e.getEnergyToBeReceived() + e.getElectricVehicle().getBattery().getRemAmount());
-                if (e.getElectricVehicle().getDriver() != null)
-                    e.getElectricVehicle().getDriver().setDebt(e.getElectricVehicle().getDriver().getDebt() + e.getCost());
-                System.out.println("The charging " + e.getId() + " completed succesfully");
-                e.setCondition("finished");
-                ChargingEvent.chargingLog.add(e);
-                setChargingEvent(null);
-            }
+            e.getElectricVehicle().getBattery().setRemAmount(e.getEnergyToBeReceived() + e.getElectricVehicle().getBattery().getRemAmount());
+            if (e.getElectricVehicle().getDriver() != null)
+                e.getElectricVehicle().getDriver().setDebt(e.getElectricVehicle().getDriver().getDebt() + e.getCost());
+            System.out.println("The charging " + e.getId() + " completed succesfully");
+            e.setCondition("finished");
+            ChargingEvent.chargingLog.add(e);
+            setChargingEvent(null);
             if (station.getQueueHandling())
                 handleQueueEvents();
         });

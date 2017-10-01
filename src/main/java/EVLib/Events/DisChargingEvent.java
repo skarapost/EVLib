@@ -108,7 +108,7 @@ public class DisChargingEvent
      * It starts the execution of the DisChargingEvent.
      * If the DisChargingEvent is in the WaitingList it does not do anything.
      */
-    public void execution()
+    public synchronized void execution()
     {
         if(condition.equals("ready"))
         {

@@ -188,7 +188,7 @@ public class ChargingEvent
      * It starts the execution of the ChargingEvent.
      * If the ChargingEvent is in the WaitingList it does not do anything.
      */
-    public void execution()
+    public synchronized void execution()
     {
         if (condition.equals("ready"))
             if (!kindOfCharging.equals("exchange"))
