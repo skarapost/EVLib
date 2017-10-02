@@ -2,12 +2,15 @@ package EVLib.Station;
 
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class WaitList<T>
 {
     private final ArrayList<T> list;
     private int id;
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
+    private Lock lock = new ReentrantLock();
 
     public WaitList()
     {
@@ -29,9 +32,13 @@ public class WaitList<T>
      * Inserts an object in the list.
      * @param object The object to be inserted.
      */
-    public void add(T object)
-    {
-        list.add(object);
+    public void add(T object) {
+        lock.lock();
+        try {
+            list.add(object);
+        } finally {
+            lock.unlock();
+        }
     }
 
     /**
@@ -39,9 +46,13 @@ public class WaitList<T>
      * @param object The object to be deleted.
      * @return True if the deletion was successfull, false if it was not.
      */
-    public boolean delete(T object)
-    {
-        return list.remove(object);
+    public boolean delete(T object) {
+        lock.lock();
+        try {
+            return list.remove(object);
+        } finally {
+            lock.unlock();
+        }
     }
 
     /**
@@ -50,16 +61,25 @@ public class WaitList<T>
      */
     public T takeFirst()
     {
-        return list.get(0);
+        lock.lock();
+        try {
+            return list.get(0);
+        } finally {
+            lock.unlock();
+        }
     }
 
     /**
      * Removes the first object of the list.
      * @return True if it was successfull, false if it was not.
      */
-    public T moveFirst()
-    {
-        return list.remove(0);
+    public T moveFirst() {
+        lock.lock();
+        try {
+            return list.remove(0);
+        } finally {
+            lock.unlock();
+        }
     }
 
     /**

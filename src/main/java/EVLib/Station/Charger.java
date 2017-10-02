@@ -1,7 +1,5 @@
 package EVLib.Station;
 
-import EVLib.Events.ChargingEvent;
-
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Charger {
@@ -17,7 +15,6 @@ public class Charger {
         this.id = idGenerator.incrementAndGet();
         this.kindOfCharging = kindOfCharging;
         this.station = station;
-        this.e = null;
         this.name = "Charger " + String.valueOf(id);
     }
 
@@ -44,7 +41,7 @@ public class Charger {
      * The condition of charging event gets finished. At the end if the automatic queue's handling is activated,
      * the Charger checks the waiting list.
      */
-    public void executeChargingEvent() {
+    void executeChargingEvent() {
         running = true;
         Thread ch = new Thread(() ->
         {
@@ -81,7 +78,7 @@ public class Charger {
      * Sets a ChargingEvent in the Charger.
      * @param ev The ChargingEvent to be linked with the Charger.
      */
-    public void setChargingEvent(ChargingEvent ev) {
+    void setChargingEvent(ChargingEvent ev) {
         this.e = ev;
     }
 

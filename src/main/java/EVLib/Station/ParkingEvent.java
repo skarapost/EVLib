@@ -1,8 +1,6 @@
-package EVLib.Events;
+package EVLib.Station;
 
 import EVLib.EV.ElectricVehicle;
-import EVLib.Station.ChargingStation;
-import EVLib.Station.ParkingSlot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,12 +15,12 @@ public class ParkingEvent {
     private final String chargingStationName;
     private ElectricVehicle vehicle;
     private final ChargingStation station;
+    private ParkingSlot parkingSlot;
     private long remainingParkingTime;
     private long chargingTime;
     private long remainingChargingTime;
     private double amountOfEnergy;
     private double energyToBeReceived;
-    private int parkingSlotId;
     private long timestamp1;
     private long timestamp2;
     private String condition;
@@ -34,7 +32,6 @@ public class ParkingEvent {
         this.id = idGenerator.incrementAndGet();
         this.station = station;
         this.vehicle = vehicle;
-        this.parkingSlotId = -1;
         this.condition = "arrived";
         this.parkingTime = parkingTime;
         this.chargingStationName = station.getName();
@@ -46,7 +43,6 @@ public class ParkingEvent {
         this.vehicle = vehicle;
         this.station = station;
         this.amountOfEnergy = amountOfEnergy;
-        this.parkingSlotId = -1;
         this.condition = "arrived";
         this.parkingTime = parkingTime;
         this.chargingStationName = station.getName();
@@ -73,12 +69,9 @@ public class ParkingEvent {
      */
     public synchronized void preProcessing()
     {
-        int qwe = station.checkParkingSlots();
-        if ((qwe != -1) && (qwe != -2)) {
-            parkingSlotId = qwe;
-            ParkingSlot ps = station.searchParkingSlot(parkingSlotId);
-            ps.setParkingEvent(this);
-            if (ps.getInSwitch()&&(vehicle.getBattery().getActive())) {
+        parkingSlot = station.assignParkingSlot(this);
+        if (parkingSlot != null) {
+            if (parkingSlot.getInSwitch() && (vehicle.getBattery().getActive())) {
                 if (amountOfEnergy < station.getTotalEnergy()) {
                     if (amountOfEnergy <= (vehicle.getBattery().getCapacity() - vehicle.getBattery().getRemAmount()))
                         energyToBeReceived = amountOfEnergy;
@@ -130,11 +123,11 @@ public class ParkingEvent {
         if (condition.equals("ready"))
             if(chargingTime != 0 ) {
                 setCondition("charging");
-                station.searchParkingSlot(parkingSlotId).parkingVehicle();
+                parkingSlot.parkingVehicle();
             }
             else {
                 setCondition("parking");
-                station.searchParkingSlot(parkingSlotId).parkingVehicle();
+                parkingSlot.parkingVehicle();
             }
     }
 
@@ -204,15 +197,6 @@ public class ParkingEvent {
     {
         timestamp1 = System.currentTimeMillis();
         this.chargingTime = time;
-    }
-
-    /**
-     * Sets the id of the ParkingSlot the ParkingEvent is going to be executed.
-     * @param id The id of ParkingSlot.
-     */
-    public void setParkingSlotId(int id)
-    {
-        this.parkingSlotId = id;
     }
 
     /**

@@ -1,10 +1,7 @@
-package EVLib.Events;
+package EVLib.Station;
 
+import EVLib.EV.Battery;
 import EVLib.EV.ElectricVehicle;
-import EVLib.Station.Charger;
-import EVLib.Station.ChargingStation;
-import EVLib.Station.ExchangeHandler;
-import EVLib.Station.WaitList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,12 +21,13 @@ public class ChargingEvent
     private long chargingTime;
     private long remainingChargingTime;
     private String condition;
-    private int chargerId;
-    private int numberOfBattery;
+    Battery givenBattery;
+    private Charger charger;
     private double energyToBeReceived;
     private long maxWaitingTime;
     private long timestamp;
     private double cost;
+    private ExchangeHandler exchange;
     public static final List<ChargingEvent> chargingLog = new ArrayList<>();
     public static final List<ChargingEvent> exchangeLog = new ArrayList<>();
 
@@ -39,7 +37,6 @@ public class ChargingEvent
         this.station = station;
         this.amountOfEnergy = amEnerg;
         this.kindOfCharging = kindOfCharging;
-        this.chargerId = -1;
         this.vehicle = vehicle;
         this.condition = "arrived";
         this.chargingStationName = station.getName();
@@ -51,7 +48,6 @@ public class ChargingEvent
         this.station = station;
         this.vehicle = vehicle;
         this.kindOfCharging = kindOfCharging;
-        this.chargerId = -1;
         this.condition = "arrived";
         if (money/station.getUnitPrice() <= station.getTotalEnergy())
             this.amountOfEnergy = money/station.getUnitPrice();
@@ -65,7 +61,6 @@ public class ChargingEvent
         this.id = idGenerator.incrementAndGet();
         this.station = station;
         this.kindOfCharging = "exchange";
-        this.chargerId = -1;
         this.vehicle = vehicle;
         this.chargingTime = station.getTimeOfExchange();
         this.condition = "arrived";
@@ -83,11 +78,8 @@ public class ChargingEvent
         if (vehicle.getBattery().getActive()) {
             if ((condition.equals("arrived")) || (condition.equals("wait"))) {
                 if (!"exchange".equals(kindOfCharging)) {
-                    int qwe = station.checkChargers(kindOfCharging);
-                    if ((qwe != -1) && (qwe != -2)) {
-                        chargerId = qwe;
-                        Charger ch = station.searchCharger(chargerId);
-                        ch.setChargingEvent(this);
+                    charger = station.assignCharger(this);
+                    if (charger != null) {
                         if (amountOfEnergy < station.getTotalEnergy()) {
                             if (amountOfEnergy <= (vehicle.getBattery().getCapacity() - vehicle.getBattery().getRemAmount()))
                                 energyToBeReceived = amountOfEnergy;
@@ -99,11 +91,6 @@ public class ChargingEvent
                             else
                                 energyToBeReceived = vehicle.getBattery().getCapacity() - vehicle.getBattery().getRemAmount();
 
-                        }
-                        if (energyToBeReceived == 0) {
-                            setCondition("nonExecutable");
-                            ch.setChargingEvent(null);
-                            return;
                         }
                         if ("fast".equals(kindOfCharging))
                             chargingTime = ((long) (energyToBeReceived / station.getChargingRatioFast()));
@@ -123,12 +110,11 @@ public class ChargingEvent
                                 station.setSpecificAmount(s, 0);
                             }
                         }
-                    } else if (qwe == -2)
-                        setCondition("nonExecutable");
+                    }
                     else
                         if(!condition.equals("wait")) {
                             maxWaitingTime = calWaitingTime();
-                            if (maxWaitingTime < waitingTime) {
+                            if ((maxWaitingTime < waitingTime) && (maxWaitingTime > -1)) {
                                 if (!condition.equals("wait"))
                                     station.updateQueue(this);
                                 setCondition("wait");
@@ -136,42 +122,22 @@ public class ChargingEvent
                                 setCondition("nonExecutable");
                         }
                 } else {
-                    int qwe = station.checkExchangeHandlers();
-                    if ((qwe != -1) && (qwe != -2)) {
-                        chargerId = qwe;
-                        ExchangeHandler eh = station.searchExchangeHandler(chargerId);
-                        int state2 = station.checkBatteries();
-                        if ((state2 != -1) && (state2 != -2)) {
-                            numberOfBattery = state2;
-                        } else if (state2 == -1)
-                            if(!condition.equals("wait"))
-                            {
-                                maxWaitingTime = calWaitingTime();
-                                if (maxWaitingTime < waitingTime) {
-                                    if (!condition.equals("wait"))
-                                        station.updateQueue(this);
-                                    setCondition("wait");
-                                } else {
-                                    setCondition("nonExecutable");
-                                    return;
-                                }
-                            }
-                        else {
-                            setCondition("nonExecutable");
-                            return;
-                        }
+                    exchange = station.assignExchangeHandler(this);
+                    givenBattery = station.assignBattery();
+                    if (givenBattery == null) {
+                        setCondition("nonExecutable");
+                        return;
+                    }
+                    if (exchange != null) {
                         chargingTime = station.getTimeOfExchange();
                         this.cost = station.getExchangePrice();
-                        eh.setChargingEvent(this);
                         setCondition("ready");
-                        eh.setGivenBattery(station.getBatteries().remove(numberOfBattery));
-                    } else if (qwe == -2)
-                        setCondition("nonExecutable");
+                    }
                     else
                         if(!condition.equals("wait"))
                         {
                             maxWaitingTime = calWaitingTime();
-                            if (maxWaitingTime < waitingTime) {
+                            if (maxWaitingTime < waitingTime && maxWaitingTime > -1) {
                                 setCondition("wait");
                                 station.updateQueue(this);
                             } else
@@ -194,12 +160,12 @@ public class ChargingEvent
             if (!kindOfCharging.equals("exchange"))
             {
                 setCondition("charging");
-                station.searchCharger(chargerId).executeChargingEvent();
+                charger.executeChargingEvent();
             }
             else
             {
                 setCondition("swapping");
-                station.searchExchangeHandler(chargerId).executeExchange();
+                exchange.executeExchange();
             }
     }
 
@@ -328,15 +294,6 @@ public class ChargingEvent
     }
 
     /**
-     * Sets the id of the Charger the ChargingEvent is going to be executed.
-     * @param id The id of Charger.
-     */
-    public void setChargerId(int id)
-    {
-        chargerId = id;
-    }
-
-    /**
      * @return The condition of ChargingEvent.
      */
     public String getCondition()
@@ -368,6 +325,8 @@ public class ChargingEvent
      */
     private long calWaitingTime()
     {
+        if (station.getChargers().length == 0)
+            return -1;
         long[] counter1 = new long[station.getChargers().length];
         long[] counter2 = new long[station.getExchangeHandlers().length];
         long min = 1000000000;

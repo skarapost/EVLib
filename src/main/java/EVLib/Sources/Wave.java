@@ -1,7 +1,5 @@
 package EVLib.Sources;
 
-import EVLib.Station.ChargingStation;
-
 import java.util.ArrayList;
 
 public class Wave extends EnergySource

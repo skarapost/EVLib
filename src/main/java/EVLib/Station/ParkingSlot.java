@@ -1,7 +1,5 @@
 package EVLib.Station;
 
-import EVLib.Events.ParkingEvent;
-
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ParkingSlot {
@@ -41,7 +39,7 @@ public class ParkingSlot {
     /**
      * Executes the inductive charging phase of a parking slot. It works like the ChargingEvent.
      */
-    public void parkingVehicle() {
+    void parkingVehicle() {
         running = true;
         Thread ch = new Thread(new Runnable()
         {
@@ -101,16 +99,19 @@ public class ParkingSlot {
     }
 
     /**
-     * Sets a ParkingEvent in the Charger.
-     * @param ev The ParkingEvent to be linked with the ParkingSlot.
-     */
-    public void setParkingEvent(ParkingEvent ev) { this.e = ev; }
-
-    /**
      * @return The ParkingEvent which is linked with the ParkingSlot.
      */
-    public synchronized ParkingEvent getParkingEvent() {
+    public ParkingEvent getParkingEvent() {
         return e;
+    }
+
+    /**
+     * Sets a ParkingEvent in the Charger.
+     *
+     * @param ev The ParkingEvent to be linked with the ParkingSlot.
+     */
+    void setParkingEvent(ParkingEvent ev) {
+        this.e = ev;
     }
 
     /**

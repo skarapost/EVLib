@@ -1,8 +1,5 @@
 package EVLib.Station;
 
-import EVLib.EV.Battery;
-import EVLib.Events.ChargingEvent;
-
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ExchangeHandler
@@ -13,13 +10,11 @@ public class ExchangeHandler
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
     private volatile boolean running = true;
     private String name;
-    private Battery givenBattery;
 
     public ExchangeHandler(ChargingStation station)
     {
         this.id = idGenerator.incrementAndGet();
         this.station = station;
-        e = null;
         this.name = "ExchangeHandler " + String.valueOf(id);
     }
 
@@ -58,7 +53,7 @@ public class ExchangeHandler
      * Links a ChargingEvent with the ExchangeHandler.
      * @param e The ChargingEvent to be linked.
      */
-    public void setChargingEvent(ChargingEvent e)
+    void setChargingEvent(ChargingEvent e)
     {
         this.e = e;
     }
@@ -72,26 +67,10 @@ public class ExchangeHandler
     }
 
     /**
-     * @return The Battery to be given.
-     */
-    public Battery getGivenBattery() {
-        return givenBattery;
-    }
-
-    /**
-     * Sets the Battery to be given.
-     *
-     * @param givenBattery The Battery to be given.
-     */
-    public void setGivenBattery(Battery givenBattery) {
-        this.givenBattery = givenBattery;
-    }
-
-    /**
      * It executes the swapping battery phase.
      * In the end, if the automatic queue handling is enabled checks the waiting list.
      */
-    public void executeExchange()
+    void executeExchange()
     {
         running = true;
         Thread ch = new Thread (() -> {
@@ -102,7 +81,7 @@ public class ExchangeHandler
                 timestamp2 = System.currentTimeMillis();
             } while (running && (timestamp2 - timestamp1 < e.getChargingTime()));
             station.joinBattery(e.getElectricVehicle().getBattery());
-            e.getElectricVehicle().setBattery(givenBattery);
+            e.getElectricVehicle().setBattery(e.givenBattery);
             e.getElectricVehicle().getDriver().setDebt(e.getElectricVehicle().getDriver().getDebt() + station.calculatePrice(e));
             System.out.println("The exchange " + e.getId() + " completed successfully");
             e.setCondition("finished");

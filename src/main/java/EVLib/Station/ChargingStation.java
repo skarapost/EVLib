@@ -3,10 +3,6 @@ package EVLib.Station;
 import EVLib.EV.Battery;
 import EVLib.EV.Driver;
 import EVLib.EV.ElectricVehicle;
-import EVLib.Events.ChargingEvent;
-import EVLib.Events.DisChargingEvent;
-import EVLib.Events.ParkingEvent;
-import EVLib.Events.PricingPolicy;
 import EVLib.Sources.*;
 
 import java.io.*;
@@ -14,6 +10,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class ChargingStation {
     private int id;
@@ -48,7 +46,14 @@ public class ChargingStation {
     private final Statistics statistics = new Statistics();
     private Timer timer;
     private boolean deamon;
-    private Object lock = new Object();
+    private Lock lock1 = new ReentrantLock();
+    private Lock lock2 = new ReentrantLock();
+    private Lock lock3 = new ReentrantLock();
+    private Lock lock4 = new ReentrantLock();
+    private Lock lock5 = new ReentrantLock();
+    private Lock lock6 = new ReentrantLock();
+    private Lock lock7 = new ReentrantLock();
+    private Lock lock8 = new ReentrantLock();
     public int FAST_CHARGERS;
     public int SLOW_CHARGERS;
 
@@ -245,16 +250,21 @@ public class ChargingStation {
      * @param event The ChargingEvent that is going to be added.
      */
     public void updateQueue(ChargingEvent event) {
-        switch (event.getKindOfCharging()) {
-            case "exchange":
-                exchange.add(event);
-                break;
-            case "slow":
-                slow.add(event);
-                break;
-            case "fast":
-                fast.add(event);
-                break;
+        lock2.lock();
+        try {
+            switch (event.getKindOfCharging()) {
+                case "exchange":
+                    exchange.add(event);
+                    break;
+                case "slow":
+                    slow.add(event);
+                    break;
+                case "fast":
+                    fast.add(event);
+                    break;
+            }
+        } finally {
+            lock2.unlock();
         }
     }
 
@@ -263,7 +273,12 @@ public class ChargingStation {
      * @param event The DisChargingEvent that is going to be added.
      */
     public void updateDisChargingQueue(DisChargingEvent event) {
-        discharging.add(event);
+        lock3.lock();
+        try {
+            discharging.add(event);
+        } finally {
+            lock3.unlock();
+        }
     }
 
     /**
@@ -294,83 +309,136 @@ public class ChargingStation {
         return discharging;
     }
 
+
     /**
-     * Checks for empty Charger according to the kind that is given.
-     *
-     * @param k The kind of Charger that is asked.
-     * @return Returns the id of the Charger in case there is any empty Charger
-     * object, -2 if the charging station is not linked with any Charger object or -1 if all the Charger are busy.
+     * Looks for any empty Charger. If there is one, the event is assigned to it.
+     * @param event The event that looks for a Charger.
+     * @return The Charger that was assigned.
      */
-    public int checkChargers(String k) {
-        for (int i = 0; i < getChargers().length; i++) {
-            if (k.equals(getChargers()[i].getKindOfCharging()))
-                if (getChargers()[i].getChargingEvent() == null)
-                    return getChargers()[i].getId();
+    public Charger assignCharger(ChargingEvent event) {
+        lock4.lock();
+        int i = 0;
+        Charger ch = null;
+        boolean flag = false;
+        try {
+            if (chargers.size() != 0)
+                while (!flag && i < chargers.size()) {
+                    if (event.getKindOfCharging().equals(chargers.get(i).getKindOfCharging()))
+                        if (chargers.get(i).getChargingEvent() == null) {
+                            chargers.get(i).setChargingEvent(event);
+                            flag = true;
+                            ch = chargers.get(i);
+                        }
+                    ++i;
+                }
+        } finally {
+            lock4.unlock();
+            return ch;
         }
-        if (getChargers().length == 0)
-            return -2;
-        return -1;
+    }
+
+
+    /**
+     * Looks for any empty DisCharger. If there is one, the event is assigned to it.
+     * @param event The event that looks for a DisCharger.
+     * @return The DisCharger that was assigned.
+     */
+    public DisCharger assignDisCharger(DisChargingEvent event) {
+        lock5.lock();
+        int i = 0;
+        DisCharger dsch = null;
+        boolean flag = false;
+        try {
+            if (dischargers.size() != 0)
+                while (!flag && i < dischargers.size()) {
+                    if (dischargers.get(i).getDisChargingEvent() == null) {
+                        dischargers.get(i).setDisChargingEvent(event);
+                        flag = true;
+                        dsch = dischargers.get(i);
+                    }
+                    ++i;
+                }
+        } finally {
+            lock5.unlock();
+            return dsch;
+        }
     }
 
     /**
-     * Checks for any empty Discharger.
-     *
-     * @return The id of the empty DisCharger, or -1 if there is not any empty,
-     * or -2 if the charging station is not linked with any DisCharger object
+     * Looks for any empty ExchangeHandler. If there is one, the event is assigned to it.
+     * @param event The event that looks for an ExchangeHandler.
+     * @return The ExchangeHandler that was assigned.
      */
-    public int checkDisChargers() {
-        for (int i = 0; i < getDisChargers().length; i++) {
-            if (getDisChargers()[i].getDisChargingEvent() == null)
-                return getDisChargers()[i].getId();
+    public ExchangeHandler assignExchangeHandler(ChargingEvent event) {
+        lock6.lock();
+        int i = 0;
+        ExchangeHandler ch = null;
+        boolean flag = false;
+        try {
+            if (exchangeHandlers.size() != 0)
+                while (!flag && i < exchangeHandlers.size()) {
+                    if (exchangeHandlers.get(i).getChargingEvent() == null) {
+                        exchangeHandlers.get(i).setChargingEvent(event);
+                        flag = true;
+                        ch = exchangeHandlers.get(i);
+                    }
+                    ++i;
+                }
+        } finally {
+            lock6.unlock();
+            return ch;
         }
-        if (getDisChargers().length == 0)
-            return -2;
-        return -1;
     }
 
     /**
-     * Checks for any empty exchange slot.
-     *
-     * @return The number of the slot, -1 if there is not any empty slot,
-     * or -2 if the charging station is not linked with any ExchangeHandler object.
+     * Looks for any empty ParkingSlot. If there is one, the event is assigned to it.
+     * @param event The event that looks for a ParkingSlot.
+     * @return The ParkingSLot that was assigned.
      */
-    public int checkExchangeHandlers() {
-        for (int i = 0; i < getExchangeHandlers().length; i++) {
-            if (getExchangeHandlers()[i].getChargingEvent() == null)
-                return getExchangeHandlers()[i].getId();
+    public ParkingSlot assignParkingSlot(ParkingEvent event) {
+        lock7.lock();
+        int i = 0;
+        ParkingSlot ch = null;
+        boolean flag = false;
+        try {
+            if (parkingSlots.size() != 0)
+                while (!flag && i < parkingSlots.size()) {
+                    if (parkingSlots.get(i).getParkingEvent() == null) {
+                        parkingSlots.get(i).setParkingEvent(event);
+                        flag = true;
+                        ch = parkingSlots.get(i);
+                    }
+                    ++i;
+                }
+        } finally {
+            lock7.unlock();
+            return ch;
         }
-        if (getExchangeHandlers().length == 0)
-            return -2;
-        return -1;
     }
 
     /**
-     * Checks for any empty ParkingSlot.
-     *
-     * @return The id of the ParkingSlot, -1 if there is not any empty slot, or -2 if the ChargingStation
-     * is not linked with any ParkingSlot.
+     * Looks for any available Battery. If there is one and the remaining amount is greater than 0,
+     * the battery is returned.
+     * @return The Battery.
      */
-    public int checkParkingSlots() {
-        for (ParkingSlot p : getParkingSlots()) {
-            if (p.getParkingEvent() == null)
-                return p.getId();
+    public Battery assignBattery() {
+        lock8.lock();
+        int i = 0;
+        Battery bat = null;
+        boolean flag = false;
+        try {
+            if (batteries.size() != 0)
+                while (!flag && i < batteries.size()) {
+                    if (batteries.get(i).getRemAmount() > 0) {
+                        flag = true;
+                        bat = batteries.remove(i);
+                    }
+                    ++i;
+                }
+        } finally {
+            lock8.unlock();
+            return bat;
         }
-        if (parkingSlots.size() == 0)
-            return -2;
-        return -1;
-    }
-
-    /**
-     * @return Returns the position of the Battery, or -1 if there is not any Battery.
-     */
-    public int checkBatteries() {
-        for (int i = 0; i < getBatteries().size(); i++) {
-            if (getBatteries().get(i).getRemAmount() != 0)
-                return i;
-        }
-        if (getBatteries().size() == 0)
-            return -2;
-        return -1;
     }
 
 
@@ -396,7 +464,6 @@ public class ChargingStation {
 
     /**
      * Adds a Charger to the ChargingStation.
-     *
      * @param y The Charger to be added.
      */
     public void addCharger(Charger y) {
@@ -409,7 +476,6 @@ public class ChargingStation {
 
     /**
      * Adds a Discharger to the ChargingStation.
-     *
      * @param y The DisCharger to be added.
      */
     public void addDisCharger(DisCharger y) {
@@ -418,7 +484,6 @@ public class ChargingStation {
 
     /**
      * Inserts a new ExchangeHandler in the charging station.
-     *
      * @param y The ExchangeHandler object to be added.
      */
     public void addExchangeHandler(ExchangeHandler y) {
@@ -436,8 +501,7 @@ public class ChargingStation {
 
     /**
      * Adds a new EnergySource to the ChargingStation.
-     *
-     * @param z The EnergySource is going to be added.
+     * @param z The EnergySource to be added.
      */
     public void addEnergySource(EnergySource z) {
         n.add(z);
@@ -464,8 +528,7 @@ public class ChargingStation {
 
     /**
      * Deletes an EnergySource from the ChargingStation.
-     *
-     * @param z The EnergySource is going to be removed.
+     * @param z The EnergySource to be removed.
      */
     public void deleteEnergySource(EnergySource z) {
         n.remove(z);
@@ -528,7 +591,6 @@ public class ChargingStation {
 
     /**
      * Sorts the energies sources according to the desire of the user.
-     *
      * @param energies It is a String array that defines the energies order.
      */
     public void customEnergySorting(String[] energies) {
@@ -539,7 +601,6 @@ public class ChargingStation {
 
     /**
      * Adds a Battery to the ChargingStation for the battery exchange function.
-     *
      * @param battery The Battery is going to be added.
      */
     public void joinBattery(Battery battery) {
@@ -549,13 +610,14 @@ public class ChargingStation {
     /**
      * @return A ArrayList with the Battery objects.
      */
-    public ArrayList<Battery> getBatteries() {
-        return batteries;
+    public Battery[] getBatteries() {
+        Battery[] g = new Battery[batteries.size()];
+        batteries.forEach(bat -> g[batteries.indexOf(bat)] = bat);
+        return g;
     }
 
     /**
      * Deletes a Battery from the batteries for the battery exchange function.
-     *
      * @param battery The battery that will be removed.
      * @return True if the deletion was successfull, false if it was unsuccessfull.
      */
@@ -571,66 +633,6 @@ public class ChargingStation {
         for (int i = 0; i < dischargers.size(); i++)
             g[i] = dischargers.get(i);
         return g;
-    }
-
-    /**
-     * Search for the Charger based on the given id.
-     *
-     * @param id The id of the Charger which is asked.
-     * @return The Charger object.
-     */
-    public Charger searchCharger(int id) {
-        Charger y = null;
-        for (Charger charger : chargers) {
-            if (charger.getId() == id)
-                y = charger;
-        }
-        return y;
-    }
-
-    /**
-     * Search for a DisCharger object based on the given id.
-     *
-     * @param id The id of the DisCharger object which is asked.
-     * @return The DisCharger object.
-     */
-    public DisCharger searchDischarger(int id) {
-        DisCharger y = null;
-        for (DisCharger discharger : dischargers) {
-            if (discharger.getId() == id)
-                y = discharger;
-        }
-        return y;
-    }
-
-    /**
-     * Search for an ExchangeHandler object based on the given id.
-     *
-     * @param id The id of the ExchangeHandler object which is asked.
-     * @return The ExchangeHandler object.
-     */
-    public ExchangeHandler searchExchangeHandler(int id) {
-        ExchangeHandler y = null;
-        for (ExchangeHandler exchangeHandler : exchangeHandlers) {
-            if (exchangeHandler.getId() == id)
-                y = exchangeHandler;
-        }
-        return y;
-    }
-
-    /**
-     * Search for an ParkingSlot object based on the given id.
-     *
-     * @param id The id of the ParkingSlot object which is asked.
-     * @return The ParkingSlot object.
-     */
-    public ParkingSlot searchParkingSlot(int id) {
-        ParkingSlot y = null;
-        for (ParkingSlot parkingSlot : parkingSlots) {
-            if (parkingSlot.getId() == id)
-                y = parkingSlot;
-        }
-        return y;
     }
 
     /**
@@ -666,8 +668,11 @@ public class ChargingStation {
      * @param amount The amount of energy will be added.
      */
     public void setSpecificAmount(String source, double amount) {
-        synchronized (lock) {
+        lock1.lock();
+        try {
             amounts.put(source, amount);
+        } finally {
+            lock1.unlock();
         }
     }
 
@@ -693,7 +698,6 @@ public class ChargingStation {
 
     /**
      * Sets a charging ratio for the slow charging.
-     *
      * @param chargingRatio The charging ratio.
      */
     public void setChargingRatioSlow(double chargingRatio) {
@@ -709,7 +713,6 @@ public class ChargingStation {
 
     /**
      * Sets the charging ratio of the fast charging.
-     *
      * @param chargingRatio The fast charging ratio.
      */
     public void setChargingRatioFast(double chargingRatio) {
@@ -725,7 +728,6 @@ public class ChargingStation {
 
     /**
      * Sets a discharging ratio.
-     *
      * @param disChargingRatio The discharging ratio.
      */
     public void setDisChargingRatio(double disChargingRatio) {
@@ -741,7 +743,6 @@ public class ChargingStation {
 
     /**
      * Sets the ratio of inductive charging.
-     *
      * @param inductiveChargingRatio The ratio of charging during inductive charging.
      */
     public void setInductiveChargingRatio(double inductiveChargingRatio) {
@@ -814,7 +815,6 @@ public class ChargingStation {
 
     /**
      * Sets a price for the energy unit.
-     *
      * @param price The price.
      */
     public void setUnitPrice(double price) {
@@ -830,7 +830,6 @@ public class ChargingStation {
 
     /**
      * Sets a price for the energy unit in a DischargingEvent.
-     *
      * @param disUnitPrice The price of energy unit.
      */
     public void setDisUnitPrice(double disUnitPrice) {
@@ -853,7 +852,6 @@ public class ChargingStation {
 
     /**
      * Sets the price for a battery exchange.
-     *
      * @param price The price the exchange costs.
      */
     public void setExchangePrice(double price) {
@@ -861,10 +859,9 @@ public class ChargingStation {
     }
 
     /**
-     * Adjust the management of the WaitingList.
-     *
+     * Sets the management of the WaitingList.
      * @param value The choice of queue handling's. If true the WaitingList is handled
-     *              automatic by the library. If false the user have to handle the WaitingList.
+     * automatic by the library. If false the user have to handle the WaitingList.
      */
     public void setAutomaticQueueHandling(boolean value) {
         automaticQueueHandling = value;
@@ -880,7 +877,6 @@ public class ChargingStation {
 
     /**
      * Sets the space which will be among two storage's updates.
-     *
      * @param updateSpace The time space.
      */
     public void setUpdateSpace(int updateSpace) {
@@ -923,8 +919,13 @@ public class ChargingStation {
             }
     }
 
-    public long getWaitingTime(String kind)
-    {
+    /**
+     * Calculates the waiting time the ElectricVehicle has to wait.
+     *
+     * @param kind The function for which the waiting time has to be calculated.
+     * @return The waiting time
+     */
+    public long getWaitingTime(String kind) {
         long[] counter1 = new long[chargers.size()];
         long[] counter2 = new long[exchangeHandlers.size()];
         long[] counter3 = new long[dischargers.size()];
@@ -940,14 +941,12 @@ public class ChargingStation {
                             index = i;
                         }
                         counter1[i] = diff;
-                    }
-                    else
+                    } else
                         return 0;
                 }
             }
         else if(Objects.equals("exchange", kind))
-            for (int i = 0; i<exchangeHandlers.size(); i++)
-            {
+            for (int i = 0; i<exchangeHandlers.size(); i++) {
                 if (exchangeHandlers.get(i).getChargingEvent() != null) {
                     long diff = exchangeHandlers.get(i).getChargingEvent().getRemainingChargingTime();
                     if (min > diff) {
@@ -955,13 +954,11 @@ public class ChargingStation {
                         index = i;
                     }
                     counter2[i] = diff;
-                }
-                else
+                } else
                     return 0;
             }
         else if(Objects.equals("discharging", kind))
-            for (int i = 0; i<dischargers.size(); i++)
-            {
+            for (int i = 0; i<dischargers.size(); i++) {
                 if (dischargers.get(i).getDisChargingEvent() != null) {
                     long diff = dischargers.get(i).getDisChargingEvent().getRemainingDisChargingTime();
                     if (min > diff) {
@@ -969,19 +966,16 @@ public class ChargingStation {
                         index = i;
                     }
                     counter3[i] = diff;
-                }
-                else
+                } else
                     return 0;
             }
         else
             return 0;
         ChargingEvent e;
         DisChargingEvent ey;
-        if ("slow".equals(kind))
-        {
+        if ("slow".equals(kind)) {
             WaitList o = this.slow;
-            for (int i = 0;i < o.getSize() ;i++)
-            {
+            for (int i = 0; i < o.getSize() ; i++) {
                 e = (ChargingEvent) o.get(i);
                 counter1[index] = counter1[index] + ((long) (e.getAmountOfEnergy()/chargingRatioSlow));
                 for(int j=0; j<chargers.size(); j++)
@@ -990,11 +984,9 @@ public class ChargingStation {
             }
             return counter1[index];
         }
-        if ("fast".equals(kind))
-        {
+        if ("fast".equals(kind)) {
             WaitList o = this.fast;
-            for(int i = 0; i < o.getSize() ;i++)
-            {
+            for(int i = 0; i < o.getSize() ; i++) {
                 e = (ChargingEvent) o.get(i);
                 counter1[index] = counter1[index] + ((long) (e.getAmountOfEnergy()/chargingRatioFast));
                 for(int j=0; j<chargers.size(); j++)
@@ -1003,10 +995,8 @@ public class ChargingStation {
             }
             return counter1[index];
         }
-        if ("exchange".equals(kind))
-        {
-            for(int i = 0; i < this.exchange.getSize();i++)
-            {
+        if ("exchange".equals(kind)) {
+            for(int i = 0; i < this.exchange.getSize(); i++) {
                 counter2[index] = counter2[index] + timeOfExchange;
                 for(int j=0; j < chargers.size(); j++)
                     if ((counter2[j]<counter2[index])&&(counter2[j]!=0))
@@ -1014,11 +1004,9 @@ public class ChargingStation {
             }
             return counter2[index];
         }
-        if ("discharging".equals(kind))
-        {
+        if ("discharging".equals(kind)) {
             WaitList o = this.discharging;
-            for(int i = 0; i < o.getSize() ;i++)
-            {
+            for(int i = 0; i < o.getSize() ; i++) {
                 ey = (DisChargingEvent) o.get(i);
                 counter3[index] = counter3[index] + ((long) (ey.getAmountOfEnergy()/disChargingRatio));
                 for(int j=0; j<dischargers.size(); j++)
@@ -1042,7 +1030,6 @@ public class ChargingStation {
 
     /**
      * Sets the time a battery exchange service lasts.
-     *
      * @param time The time the battery exchange lasts.
      */
     public void setTimeofExchange(long time) {
@@ -1057,8 +1044,7 @@ public class ChargingStation {
     }
 
     /**
-     * Update the storage of the ChargingStation with the new amounts of energy
-     * of each source.
+     * Updates the storage of the ChargingStation with the new amounts of energy for each source.
      */
     public void updateStorage() {
         double energy;
@@ -1130,7 +1116,6 @@ public class ChargingStation {
 
     /**
      * Calculates the cost of a charging.
-     *
      * @param w The ChargingEvent that executed.
      * @return The cost of the charging.
      */
@@ -1167,7 +1152,6 @@ public class ChargingStation {
 
     /**
      * Calculates the cost of a parking.
-     *
      * @param w The ParkingEvent that executed.
      * @return The cost of the charging.
      */
@@ -1177,7 +1161,6 @@ public class ChargingStation {
 
     /**
      * Links a pricing policy with the charging station.
-     *
      * @param policy The policy to be linked with.
      */
     public void setPricingPolicy(PricingPolicy policy)

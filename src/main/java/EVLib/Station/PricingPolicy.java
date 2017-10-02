@@ -1,6 +1,4 @@
-package EVLib.Events;
-
-import EVLib.Station.ChargingStation;
+package EVLib.Station;
 
 import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicInteger;

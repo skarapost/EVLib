@@ -1,9 +1,6 @@
-package EVLib.Events;
+package EVLib.Station;
 
 import EVLib.EV.ElectricVehicle;
-import EVLib.Station.ChargingStation;
-import EVLib.Station.DisCharger;
-import EVLib.Station.WaitList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,11 +13,11 @@ public class DisChargingEvent
     private ElectricVehicle vehicle;
     private final ChargingStation station;
     private final String chargingStationName;
+    private DisCharger disCharger;
     private double amountOfEnergy;
     private long disChargingTime;
     private long remainingDisChargingTime;
     private String condition;
-    private int disChargerId;
     private long waitingTime;
     private long maxWaitingTime;
     private long timestamp;
@@ -33,7 +30,6 @@ public class DisChargingEvent
         this.amountOfEnergy = amEnerg;
         this.station = station;
         this.vehicle = vehicle;
-        this.disChargerId = -1;
         this.condition = "arrived";
         this.chargingStationName = station.getName();
     }
@@ -78,20 +74,16 @@ public class DisChargingEvent
     {
         if (getElectricVehicle().getBattery().getActive()) {
             if ((condition.equals("arrived")) || (condition.equals("wait"))) {
-                int qwe = station.checkDisChargers();
-                if ((qwe != -1) && (qwe != -2)) {
-                    disChargerId = qwe;
-                    DisCharger dsc = station.searchDischarger(disChargerId);
-                    dsc.setDisChargingEvent(this);
+                disCharger = station.assignDisCharger(this);
+                if (disCharger != null) {
                     disChargingTime = (long) (amountOfEnergy / station.getDisChargingRatio());
                     setCondition("ready");
                     profit = amountOfEnergy * station.getDisUnitPrice();
-                } else if (qwe == -2)
-                    setCondition("nonExecutable");
+                }
                 else
                     if(!condition.equals("wait")) {
                         maxWaitingTime = calDisWaitingTime();
-                        if (maxWaitingTime < waitingTime) {
+                        if (maxWaitingTime < waitingTime && maxWaitingTime > -1) {
                             if (!condition.equals("wait"))
                                 station.updateDisChargingQueue(this);
                             setCondition("wait");
@@ -113,7 +105,7 @@ public class DisChargingEvent
         if(condition.equals("ready"))
         {
             setCondition("discharging");
-            station.searchDischarger(disChargerId).executeDisChargingEvent();
+            disCharger.executeDisChargingEvent();
         }
     }
 
@@ -186,15 +178,6 @@ public class DisChargingEvent
     }
 
     /**
-     * Sets the id of DisCharger that is going to be discharged.
-     * @param id The id of the DisCharger in which the DisChargingEvent is attached.
-     */
-    public void setDisChargerId(int id)
-    {
-        disChargerId = id;
-    }
-
-    /**
      * @return The waiting time.
      */
     public long getMaxWaitingTime() { return maxWaitingTime; }
@@ -214,10 +197,12 @@ public class DisChargingEvent
     }
 
     /**
-     * @return The time the ElectricVehicle has to wait.
+     * @return The time the ElectricVehicle has to wait or -1 if the ChargingStation has no DisCharger objects.
      */
     private long calDisWaitingTime()
     {
+        if (station.getDisChargers().length == 0)
+            return -1;
         long[] counter1 = new long[station.getDisChargers().length];
         long min = 1000000000;
         int index = 1000000000;

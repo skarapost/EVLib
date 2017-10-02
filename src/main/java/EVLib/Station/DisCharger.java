@@ -1,7 +1,5 @@
 package EVLib.Station;
 
-import EVLib.Events.DisChargingEvent;
-
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class DisCharger
@@ -28,7 +26,7 @@ public class DisCharger
      * DisChargingEvent gets "finished". In the end if the automatic queue's handling
      * is activated, the DisCharger checks the waiting list.
      */
-    public void executeDisChargingEvent()
+    void executeDisChargingEvent()
     {
         running = true;
         Thread dsch = new Thread(() -> {
@@ -59,7 +57,7 @@ public class DisCharger
      * Sets a DisChargingEvent to the DisCharger.
      * @param e The DisChargingEvent that is going to be linked with the DisCharger.
      */
-    public void setDisChargingEvent(DisChargingEvent e)
+    void setDisChargingEvent(DisChargingEvent e)
     {
         this.e = e;
     }
