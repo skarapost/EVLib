@@ -68,10 +68,10 @@ public class ChargingEvent
     }
 
     /**
-     * Executes the charging phase. Checks for any Charger or exchange slot,
-     * calculates the energy to be given to the ElectricVehicle and calculates the charging time.
+     * Executes the pre-processing phase. Checks for any Charger or exchange slot and assignes to it if any.
+     * It calculates the energy to be given to the ElectricVehicle and calculates the charging time.
      * If there is not any empty Charger or exchange slot the ChargingEvent is inserted
-     * in the respectively waiting list.
+     * in the respectively waiting list, if the waiting time is less than the set waiting time of the Driver.
      **/
     public synchronized void preProcessing()
     {
@@ -151,8 +151,8 @@ public class ChargingEvent
     }
 
     /**
-     * It starts the execution of the ChargingEvent.
-     * If the ChargingEvent is in the WaitingList it does not do anything.
+     * It starts the execution of the ChargingEvent. Increases the number of chargings of the Battery by one.
+     * The pre-condition for the execution is the condition of the event to be "ready".
      */
     public synchronized void execution()
     {
@@ -160,6 +160,7 @@ public class ChargingEvent
             if (!kindOfCharging.equals("exchange"))
             {
                 setCondition("charging");
+                vehicle.getBattery().addCharging();
                 charger.executeChargingEvent();
             }
             else
@@ -178,22 +179,13 @@ public class ChargingEvent
     }
 
     /**
-     * Sets a vehicle to the ChargingEvent.
-     * @param vehicle The vehicle to be set.
+     * Sets an ElectricVehicle to the ChargingEvent.
+     * @param vehicle The ElectricVehicle to be set.
      */
     public void setElectricVehicle(ElectricVehicle vehicle) { this.vehicle = vehicle; }
 
     /**
-     * Sets the condition of ChargingEvent.
-     * @param condition Value of the condition.
-     */
-    public void setCondition(String condition)
-    {
-        this.condition = condition;
-    }
-
-    /**
-     * @return The kind of charging of ChargingEvent.
+     * @return The kind of charging of the ChargingEvent.
      */
     public String getKindOfCharging()
     {
@@ -201,11 +193,20 @@ public class ChargingEvent
     }
 
     /**
-     * @return The ChargingStation the event is going to be executed.
+     * @return The ChargingStation the ChargingEvent wants to be executed.
      */
     public ChargingStation getStation()
     {
         return station;
+    }
+
+    /**
+     * Sets the energy to be received by the vehicle.
+     *
+     * @param energyToBeReceived The energy to be set.
+     */
+    public void setEnergyToBeReceived(double energyToBeReceived) {
+        this.energyToBeReceived = energyToBeReceived;
     }
 
     /**
@@ -224,42 +225,40 @@ public class ChargingEvent
     }
 
     /**
-     * Sets the energy to be received by the vehicle. It also calculates the charging time.
-     * @param energyToBeReceived The energy to be set.
+     * @return The amount of energy the ElectricVehicle asks for.
      */
-    public void setEnergyToBeReceived(double energyToBeReceived)
-    {
-        this.energyToBeReceived = energyToBeReceived;
+    public double getAmountOfEnergy() {
+        return amountOfEnergy;
     }
 
     /**
      * Sets the maximum time a ChargingEvent has to wait in the waiting list.
-     *
      * @param maxWaitingTime The time to be set.
      */
     public void setMaxWaitingTime(long maxWaitingTime) { this.maxWaitingTime = maxWaitingTime; }
 
     /**
-     * @return The amount of energy the ElectricVehicle asks.
+     * Sets the waiting time the Driver can wait.
+     * @param w The waiting time.
      */
-    public double getAmountOfEnergy()
-    {
-        return amountOfEnergy;
+    public void setWaitingTime(long w) {
+        this.waitingTime = w;
     }
 
     /**
      * Sets the amount of energy the ChargingEvent demands.
+     *
      * @param energy The energy to be set.
      */
-    public void setAmountOfEnergy(double energy) { this.amountOfEnergy = energy; }
+    public void setAmountOfEnergy(double energy) {
+        this.amountOfEnergy = energy;
+    }
 
     /**
-     * Sets the waiting time the Driver is able to wait.
-     * @param w The waiting time.
+     * @return The condition of the ChargingEvent.
      */
-    public void setWaitingTime(long w)
-    {
-        this.waitingTime = w;
+    public String getCondition() {
+        return condition;
     }
 
     /**
@@ -284,25 +283,15 @@ public class ChargingEvent
     }
 
     /**
-     * Sets the charging time of the ChargingEvent.
-     * @param time The charging time.
+     * Sets the condition of the ChargingEvent.
+     * @param condition The condition to be set.
      */
-    public void setChargingTime(long time)
-    {
-        timestamp = System.currentTimeMillis();
-        this.chargingTime = time;
+    public void setCondition(String condition) {
+        this.condition = condition;
     }
 
     /**
-     * @return The condition of ChargingEvent.
-     */
-    public String getCondition()
-    {
-        return condition;
-    }
-
-    /**
-     * @return The maximum time the vehicle can wait.
+     * @return The maximum time the vehicle should wait.
      */
     public long getMaxWaitingTime()
     {
@@ -310,16 +299,25 @@ public class ChargingEvent
     }
 
     /**
-     * @return The charging time of this ChargingEvent.
+     * @return The charging time of the ChargingEvent.
      */
-    public long getChargingTime()
-    {
+    public long getChargingTime() {
         return chargingTime;
     }
 
     /**
+     * Sets the charging time of the ChargingEvent. It also starts counting the reamining time of the charging.
+     *
+     * @param time The charging time.
+     */
+    public void setChargingTime(long time) {
+        timestamp = System.currentTimeMillis();
+        this.chargingTime = time;
+    }
+
+    /**
      * Calculates the amount of time a Driver has to wait until his ElectricVehicle
-     * can be charged. This calculation happens in case an ElectricVehicle adds has to
+     * will be charged. This calculation happens in case an ElectricVehicle should
      * be added in the WaitingList.
      * @return The waiting time.
      */
@@ -393,7 +391,7 @@ public class ChargingEvent
     }
 
     /**
-     * @return The id of this ChargingEvent.
+     * @return The id of the ChargingEvent.
      */
     public int getId()
     {
@@ -401,7 +399,16 @@ public class ChargingEvent
     }
 
     /**
-     * @return The cost of this ChargingEvent.
+     * Sets the id for the ChargingEvent.
+     *
+     * @param id The id to be set.
+     */
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    /**
+     * @return The cost of the ChargingEvent.
      */
     public double getCost()
     {
@@ -409,17 +416,11 @@ public class ChargingEvent
     }
 
     /**
-     * Sets the cost for this ChargingEvent.
+     * Sets the cost for the ChargingEvent.
      * @param cost The cost to be set.
      */
     public void setCost(double cost)
     {
         this.cost = cost;
     }
-
-    /**
-     * Sets the id for this ChargingEvent.
-     * @param id The id to be set.
-     */
-    public void setId(int id) { this.id = id; }
 }

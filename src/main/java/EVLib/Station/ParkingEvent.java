@@ -123,6 +123,7 @@ public class ParkingEvent {
         if (condition.equals("ready"))
             if(chargingTime != 0 ) {
                 setCondition("charging");
+                vehicle.getBattery().addCharging();
                 parkingSlot.parkingVehicle();
             }
             else {

@@ -24,7 +24,7 @@ public class Driver
 
     /**
      * Sets a profit for the Driver.
-     * @param profit The profit the Driver has.
+     * @param profit The profit to be set.
      */
     public void setProfit(double profit)
     {
@@ -41,7 +41,7 @@ public class Driver
 
     /**
      * Sets the debt of a Driver.
-     * @param debt The debt.
+     * @param debt The debt to be set.
      */
     public void setDebt(double debt)
     {
@@ -70,7 +70,7 @@ public class Driver
     public void setName(String name) { this.name = name; }
 
     /**
-     * @return The id of this Driver.
+     * @return The id of the Driver.
      */
     public int getId()
     {
@@ -78,7 +78,7 @@ public class Driver
     }
 
     /**
-     * Sets the id for this Driver.
+     * Sets the id of the Driver.
      * @param id The id to be set.
      */
     public void setId(int id) { this.id = id; }

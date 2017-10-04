@@ -464,63 +464,63 @@ public class ChargingStation {
 
     /**
      * Adds a Charger to the ChargingStation.
-     * @param y The Charger to be added.
+     * @param charger The Charger to be added.
      */
-    public void addCharger(Charger y) {
-        chargers.add(y);
-        if(y.getKindOfCharging().equals("slow"))
+    public void addCharger(Charger charger) {
+        chargers.add(charger);
+        if (charger.getKindOfCharging().equals("slow"))
             ++SLOW_CHARGERS;
-        else if(y.getKindOfCharging().equals("fast"))
+        else if (charger.getKindOfCharging().equals("fast"))
             ++FAST_CHARGERS;
     }
 
     /**
      * Adds a Discharger to the ChargingStation.
-     * @param y The DisCharger to be added.
+     * @param discharger The DisCharger to be added.
      */
-    public void addDisCharger(DisCharger y) {
-        dischargers.add(y);
+    public void addDisCharger(DisCharger discharger) {
+        dischargers.add(discharger);
     }
 
     /**
      * Inserts a new ExchangeHandler in the charging station.
-     * @param y The ExchangeHandler object to be added.
+     * @param handler The ExchangeHandler object to be added.
      */
-    public void addExchangeHandler(ExchangeHandler y) {
-        exchangeHandlers.add(y);
+    public void addExchangeHandler(ExchangeHandler handler) {
+        exchangeHandlers.add(handler);
     }
 
     /**
      * Inserts a ParkingSlot in the ChargingStation
-     * @param y The ParkingSlot to be added.
+     * @param slot The ParkingSlot to be added.
      */
-    public void addParkingSlot(ParkingSlot y)
+    public void addParkingSlot(ParkingSlot slot)
     {
-        parkingSlots.add(y);
+        parkingSlots.add(slot);
     }
 
     /**
      * Adds a new EnergySource to the ChargingStation.
-     * @param z The EnergySource to be added.
+     * @param source The EnergySource to be added.
      */
-    public void addEnergySource(EnergySource z) {
-        n.add(z);
-        if (z instanceof Solar) {
+    public void addEnergySource(EnergySource source) {
+        n.add(source);
+        if (source instanceof Solar) {
             sources.add("Solar");
             setSpecificAmount("Solar", 0.0);
-        } else if (z instanceof Wave) {
+        } else if (source instanceof Wave) {
             sources.add("Wave");
             setSpecificAmount("Wave", 0.0);
-        } else if (z instanceof Wind) {
+        } else if (source instanceof Wind) {
             sources.add("Wind");
             setSpecificAmount("Wind", 0.0);
-        } else if (z instanceof Hydroelectric) {
+        } else if (source instanceof Hydroelectric) {
             sources.add("Hydroelectric");
             setSpecificAmount("Hydroelectric", 0.0);
-        } else if (z instanceof Geothermal) {
+        } else if (source instanceof Geothermal) {
             sources.add("Geothermal");
             setSpecificAmount("Geothermal", 0.0);
-        } else if (z instanceof Nonrenewable) {
+        } else if (source instanceof Nonrenewable) {
             sources.add("Nonrenewable");
             setSpecificAmount("Nonrenewable", 0.0);
         }
@@ -528,26 +528,26 @@ public class ChargingStation {
 
     /**
      * Deletes an EnergySource from the ChargingStation.
-     * @param z The EnergySource to be removed.
+     * @param source The EnergySource to be removed.
      */
-    public void deleteEnergySource(EnergySource z) {
-        n.remove(z);
-        if (z instanceof Solar) {
+    public void deleteEnergySource(EnergySource source) {
+        n.remove(source);
+        if (source instanceof Solar) {
             amounts.remove("Solar");
             sources.remove("Solar");
-        } else if (z instanceof Wave) {
+        } else if (source instanceof Wave) {
             amounts.remove("Wave");
             sources.remove("Wave");
-        } else if (z instanceof Wind) {
+        } else if (source instanceof Wind) {
             amounts.remove("Wind");
             sources.remove("Wind");
-        } else if (z instanceof Hydroelectric) {
+        } else if (source instanceof Hydroelectric) {
             amounts.remove("Hydroelectric");
             sources.remove("Hydroelectric");
-        } else if (z instanceof Nonrenewable) {
+        } else if (source instanceof Nonrenewable) {
             amounts.remove("Nonrenewable");
             sources.remove("Nonrenewable");
-        } else if (z instanceof Geothermal) {
+        } else if (source instanceof Geothermal) {
             amounts.remove("Geothermal");
             sources.remove("Geothermal");
         }

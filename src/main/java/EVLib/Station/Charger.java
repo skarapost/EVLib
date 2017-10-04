@@ -36,10 +36,10 @@ public class Charger {
     }
 
     /**
-     * Executes the ChargingEvent. It lasts as much as ChargingEvent's charging time demands.
-     * The energy that the ChargingEvent needs is subtracted from the total energy of the ChargingStation.
-     * The condition of charging event gets finished. At the end if the automatic queue's handling is activated,
-     * the Charger checks the waiting list.
+     * Executes the ChargingEvent. It lasts as much as ChargingEvent's charging time. When the charging time passes,
+     * the condition of the ChargingEvent becomes "finished". The cost of the ChargingEvent is assigned to the Driver.
+     * The amount of energy to be given is added to the battery's remaining amount. In the end, if the automatic queue's\
+     * handling is activated the Charger checks the waiting list.
      */
     void executeChargingEvent() {
         running = true;
@@ -75,15 +75,7 @@ public class Charger {
     }
 
     /**
-     * Sets a ChargingEvent in the Charger.
-     * @param ev The ChargingEvent to be linked with the Charger.
-     */
-    void setChargingEvent(ChargingEvent ev) {
-        this.e = ev;
-    }
-
-    /**
-     * Handles the list. It executes (if any) the first element of the list.
+     * Handles the waiting list. It executes (if any) the first element of the list.
      */
     private void handleQueueEvents() {
         ChargingEvent e;
@@ -103,14 +95,23 @@ public class Charger {
     }
 
     /**
-     * @return The ChargingEvent which is linked with the Charger.
+     * @return The ChargingEvent that is linked with the Charger.
      */
     public ChargingEvent getChargingEvent() {
         return e;
     }
 
     /**
-     * @return The id of Charger.
+     * Sets a ChargingEvent to the Charger.
+     *
+     * @param ev The ChargingEvent to be linked with the Charger.
+     */
+    void setChargingEvent(ChargingEvent ev) {
+        this.e = ev;
+    }
+
+    /**
+     * @return The id of the Charger.
      */
     public int getId() {
         return id;

@@ -6,12 +6,11 @@ public class Geothermal extends EnergySource
 {
     private final ArrayList<Double> energyAmount;
 
-    public Geothermal(double[] energyAmoun)
-        {
-            energyAmount = new ArrayList<>();
-            for (double anEnergyAmoun : energyAmoun)
-                energyAmount.add(anEnergyAmoun);
-        }
+    public Geothermal(double[] energyAmoun) {
+        energyAmount = new ArrayList<>();
+        for (double anEnergyAmoun : energyAmoun)
+            energyAmount.add(anEnergyAmoun);
+    }
 
     public Geothermal() { energyAmount = new ArrayList<>(); }
 

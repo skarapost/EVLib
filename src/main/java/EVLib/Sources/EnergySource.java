@@ -12,9 +12,16 @@ public abstract class EnergySource
         this.id = idGenerator.incrementAndGet();
     }
 
+    /**
+     * @return The first package of energy to be given to the EnergySource.
+     */
     public abstract double popAmount();
 
-
+    /**
+     * Inserts a package of energy to the queue for update of the storage.
+     *
+     * @param amount The package's amount of energy.
+     */
     public abstract void insertAmount(double amount);
 
     /**
@@ -26,7 +33,7 @@ public abstract class EnergySource
     }
 
     /**
-     * Sets the id for this EnergySource.
+     * Sets the id for the EnergySource.
      * @param id The id to be set.
      */
     public void setId(int id) { this.id = id; }

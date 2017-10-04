@@ -28,7 +28,7 @@ public class ElectricVehicle
 
     /**
     * Links the ElectricVehicle with a Battery.
-    * @param battery The Battery.
+     * @param battery The Battery to be set.
     */
     public void setBattery(Battery battery)
     {
@@ -37,7 +37,7 @@ public class ElectricVehicle
 
     /**
     * Links the ElectricVehicle with a Driver.
-    * @param driver The Driver to be linked.
+     * @param driver The Driver to be linked with.
      */
     public void setDriver(Driver driver)
     {
@@ -61,7 +61,7 @@ public class ElectricVehicle
     }
 
     /**
-     * Sets the brand for a ElectricVehicle.
+     * Sets the brand for the ElectricVehicle.
      * @param brand The brand of the ElectricVehicle.
      */
     public void setBrand(String brand) {
@@ -69,7 +69,7 @@ public class ElectricVehicle
     }
 
     /**
-     * @return The id of this Driver.
+     * @return The id of the Driver.
      */
     public int getId()
     {
@@ -77,7 +77,7 @@ public class ElectricVehicle
     }
 
     /**
-     * Sets the id for this ElectricVehicle.
+     * Sets the id for the ElectricVehicle.
      * @param id The id to be set.
      */
     public void setId(int id) { this.id = id; }

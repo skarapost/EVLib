@@ -22,16 +22,7 @@ public class Battery
     }
 
     /**
-     * Sets the remaining amount of energy in the Battery.
-     * @param r Remaining amount.
-     */
-    public void setRemAmount(double r)
-    {
-        remAmount = r;
-    }
-
-    /**
-     * @return If it is active(available) or not.
+     * @return True if the Battery is active(available), or false for not available.
      */
     public boolean getActive()
     {
@@ -39,16 +30,16 @@ public class Battery
     }
 
     /**
-     * Sets a Battery capacity.
-     * @param capacity Battery capacity to be inserted.
+     * Sets if the Battery's status.
+     * @param active The value for the condition of the battery.
      */
-    public void setCapacity(double capacity)
+    public void setActive(boolean active)
     {
-        this.capacity = capacity;
+        this.active = active;
     }
 
     /**
-     * @return Remaining Amount of battery.
+     * @return The battery's remaining amount of energy.
      */
     public double getRemAmount()
     {
@@ -56,7 +47,15 @@ public class Battery
     }
 
     /**
-     * @return Battery capacity of the Battery.
+     * Sets the remaining amount of energy in the Battery.
+     * @param r The remaining amount of energy.
+     */
+    public void setRemAmount(double r) {
+        remAmount = r;
+    }
+
+    /**
+     * @return The capacity of the Battery.
      */
     public double getCapacity()
     {
@@ -64,22 +63,19 @@ public class Battery
     }
 
     /**
-     * @return The number of chargings a battery can afford.
+     * Sets Battery's capacity.
+     * @param capacity The capacity to be inserted.
+     */
+    public void setCapacity(double capacity) {
+        this.capacity = capacity;
+    }
+
+    /**
+     * @return The number of chargings a Battery can have.
      */
     public int getNumberOfChargings()
     {
         return numberOfChargings;
-    }
-
-    /**
-     * Increases the number of chargings of a battery by one.
-     */
-    public void addCharging()
-    {
-        if (numberOfChargings < maxNumberOfChargings)
-            ++numberOfChargings;
-        else if(numberOfChargings == maxNumberOfChargings)
-            active = false;
     }
 
     /**
@@ -91,15 +87,18 @@ public class Battery
     }
 
     /**
-     * Sets a number of full chargings a battery can have.
-     * @param maxNumberOfChargings The number of chargings
+     * Sets the number a battery has been charged until now. If the number is greater than the maximum number
+     * of chargings then the number of chargings is set to be equal to the maximum.
+     * @param numberOfChargings The number of chargings.
      */
-    public void setMaxNumberOfChargings(int maxNumberOfChargings)
+    public void setNumberOfChargings(int numberOfChargings)
     {
-        if (numberOfChargings < maxNumberOfChargings)
-            this.maxNumberOfChargings = maxNumberOfChargings;
-        else
-            this.maxNumberOfChargings = numberOfChargings;
+        if (numberOfChargings < this.maxNumberOfChargings)
+            this.numberOfChargings = numberOfChargings;
+        else {
+            this.numberOfChargings = this.maxNumberOfChargings;
+            this.active = false;
+        }
     }
 
     /**
@@ -117,20 +116,28 @@ public class Battery
     public void setId(int id) { this.id = id; }
 
     /**
-     * Sets either the battery is active or not.
-     * @param active The value for the condition of the battery.
+     * Increases the number of chargings of a Battery by one.
      */
-    public void setActive(boolean active)
+    public void addCharging()
     {
-        this.active = active;
+        if (numberOfChargings < maxNumberOfChargings)
+            ++numberOfChargings;
+        if (numberOfChargings == maxNumberOfChargings)
+            active = false;
     }
 
     /**
-     * Sets the number a battery has been charged until now.
-     * @param numberOfChargings The number of chargings.
+     * Sets a number of full chargings a battery can have.
+     * @param maxNumberOfChargings The number of chargings
      */
-    public void setNumberOfChargings(int numberOfChargings)
+    public void setMaxNumberOfChargings(int maxNumberOfChargings)
     {
-        this.numberOfChargings = numberOfChargings;
+        if (numberOfChargings < maxNumberOfChargings)
+            this.maxNumberOfChargings = maxNumberOfChargings;
+        else {
+            this.maxNumberOfChargings = maxNumberOfChargings;
+            this.numberOfChargings = maxNumberOfChargings;
+            this.active = false;
+        }
     }
 }
