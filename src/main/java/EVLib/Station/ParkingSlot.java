@@ -45,8 +45,8 @@ public class ParkingSlot {
         {
             @Override
             public void run() {
+                e.setParkingTime(e.getParkingTime());
                 if (e.getCondition().equals("charging")) {
-                    e.setParkingTime(e.getParkingTime());
                     e.setChargingTime(e.getChargingTime());
                     long timestamp1 = System.currentTimeMillis();
                     long timestamp2;
