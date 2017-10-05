@@ -16,15 +16,14 @@ public class DisCharger
         this.id = idGenerator.incrementAndGet();
         this.station = station;
         this.e = null;
-        this.name = "DisCharger" + String.valueOf(id);
+        this.name = "DisCharger " + String.valueOf(id);
     }
 
     /**
-     * Executes the DisChargingEvent. It lasts as much as DisChargingEvent's
-     * discharging time demands. The energy that the discharging event needs is
-     * subtracted from the total energy of the charging station. The condition of
-     * DisChargingEvent gets "finished". In the end if the automatic queue's handling
-     * is activated, the DisCharger checks the waiting list.
+     * Executes the DisChargingEvent. It lasts as much as the assigned DisChargingEvent's
+     * discharging time is set. Next, the condition of the DisChargingEvent gets "finished".
+     * In the end if the queue's handling is automatic, the DisCharger calls the method for the
+     * management of the waiting list.
      */
     void executeDisChargingEvent()
     {
@@ -54,20 +53,20 @@ public class DisCharger
     }
 
     /**
-     * Sets a DisChargingEvent to the DisCharger.
-     * @param e The DisChargingEvent that is going to be linked with the DisCharger.
-     */
-    void setDisChargingEvent(DisChargingEvent e)
-    {
-        this.e = e;
-    }
-
-    /**
-     * @return The DisChargingEvent od the DisCharger.
+     * @return The DisChargingEvent linked with the DisCharger.
      */
     public DisChargingEvent getDisChargingEvent()
     {
         return e;
+    }
+
+    /**
+     * Sets a DisChargingEvent to the DisCharger.
+     *
+     * @param event The DisChargingEvent to be linked with the DisCharger.
+     */
+    void setDisChargingEvent(DisChargingEvent event) {
+        this.e = event;
     }
 
     /**
@@ -80,8 +79,7 @@ public class DisCharger
 
     /**
      * Handles the list for the discharging. Takes the first DisChargingEvent
-     * executes the preProcessing function and then runs
-     * the execution function.
+     * executes the preProcessing() function and then calls the execution function.
      */
     private void handleQueueEvents()
     {
@@ -93,7 +91,7 @@ public class DisCharger
     }
 
     /**
-     * Sets the id for this DisCharger.
+     * Sets the id for the DisCharger.
      * @param id The id to be set.
      */
     public void setId(int id) { this.id = id; }
@@ -107,7 +105,7 @@ public class DisCharger
     }
 
     /**
-     * Sets a name for this DisCharger.
+     * Sets a name for the DisCharger.
      * @param name The name to be set.
      */
     public void setName(String name)

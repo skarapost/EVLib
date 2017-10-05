@@ -93,7 +93,7 @@ public class ParkingEvent {
                     chargingTime = parkingTime;
                 }
                 setCondition("ready");
-                cost = station.calculatePrice(this);
+                cost = station.getInductivePrice() * energyToBeReceived;
                 double sdf;
                 sdf = energyToBeReceived;
                 HashMap<String, Double> keys = new HashMap<>(station.getMap());
@@ -124,7 +124,11 @@ public class ParkingEvent {
             if(chargingTime != 0 ) {
                 setCondition("charging");
                 vehicle.getBattery().addCharging();
-                parkingSlot.parkingVehicle();
+                try {
+                    parkingSlot.parkingVehicle();
+                } catch (NullPointerException ex) {
+                    System.out.println("No processed");
+                }
             }
             else {
                 setCondition("parking");
@@ -167,7 +171,7 @@ public class ParkingEvent {
     public long getRemainingChargingTime()
     {
         long diff = System.currentTimeMillis() - timestamp1;
-        if ((chargingTime - diff >= 0)&&(!condition.equals("arrived")))
+        if ((chargingTime - diff >= 0) && (condition.equals("charging")))
             this.remainingChargingTime = chargingTime - diff;
         else
             return 0;
@@ -220,11 +224,11 @@ public class ParkingEvent {
     /**
      * @return The remaining time the vehicle will be parking/charging.
      */
-    public long getReaminingParkingTime()
+    public long getRemainingParkingTime()
     {
 
         long diff = System.currentTimeMillis() - timestamp2;
-        if ((parkingTime - diff >= 0)&&(!condition.equals("arrived")))
+        if ((parkingTime - diff >= 0) && (condition.equals("parking")))
             remainingParkingTime = parkingTime - diff;
         else
             return 0;

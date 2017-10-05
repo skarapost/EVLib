@@ -161,12 +161,20 @@ public class ChargingEvent
             {
                 setCondition("charging");
                 vehicle.getBattery().addCharging();
-                charger.executeChargingEvent();
+                try {
+                    charger.executeChargingEvent();
+                } catch (NullPointerException ex) {
+                    System.out.println("No processed");
+                }
             }
             else
             {
                 setCondition("swapping");
-                exchange.executeExchange();
+                try {
+                    exchange.executeExchange();
+                } catch (NullPointerException ex) {
+                    System.out.println("No processed");
+                }
             }
     }
 
@@ -275,7 +283,7 @@ public class ChargingEvent
     public long getRemainingChargingTime()
     {
         long diff = System.currentTimeMillis() - timestamp;
-        if ((chargingTime - diff >= 0)&&(!condition.equals("arrived")))
+        if ((chargingTime - diff >= 0) && (condition.equals("charging")))
             this.remainingChargingTime = chargingTime - diff;
         else
             return 0;

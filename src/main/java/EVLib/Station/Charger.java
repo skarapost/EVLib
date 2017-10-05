@@ -37,9 +37,10 @@ public class Charger {
 
     /**
      * Executes the ChargingEvent. It lasts as much as ChargingEvent's charging time. When the charging time passes,
-     * the condition of the ChargingEvent becomes "finished". The cost of the ChargingEvent is assigned to the Driver.
-     * The amount of energy to be given is added to the battery's remaining amount. In the end, if the automatic queue's\
-     * handling is activated the Charger checks the waiting list.
+     * the condition of the ChargingEvent becomes "finished". The event is recorded in the history array.
+     * The cost of the ChargingEvent is assigned to the Driver. The amount of energy to be given is added to the
+     * battery's remaining amount. In the end, if the automatic queue's handling is activated the Charger checks
+     * the waiting list.
      */
     void executeChargingEvent() {
         running = true;
@@ -50,7 +51,7 @@ public class Charger {
             long timestamp2;
             do {
                 timestamp2 = System.currentTimeMillis();
-            }while(running&&(timestamp2-timestamp1<e.getChargingTime()));
+            } while (running && (timestamp2 - timestamp1 < e.getChargingTime()));
             e.getElectricVehicle().getBattery().setRemAmount(e.getEnergyToBeReceived() + e.getElectricVehicle().getBattery().getRemAmount());
             if (e.getElectricVehicle().getDriver() != null)
                 e.getElectricVehicle().getDriver().setDebt(e.getElectricVehicle().getDriver().getDebt() + e.getCost());

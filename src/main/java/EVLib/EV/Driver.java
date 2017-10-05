@@ -65,7 +65,8 @@ public class Driver
     }
 
     /**
-     * Sets the name of the Driver.
+     * Sets a name for the Driver.
+     * @param name The name to be set.
      */
     public void setName(String name) { this.name = name; }
 

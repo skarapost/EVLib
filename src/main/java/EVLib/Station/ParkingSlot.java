@@ -56,7 +56,7 @@ public class ParkingSlot {
                     synchronized (this) {
                         e.getElectricVehicle().getBattery().setRemAmount(e.getEnergyToBeReceived() + e.getElectricVehicle().getBattery().getRemAmount());
                         if (e.getElectricVehicle().getDriver() != null)
-                            e.getElectricVehicle().getDriver().setDebt(e.getElectricVehicle().getDriver().getDebt() + station.calculatePrice(e));
+                            e.getElectricVehicle().getDriver().setDebt(e.getElectricVehicle().getDriver().getDebt() + e.getEnergyToBeReceived() * station.getInductivePrice());
                         System.out.println("The inductive charging " + e.getId() + " completed successfully");
                     }
                 }

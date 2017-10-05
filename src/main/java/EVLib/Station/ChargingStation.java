@@ -63,7 +63,7 @@ public class ChargingStation {
         }
     }
 
-    public ChargingStation(String name, String[] kinds, String[] source, double[][] energAm) {
+    public ChargingStation(String name, String[] kinds, String[] source, double[][] energyAmounts) {
         this.amounts = new HashMap<>();
         this.id = idGenerator.incrementAndGet();
         this.name = name;
@@ -78,11 +78,11 @@ public class ChargingStation {
         this.parkingSlots = new ArrayList<>();
         this.n = new ArrayList<>();
         this.sources = new ArrayList<>();
-        this.sources.add("DisCharging");
-        setSpecificAmount("DisCharging", 0.0);
         this.batteries = new ArrayList<>();
         for (int q = 0; q < source.length; q++)
-            sources.add(q, source[q]);
+            sources.add(source[q]);
+        this.sources.add("DisCharging");
+        setSpecificAmount("DisCharging", 0.0);
         this.chargingRatioSlow = 1;
         this.chargingRatioFast = 2;
         this.disChargingRatio = 1;
@@ -90,27 +90,27 @@ public class ChargingStation {
         for (int i = 0; i < source.length; i++) {
             switch (source[i]) {
                 case "Solar":
-                    n.add(i, new Solar(energAm[i]));
+                    n.add(i, new Solar(energyAmounts[i]));
                     setSpecificAmount("Solar", 0.0);
                     break;
                 case "Wind":
-                    n.add(i, new Wind(energAm[i]));
+                    n.add(i, new Wind(energyAmounts[i]));
                     setSpecificAmount("Wind", 0.0);
                     break;
                 case "Geothermal":
-                    n.add(i, new Geothermal(energAm[i]));
+                    n.add(i, new Geothermal(energyAmounts[i]));
                     setSpecificAmount("Geothermal", 0.0);
                     break;
                 case "Wave":
-                    n.add(i, new Wave(energAm[i]));
+                    n.add(i, new Wave(energyAmounts[i]));
                     setSpecificAmount("Wave", 0.0);
                     break;
                 case "Hydroelectric":
-                    n.add(i, new Hydroelectric(energAm[i]));
+                    n.add(i, new Hydroelectric(energyAmounts[i]));
                     setSpecificAmount("Hydroelectric", 0.0);
                     break;
                 case "Nonrenewable":
-                    n.add(i, new Nonrenewable(energAm[i]));
+                    n.add(i, new Nonrenewable(energyAmounts[i]));
                     setSpecificAmount("Nonrenewable", 0.0);
                     break;
             }
@@ -151,10 +151,10 @@ public class ChargingStation {
         this.parkingSlots = new ArrayList<>();
         this.n = new ArrayList<>();
         this.sources = new ArrayList<>();
+        for (int q = 0; q < source.length; q++)
+            sources.add(source[q]);
         this.sources.add("DisCharging");
         setSpecificAmount("DisCharging", 0.0);
-        for (int q = 0; q < source.length; q++)
-            sources.add(q, source[q]);
         this.chargingRatioSlow = 1;
         this.chargingRatioFast = 2;
         this.disChargingRatio = 1;
@@ -238,16 +238,23 @@ public class ChargingStation {
     }
 
     /**
-     * @return The id of the ChargingStation object
+     * @return The id of the ChargingStation.
      */
     public int getId() {
         return this.id;
     }
 
     /**
-     * Adds a ChargingEvent in the corresponding waiting list.
-     *
-     * @param event The ChargingEvent that is going to be added.
+     * Sets the id for the ChargingStation.
+     * @param id The id to be set.
+     */
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    /**
+     * Adds a ChargingEvent to the corresponding waiting list.
+     * @param event The ChargingEvent to be added.
      */
     public void updateQueue(ChargingEvent event) {
         lock2.lock();
@@ -270,7 +277,7 @@ public class ChargingStation {
 
     /**
      * Adds a DisChargingEvent in the waiting list.
-     * @param event The DisChargingEvent that is going to be added.
+     * @param event The DisChargingEvent to be added.
      */
     public void updateDisChargingQueue(DisChargingEvent event) {
         lock3.lock();
@@ -282,38 +289,37 @@ public class ChargingStation {
     }
 
     /**
-     * @return The WaitngList object for the fast charging.
+     * @return The WaitngList for fast charging.
      */
     public WaitList getFast() {
         return fast;
     }
 
     /**
-     * @return The WaitingList object for the slow charging.
+     * @return The WaitingList for slow charging.
      */
     public WaitList getSlow() {
         return slow;
     }
 
     /**
-     * @return The WaitingList object for the exchange battery.
+     * @return The WaitingList for battery exchange.
      */
     public WaitList getExchange() {
         return exchange;
     }
 
     /**
-     * @return The WaitingList object for the discharging.
+     * @return The WaitingList for discharging.
      */
     public WaitList getDischarging() {
         return discharging;
     }
 
-
     /**
-     * Looks for any empty Charger. If there is one, the event is assigned to it.
+     * Looks for an empty Charger. If there is one, the event is assigned to it.
      * @param event The event that looks for a Charger.
-     * @return The Charger that was assigned.
+     * @return The Charger that was assigned, or null if not any available Charger found.
      */
     public Charger assignCharger(ChargingEvent event) {
         lock4.lock();
@@ -337,11 +343,10 @@ public class ChargingStation {
         }
     }
 
-
     /**
-     * Looks for any empty DisCharger. If there is one, the event is assigned to it.
+     * Looks for an empty DisCharger. If there is one, the event is assigned to it.
      * @param event The event that looks for a DisCharger.
-     * @return The DisCharger that was assigned.
+     * @return The DisCharger that was assigned, or null if not any available DisCharger found.
      */
     public DisCharger assignDisCharger(DisChargingEvent event) {
         lock5.lock();
@@ -365,9 +370,9 @@ public class ChargingStation {
     }
 
     /**
-     * Looks for any empty ExchangeHandler. If there is one, the event is assigned to it.
+     * Looks for an empty ExchangeHandler. If there is one, the event is assigned to it.
      * @param event The event that looks for an ExchangeHandler.
-     * @return The ExchangeHandler that was assigned.
+     * @return The ExchangeHandler that was assigned, or null if not any available ExchangeHandler found.
      */
     public ExchangeHandler assignExchangeHandler(ChargingEvent event) {
         lock6.lock();
@@ -393,7 +398,7 @@ public class ChargingStation {
     /**
      * Looks for any empty ParkingSlot. If there is one, the event is assigned to it.
      * @param event The event that looks for a ParkingSlot.
-     * @return The ParkingSLot that was assigned.
+     * @return The ParkingSLot that was assigned, or null if not any available ParkingSlot found.
      */
     public ParkingSlot assignParkingSlot(ParkingEvent event) {
         lock7.lock();
@@ -419,7 +424,7 @@ public class ChargingStation {
     /**
      * Looks for any available Battery. If there is one and the remaining amount is greater than 0,
      * the battery is returned.
-     * @return The Battery.
+     * @return The assigned Battery, or null if no Battery found.
      */
     public Battery assignBattery() {
         lock8.lock();
@@ -441,24 +446,13 @@ public class ChargingStation {
         }
     }
 
-
     /**
-     * @return Returns all the ExchangeHandler objects.
+     * @return Returns all the ExchangeHandler.
      */
     public ExchangeHandler[] getExchangeHandlers() {
         ExchangeHandler[] g = new ExchangeHandler[exchangeHandlers.size()];
         for (int i = 0; i < exchangeHandlers.size(); i++)
             g[i] = exchangeHandlers.get(i);
-        return g;
-    }
-
-    /**
-     * @return Returns all the ParkingSlot objects.
-     */
-    public ParkingSlot[] getParkingSlots() {
-        ParkingSlot[] g = new ParkingSlot[parkingSlots.size()];
-        for (int i = 0; i < parkingSlots.size(); i++)
-            g[i] = parkingSlots.get(i);
         return g;
     }
 
@@ -483,11 +477,13 @@ public class ChargingStation {
     }
 
     /**
-     * Inserts a new ExchangeHandler in the charging station.
-     * @param handler The ExchangeHandler object to be added.
+     * @return Returns all the ParkingSlot.
      */
-    public void addExchangeHandler(ExchangeHandler handler) {
-        exchangeHandlers.add(handler);
+    public ParkingSlot[] getParkingSlots() {
+        ParkingSlot[] g = new ParkingSlot[parkingSlots.size()];
+        for (int i = 0; i < parkingSlots.size(); i++)
+            g[i] = parkingSlots.get(i);
+        return g;
     }
 
     /**
@@ -590,13 +586,11 @@ public class ChargingStation {
     }
 
     /**
-     * Sorts the energies sources according to the desire of the user.
-     * @param energies It is a String array that defines the energies order.
+     * Inserts a new ExchangeHandler in the ChargingStation.
+     * @param handler The ExchangeHandler to be added.
      */
-    public void customEnergySorting(String[] energies) {
-        sources.clear();
-        for (int i = 0; i < energies.length; i++)
-            sources.add(i, energies[i]);
+    public void addExchangeHandler(ExchangeHandler handler) {
+        exchangeHandlers.add(handler);
     }
 
     /**
@@ -608,7 +602,17 @@ public class ChargingStation {
     }
 
     /**
-     * @return A ArrayList with the Battery objects.
+     * Sorts the energies sources according to an order defined by the user.
+     * @param energies It is a String array that defines the energies' order.
+     */
+    public void customEnergySorting(String[] energies) {
+        sources.clear();
+        for (int i = 0; i < energies.length; i++)
+            sources.add(i, energies[i]);
+    }
+
+    /**
+     * @return An array with the Battery for the battery exchange function.
      */
     public Battery[] getBatteries() {
         Battery[] g = new Battery[batteries.size()];
@@ -618,7 +622,7 @@ public class ChargingStation {
 
     /**
      * Deletes a Battery from the batteries for the battery exchange function.
-     * @param battery The battery that will be removed.
+     * @param battery The battery to be removed.
      * @return True if the deletion was successfull, false if it was unsuccessfull.
      */
     public boolean deleteBattery(Battery battery) {
@@ -626,7 +630,7 @@ public class ChargingStation {
     }
 
     /**
-     * @return Returns the DisCharger objects of the ChargingStation.
+     * @return Returns an array with all the DisCharger of the ChargingStation.
      */
     public DisCharger[] getDisChargers() {
         DisCharger[] g = new DisCharger[dischargers.size()];
@@ -636,7 +640,7 @@ public class ChargingStation {
     }
 
     /**
-     * @return The array with the Charger objects.
+     * @return An array with all the Charger.
      */
     public Charger[] getChargers() {
         Charger[] g = new Charger[chargers.size()];
@@ -646,7 +650,7 @@ public class ChargingStation {
     }
 
     /**
-     * @return The array with the kind of energies.
+     * @return An array with all sources that give energy to the ChargingStation.
      */
     public String[] getSources() {
         String[] g = new String[sources.size()];
@@ -656,24 +660,10 @@ public class ChargingStation {
     }
 
     /**
-     * @return A HashMap object with the amounts of each kind of energy.
+     * @return A HashMap with the amounts of each energy source.
      */
     public HashMap<String, Double> getMap() {
         return amounts;
-    }
-
-    /**
-     * Sets an amount of energy in a specific kind of energy.
-     * @param source The kind of energy in which the energy will be added.
-     * @param amount The amount of energy will be added.
-     */
-    public void setSpecificAmount(String source, double amount) {
-        lock1.lock();
-        try {
-            amounts.put(source, amount);
-        } finally {
-            lock1.unlock();
-        }
     }
 
     /**
@@ -687,7 +677,21 @@ public class ChargingStation {
     }
 
     /**
-     * @return The total energy of this ChargingStation.
+     * Sets an amount in a specific source.
+     * @param source The source the energy will be added.
+     * @param amount The amount of energy to be added.
+     */
+    public void setSpecificAmount(String source, double amount) {
+        lock1.lock();
+        try {
+            amounts.put(source, amount);
+        } finally {
+            lock1.unlock();
+        }
+    }
+
+    /**
+     * @return The total energy of the ChargingStation.
      */
     public double getTotalEnergy() {
         double counter = 0;
@@ -697,15 +701,7 @@ public class ChargingStation {
     }
 
     /**
-     * Sets a charging ratio for the slow charging.
-     * @param chargingRatio The charging ratio.
-     */
-    public void setChargingRatioSlow(double chargingRatio) {
-        chargingRatioSlow = chargingRatio;
-    }
-
-    /**
-     * @return The slow charging ratio of this ChargingStation.
+     * @return The slow charging ratio of the ChargingStation.
      */
     public double getChargingRatioSlow() {
         return chargingRatioSlow;
@@ -720,10 +716,12 @@ public class ChargingStation {
     }
 
     /**
-     * @return The fast charging ratio of this ChargingStation.
+     * Sets a charging ratio for the slow charging.
+     *
+     * @param chargingRatio The charging ratio.
      */
-    public double getChargingRatioFast() {
-        return chargingRatioFast;
+    public void setChargingRatioSlow(double chargingRatio) {
+        chargingRatioSlow = chargingRatio;
     }
 
     /**
@@ -735,10 +733,10 @@ public class ChargingStation {
     }
 
     /**
-     * @return The discharging ratio of this ChargingStation.
+     * @return The fast charging ratio of the ChargingStation.
      */
-    public double getDisChargingRatio() {
-        return disChargingRatio;
+    public double getChargingRatioFast() {
+        return chargingRatioFast;
     }
 
     /**
@@ -757,27 +755,32 @@ public class ChargingStation {
     }
 
     /**
-     * Sets the price of an energy unit for the inductive charging.
-     * @param price The price of an energy unit.
+     * @return The discharging ratio of the ChargingStation.
      */
-    public void setInductivePrice(double price)
-    {
-        inductivePrice = price;
+    public double getDisChargingRatio() {
+        return disChargingRatio;
     }
 
     /**
      * @return The price of an energy unit for the inductive charging.
      */
-    public double getInductivePrice()
-    {
+    public double getInductivePrice() {
         return inductivePrice;
     }
 
     /**
-     * Searches for the EnergySource of the given source.
+     * Sets the price for an energy unit during the inductive charging.
      *
-     * @param source The source for which the EnergySource object is asked.
-     * @return An EnergySource object.
+     * @param price The price of an energy unit.
+     */
+    public void setInductivePrice(double price) {
+        inductivePrice = price;
+    }
+
+    /**
+     * Searches for the EnergySource of the given source.
+     * @param source The source the EnergySource object is asked.
+     * @return The asking EnergySource.
      */
     public EnergySource getEnergySource(String source) {
         if ("Solar".equals(source)) {
@@ -814,40 +817,35 @@ public class ChargingStation {
     }
 
     /**
-     * Sets a price for the energy unit.
-     * @param price The price.
-     */
-    public void setUnitPrice(double price) {
-        this.unitPrice = price;
-    }
-
-    /**
-     * @return The price of the energy unit of this ChargingStation.
+     * @return The energy unit price of the ChargingStation.
      */
     public double getUnitPrice() {
         return unitPrice;
     }
 
     /**
-     * Sets a price for the energy unit in a DischargingEvent.
-     * @param disUnitPrice The price of energy unit.
+     * Sets the default price for an energy unit. This price stands for each charging, given that
+     * no PricingPolicy is linked with the ChargingStation.
+     * @param price The default price for each energy unit.
      */
-    public void setDisUnitPrice(double disUnitPrice) {
-        this.disUnitPrice = disUnitPrice;
+    public void setUnitPrice(double price) {
+        this.unitPrice = price;
     }
 
     /**
-     * @return The price of the energy unit.
+     * @return The price of the energy unit for the discharging function.
      */
     public double getDisUnitPrice() {
         return disUnitPrice;
     }
 
     /**
-     * @return The price of a battery exchange.
+     * Sets the default price for the energy unit for each discharging. The price always stands, since there is
+     * no PricingPolicy for the discharging operation.
+     * @param disUnitPrice The price for every energy unit.
      */
-    public double getExchangePrice() {
-        return exchangePrice;
+    public void setDisUnitPrice(double disUnitPrice) {
+        this.disUnitPrice = disUnitPrice;
     }
 
     /**
@@ -859,9 +857,16 @@ public class ChargingStation {
     }
 
     /**
+     * @return The price of a battery exchange function.
+     */
+    public double getExchangePrice() {
+        return exchangePrice;
+    }
+
+    /**
      * Sets the management of the WaitingList.
      * @param value The choice of queue handling's. If true the WaitingList is handled
-     * automatic by the library. If false the user have to handle the WaitingList.
+     * automatic by the library. If false the waiting list should be handled manually.
      */
     public void setAutomaticQueueHandling(boolean value) {
         automaticQueueHandling = value;
@@ -869,14 +874,21 @@ public class ChargingStation {
 
     /**
      * @return True if the WaitingList is handled automatic by the library.
-     * False if the user has to handle the WaitingList.
+     * False if the waiting list is handled manually.
      */
     public boolean getQueueHandling() {
         return automaticQueueHandling;
     }
 
     /**
-     * Sets the space which will be among two storage's updates.
+     * @return The time among each energy storage update.
+     */
+    public int getUpdateSpace() {
+        return updateSpace;
+    }
+
+    /**
+     * Sets the space for the next energy storage update.
      * @param updateSpace The time space.
      */
     public void setUpdateSpace(int updateSpace) {
@@ -892,15 +904,8 @@ public class ChargingStation {
     }
 
     /**
-     * @return The time among each storage update.
-     */
-    public int getUpdateSpace() {
-        return updateSpace;
-    }
-
-    /**
      * Checks the batteries which are for battery exchange to confirm which of them
-     * need charging. Then, it charges as the empty Chargers.
+     * need charging. Then, it charges as many as available Charger objects there are.
      * @param kind The kind of charging the user wants to charge the batteries.
      **/
     public void batteriesCharging(String kind) {
@@ -920,10 +925,11 @@ public class ChargingStation {
     }
 
     /**
-     * Calculates the waiting time the ElectricVehicle has to wait.
-     *
-     * @param kind The function for which the waiting time has to be calculated.
-     * @return The waiting time
+     * Calculates the waiting time the ElectricVehicle should wait.
+     * @param kind The function for which the waiting time has to be calculated. The keywords are: "slow" for
+     * slow charging, "fast" for fast charging, "exchange" for battery exchange function, "discharging" for
+     * the discharging function.
+     * @return The time an ElectricVehicle should wait, to be served.
      */
     public long getWaitingTime(String kind) {
         long[] counter1 = new long[chargers.size()];
@@ -1019,7 +1025,7 @@ public class ChargingStation {
     }
 
     /**
-     * @return The array with the EnergySource objects of the ChargingStation.
+     * @return An array with the EnergySource objects of the ChargingStation.
      */
     public EnergySource[] getEnergySources() {
         EnergySource[] g = new EnergySource[n.size()];
@@ -1029,15 +1035,15 @@ public class ChargingStation {
     }
 
     /**
-     * Sets the time a battery exchange service lasts.
-     * @param time The time the battery exchange lasts.
+     * Sets the time a battery exchange function endures.
+     * @param time The time the battery exchange endures.
      */
     public void setTimeofExchange(long time) {
         timeOfExchange = time;
     }
 
     /**
-     * @return The time of the battery exchange.
+     * @return The duration of the battery exchange.
      */
     public long getTimeOfExchange() {
         return timeOfExchange;
@@ -1045,6 +1051,10 @@ public class ChargingStation {
 
     /**
      * Updates the storage of the ChargingStation with the new amounts of energy for each source.
+     * The amount of energy is subtracted from the energy inventory for each EnergySource.
+     * For each source if the addition is non-zero, then in the next report will be a line.
+     * The line shows the EnergySource, the given amount of energy and the date the addition was
+     * made to the station.
      */
     public void updateStorage() {
         double energy;
@@ -1087,9 +1097,8 @@ public class ChargingStation {
         }
     }
 
-
     /**
-     * @return The price per energy unit a ChargingEvent will be charged.
+     * @return The current standing price for the charging function.
      */
     public double getCurrentPrice()
     {
@@ -1115,26 +1124,26 @@ public class ChargingStation {
     }
 
     /**
-     * Calculates the cost of a charging.
-     * @param w The ChargingEvent that executed.
+     * Calculates the cost for a charging.
+     * @param event The ChargingEvent to calculate the cost.
      * @return The cost of the charging.
      */
-    public double calculatePrice(ChargingEvent w)
+    public double calculatePrice(ChargingEvent event)
     {
         if (policy == null)
-            if (!"exchange".equals(w.getKindOfCharging()))
-                return w.getEnergyToBeReceived() * getUnitPrice();
+            if (!"exchange".equals(event.getKindOfCharging()))
+                return event.getEnergyToBeReceived() * getUnitPrice();
             else
                 return getExchangePrice();
         else if (policy.getDurationOfPolicy() < System.currentTimeMillis() - timestamp)
-            if (!"exchange".equals(w.getKindOfCharging()))
-                return w.getEnergyToBeReceived() * getUnitPrice();
+            if (!"exchange".equals(event.getKindOfCharging()))
+                return event.getEnergyToBeReceived() * getUnitPrice();
             else
                 return getExchangePrice();
         else {
             long diff = System.currentTimeMillis() - timestamp;
             if (policy.getSpace() != 0) {
-                return w.getEnergyToBeReceived() * policy.getSpecificPrice((int) (diff / policy.getSpace()));
+                return event.getEnergyToBeReceived() * policy.getSpecificPrice((int) (diff / policy.getSpace()));
             }
             else {
                 double accumulator = 0;
@@ -1145,22 +1154,20 @@ public class ChargingStation {
                     if (accumulator <= diff)
                         counter++;
                 }
-                return w.getEnergyToBeReceived() * policy.getSpecificPrice(counter);
+                return event.getEnergyToBeReceived() * policy.getSpecificPrice(counter);
             }
         }
     }
 
     /**
-     * Calculates the cost of a parking.
-     * @param w The ParkingEvent that executed.
-     * @return The cost of the charging.
+     * @return The PricingPolicy of the ChargingStation.
      */
-    public double calculatePrice(ParkingEvent w) {
-        return w.getEnergyToBeReceived() * getInductivePrice();
+    public PricingPolicy getPricingPolicy() {
+        return policy;
     }
 
     /**
-     * Links a pricing policy with the charging station.
+     * Links a PricingPolicy with the ChargingStation.
      * @param policy The policy to be linked with.
      */
     public void setPricingPolicy(PricingPolicy policy)
@@ -1170,15 +1177,9 @@ public class ChargingStation {
     }
 
     /**
-     * @return The PricingPolicy of the Charging Station.
-     */
-    public PricingPolicy getPricingPolicy() {
-        return policy;
-    }
-
-    /**
-     * Sets the update of the energy storage will become either automatic or by the user.
-     * @param update The way the update will become. False means by the user, true means automatic.
+     * Sets the way the energy storage will become. If the update becomes automatically, then a Timer object
+     * starts. The Timer calls the updateStorage() function every "updateSpace" milliseconds.
+     * @param update The way the update will become. False means manually, true means automatic.
      */
     public void setAutomaticUpdateMode(boolean update) {
         if (!update && !this.automaticUpdate)
@@ -1196,15 +1197,15 @@ public class ChargingStation {
     }
 
     /**
-     * @return The update mode of the energy storage. True for automatic, false for not automatic.
+     * @return The way the energy storage updateis made. True if automatically, false for manually.
      */
     public boolean getUpdateMode() {
         return automaticUpdate;
     }
 
     /**
-     * Generates a report with all the recent traffic in the charging station. It also records the current situation of the station.
-     *
+     * Generates a report with all the recent traffic in the charging station.
+     * It also records the current situation of the station.
      * @param filePath The absolute path where the user wants to save the report. The file has to be .txt.
      */
     public void genReport(String filePath) {
@@ -1212,20 +1213,11 @@ public class ChargingStation {
     }
 
     /**
-     * @return If the created threads are deamons or not.
+     * @return True if the created threads are deamons, false if not.
      */
     public boolean getDeamon()
     {
         return deamon;
-    }
-
-    /**
-     * Sets either the created threads are going to be deamons or not.
-     * @param deamon The value to be set.
-     */
-    public void setDeamon(boolean deamon)
-    {
-        this.deamon = deamon;
     }
 
     /**
@@ -1326,8 +1318,10 @@ public class ChargingStation {
     }
 
     /**
-     * Sets the id for this ChargingStation.
-     * @param id The id to be set.
+     * Sets if the created threads are deamons or not.
+     * @param deamon The value to be set. True means deamon, false not deamons.
      */
-    public void setId(int id) { this.id = id; }
+    public void setDeamon(boolean deamon) {
+        this.deamon = deamon;
+    }
 }

@@ -35,7 +35,7 @@ public class DisChargingEvent
     }
 
     /**
-     * Sets the time the ElectricVehicle can wait, in case it is inserted in the queue.
+     * Sets the time the ElectricVehicle can wait, in case of it is inserted in the queue.
      * @param time The time to wait.
      */
     public void setWaitingTime(long time)
@@ -105,13 +105,17 @@ public class DisChargingEvent
         if(condition.equals("ready"))
         {
             setCondition("discharging");
-            disCharger.executeDisChargingEvent();
+            try {
+                disCharger.executeDisChargingEvent();
+            } catch (NullPointerException ex) {
+                System.out.println("No processed");
+            }
         }
     }
 
     /**
-     * Sets a value to the condition of the DisChargingEvent.
-     * @param condition The value of the condition.
+     * Sets the condition of the DisChargingEvent.
+     * @param condition The condition to be set.
      */
     public void setCondition(String condition)
     {
@@ -119,7 +123,7 @@ public class DisChargingEvent
     }
 
     /**
-     * @return The ChargingStation object.
+     * @return The ChargingStation the event to be executed.
      */
     public ChargingStation getStation()
     {
@@ -143,7 +147,7 @@ public class DisChargingEvent
 
     /**
      * Sets the amount of energy the DisChargingEvent will give.
-     * @param energy The energy to be set.
+     * @param energy The amount of energy to be set.
      */
     public void setAmountOfEnergy(double energy) { this.amountOfEnergy = energy; }
 
@@ -161,7 +165,7 @@ public class DisChargingEvent
     public long getRemainingDisChargingTime()
     {
         long diff = System.currentTimeMillis() - timestamp;
-        if ((disChargingTime - diff >= 0)&&(!condition.equals("arrived")))
+        if ((disChargingTime - diff >= 0) && (condition.equals("discharging")))
             this.remainingDisChargingTime = disChargingTime - diff;
         else
             return 0;
@@ -178,18 +182,18 @@ public class DisChargingEvent
     }
 
     /**
-     * @return The waiting time.
+     * @return The time the ElectricVehicle should wait in the waiting list.
      */
     public long getMaxWaitingTime() { return maxWaitingTime; }
 
     /**
      * Sets the maximum time the DisChargingEvent should wait to be discharged.
-     * @param maxWaitingTime The time to be set.
+     * @param maxWaitingTime The waiting time to be set.
      */
     public void setMaxWaitingTime(long maxWaitingTime) { this.maxWaitingTime = maxWaitingTime; }
 
     /**
-     * @return The discharging time of the DisChargingEvent
+     * @return The discharging time of the DisChargingEvent.
      */
     public long getDisChargingTime()
     {
@@ -197,7 +201,8 @@ public class DisChargingEvent
     }
 
     /**
-     * @return The time the ElectricVehicle has to wait or -1 if the ChargingStation has no DisCharger objects.
+     * @return The time the ElectricVehicle should wait or -1 if the ChargingStation
+     * has no available DisCharger.
      */
     private long calDisWaitingTime()
     {
@@ -229,7 +234,7 @@ public class DisChargingEvent
     }
 
     /**
-     * @return The id of this DisChargingEvent.
+     * @return The id of the DisChargingEvent.
      */
     public int getId()
     {
@@ -237,7 +242,15 @@ public class DisChargingEvent
     }
 
     /**
-     * @return The profit of this DisChargingEvent.
+     * Sets the id for the DisChargingEvent.
+     * @param id The id to be set.
+     */
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    /**
+     * @return The profit of the DisChargingEvent.
      */
     public double getProfit()
     {
@@ -245,14 +258,8 @@ public class DisChargingEvent
     }
 
     /**
-     * Sets the profit for this DisChargingEvent.
+     * Sets the profit for the DisChargingEvent.
      * @param profit The profit to be set.
      */
     public void setProfit(double profit) { this.profit = profit; }
-
-    /**
-     * Sets the id for this DisChargingEvent.
-     * @param id The id to be set.
-     */
-    public void setId(int id) { this.id = id; }
 }

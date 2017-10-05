@@ -44,18 +44,18 @@ public class ExchangeHandler
     }
 
     /**
-     * Sets the id for this ExchangeHandler.
+     * Sets the id for the ExchangeHandler.
      * @param id The id to be set.
      */
     public void setId(int id) { this.id = id; }
 
     /**
      * Links a ChargingEvent with the ExchangeHandler.
-     * @param e The ChargingEvent to be linked.
+     * @param event The ChargingEvent to be linked.
      */
-    void setChargingEvent(ChargingEvent e)
+    void setChargingEvent(ChargingEvent event)
     {
-        this.e = e;
+        this.e = event;
     }
 
     /**
@@ -67,8 +67,10 @@ public class ExchangeHandler
     }
 
     /**
-     * It executes the swapping battery phase.
-     * In the end, if the automatic queue handling is enabled checks the waiting list.
+     * Executes the ChargingEvent. It lasts as much as the predefined battery exchange duration. When this time passes,
+     * the condition of the ChargingEvent becomes "finished". The event is recorded in the history array.
+     * The cost of the ChargingEvent is assigned to the Driver. The battery to be given is added to the ElectricVehicle.
+     * In the end, if the automatic queue's handling is activated the ExchangeHandler checks the WaitingList.
      */
     void executeExchange()
     {
@@ -97,7 +99,7 @@ public class ExchangeHandler
     }
 
     /**
-     * Handles the list. It executes the first(if any) element of the list.
+     * Handles the list. It executes the first(if any) ChargingEvent of the WaitingList.
      */
     private void handleQueueEvents() {
         if (station.getExchange().getSize() != 0) {
