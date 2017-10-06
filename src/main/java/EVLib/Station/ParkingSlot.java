@@ -37,7 +37,11 @@ public class ParkingSlot {
     }
 
     /**
-     * Executes the inductive charging phase of a parking slot. It works like the ChargingEvent.
+     * Its primary job is the excution fo the ParkingEvent. At first, checks if the event will be charged.
+     * The charging lasts as the charging time. Then, the charging time is subtracted from the parking time.
+     * The remaining time the vehicle is considered to be parking. In the end of the parking, the condition
+     * is set "finished", the event is recorded in the history. The last thing to do is the method for the
+     * management of the waiting list.
      */
     void parkingVehicle() {
         running = true;
@@ -82,20 +86,22 @@ public class ParkingSlot {
     }
 
     /**
-     * Enables or disables the inductive charging of a parking slot.
-     */
-    public void setInSwitch(boolean inSwitch)
-    {
-        this.inSwitch = inSwitch;
-    }
-
-    /**
      *
-     * @return If the inductive charging is enabled or not, for this parking slot.
+     * @return If the inductive charging is enabled or not, for this ParkingSlot.
      */
     public boolean getInSwitch()
     {
         return inSwitch;
+    }
+
+    /**
+     * Sets if the ParkingSlot is able to charge a vehicle inductively.
+     *
+     * @param inSwitch The value to be set. True, means the ParkingSlot supports the inductive charging, false
+     *                 means not.
+     */
+    public void setInSwitch(boolean inSwitch) {
+        this.inSwitch = inSwitch;
     }
 
     /**
@@ -106,23 +112,22 @@ public class ParkingSlot {
     }
 
     /**
-     * Sets a ParkingEvent in the Charger.
-     *
-     * @param ev The ParkingEvent to be linked with the ParkingSlot.
+     * Sets a ParkingEvent to the ParkingSlot.
+     * @param event The ParkingEvent to be linked with the ParkingSlot.
      */
-    void setParkingEvent(ParkingEvent ev) {
-        this.e = ev;
+    void setParkingEvent(ParkingEvent event) {
+        this.e = event;
     }
 
     /**
-     * @return The id of the ParkingSlot object.
+     * @return The id of the ParkingSlot.
      */
     public int getId() {
         return id;
     }
 
     /**
-     * Sets the id for this ParkingSlot.
+     * Sets the id for the ParkingSlot.
      * @param id The id to be set.
      */
     public void setId(int id) { this.id = id; }

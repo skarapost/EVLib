@@ -56,8 +56,8 @@ public class WaitList<T>
     }
 
     /**
-     * Returns the first ChargingEvent of the list.
-     * @return The first ChargingEvent.
+     * Returns the first object in the list.
+     * @return The first object.
      */
     public T takeFirst()
     {
@@ -71,7 +71,7 @@ public class WaitList<T>
 
     /**
      * Removes the first object of the list.
-     * @return True if it was successfull, false if it was not.
+     * @return The removed object.
      */
     public T moveFirst() {
         lock.lock();
@@ -99,7 +99,7 @@ public class WaitList<T>
     }
 
     /**
-     * Sets the id for this WaitingList.
+     * Sets the id for the WaitingList.
      * @param id The id to be set.
      */
     public void setId(int id) { this.id = id; }
