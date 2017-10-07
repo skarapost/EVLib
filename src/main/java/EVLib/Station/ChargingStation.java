@@ -937,6 +937,7 @@ public class ChargingStation {
         long[] counter3 = new long[dischargers.size()];
         long min = 1000000000;
         int index = 1000000000;
+        boolean accessed = false;
         if (Objects.equals("slow", kind)||Objects.equals("fast", kind))
             for (int i = 0; i < chargers.size(); i++) {
                 if (Objects.equals(kind, chargers.get(i).getKindOfCharging())) {
@@ -945,6 +946,7 @@ public class ChargingStation {
                         if (min > diff) {
                             min = diff;
                             index = i;
+                            accessed = true;
                         }
                         counter1[i] = diff;
                     } else
@@ -958,6 +960,7 @@ public class ChargingStation {
                     if (min > diff) {
                         min = diff;
                         index = i;
+                        accessed = true;
                     }
                     counter2[i] = diff;
                 } else
@@ -970,12 +973,15 @@ public class ChargingStation {
                     if (min > diff) {
                         min = diff;
                         index = i;
+                        accessed = true;
                     }
                     counter3[i] = diff;
                 } else
                     return 0;
             }
         else
+            return 0;
+        if (!accessed)
             return 0;
         ChargingEvent e;
         DisChargingEvent ey;
@@ -1004,7 +1010,7 @@ public class ChargingStation {
         if ("exchange".equals(kind)) {
             for(int i = 0; i < this.exchange.getSize(); i++) {
                 counter2[index] = counter2[index] + timeOfExchange;
-                for(int j=0; j < chargers.size(); j++)
+                for (int j = 0; j < exchangeHandlers.size(); j++)
                     if ((counter2[j]<counter2[index])&&(counter2[j]!=0))
                         index = j;
             }
