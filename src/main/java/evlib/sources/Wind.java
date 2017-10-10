@@ -1,19 +1,19 @@
-package EVLib.Sources;
+package evlib.sources;
 
 import java.util.ArrayList;
 
-public class Solar extends EnergySource
+public class Wind extends EnergySource
 {
     private final ArrayList<Double> energyAmount;
 
-    public Solar(double[] energyAmoun)
+    public Wind(double[] energyAmoun)
     {
         energyAmount = new ArrayList<>();
         for (double anEnergyAmoun : energyAmoun)
             energyAmount.add(anEnergyAmoun);
     }
 
-    public Solar()
+    public Wind()
     {
         energyAmount = new ArrayList<>();
     }

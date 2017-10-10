@@ -1,9 +1,9 @@
-package EVLib.Station;
+package evlib.station;
 
-import EVLib.EV.Battery;
-import EVLib.EV.Driver;
-import EVLib.EV.ElectricVehicle;
-import EVLib.Sources.*;
+import evlib.ev.Battery;
+import evlib.ev.Driver;
+import evlib.ev.ElectricVehicle;
+import evlib.sources.*;
 
 import java.io.*;
 import java.text.DateFormat;

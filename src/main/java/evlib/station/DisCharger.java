@@ -1,4 +1,4 @@
-package EVLib.Station;
+package evlib.station;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -39,7 +39,7 @@ public class DisCharger
             e.getElectricVehicle().getDriver().setProfit(e.getElectricVehicle().getDriver().getProfit() + e.getProfit());
             double energy = station.getMap().get("DisCharging") + e.getAmountOfEnergy();
             station.setSpecificAmount("DisCharging", energy);
-            System.out.println("The discharging " + e.getId() + " completed succesfully");
+            System.out.println("Discharging " + e.getId() + " completed succesfully in " + e.getChargingStationName());
             e.setCondition("finished");
             DisChargingEvent.dischargingLog.add(e);
             setDisChargingEvent(null);

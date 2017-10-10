@@ -1,4 +1,4 @@
-package EVLib.Station;
+package evlib.station;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -85,7 +85,7 @@ public class ExchangeHandler
             station.joinBattery(e.getElectricVehicle().getBattery());
             e.getElectricVehicle().setBattery(e.givenBattery);
             e.getElectricVehicle().getDriver().setDebt(e.getElectricVehicle().getDriver().getDebt() + station.calculatePrice(e));
-            System.out.println("The exchange " + e.getId() + " completed successfully");
+            System.out.println("Battery exchange " + e.getId() + " completed successfully in " + e.getChargingStationName());
             e.setCondition("finished");
             ChargingEvent.exchangeLog.add(e);
             setChargingEvent(null);

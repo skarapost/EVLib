@@ -1,4 +1,4 @@
-package EVLib.Station;
+package evlib.station;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -55,7 +55,7 @@ public class Charger {
             e.getElectricVehicle().getBattery().setRemAmount(e.getEnergyToBeReceived() + e.getElectricVehicle().getBattery().getRemAmount());
             if (e.getElectricVehicle().getDriver() != null)
                 e.getElectricVehicle().getDriver().setDebt(e.getElectricVehicle().getDriver().getDebt() + e.getCost());
-            System.out.println("The charging " + e.getId() + " completed succesfully");
+            System.out.println("Charging " + e.getId() + " completed succesfully in " + e.getChargingStationName());
             e.setCondition("finished");
             ChargingEvent.chargingLog.add(e);
             setChargingEvent(null);

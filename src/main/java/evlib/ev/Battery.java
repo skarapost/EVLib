@@ -1,4 +1,4 @@
-package EVLib.EV;
+package evlib.ev;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

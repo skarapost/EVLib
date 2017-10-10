@@ -1,4 +1,4 @@
-package EVLib.Station;
+package evlib.station;
 
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;

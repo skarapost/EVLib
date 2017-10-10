@@ -1,4 +1,4 @@
-package EVLib.Station;
+package evlib.station;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -61,7 +61,7 @@ public class ParkingSlot {
                         e.getElectricVehicle().getBattery().setRemAmount(e.getEnergyToBeReceived() + e.getElectricVehicle().getBattery().getRemAmount());
                         if (e.getElectricVehicle().getDriver() != null)
                             e.getElectricVehicle().getDriver().setDebt(e.getElectricVehicle().getDriver().getDebt() + e.getEnergyToBeReceived() * station.getInductivePrice());
-                        System.out.println("The inductive charging " + e.getId() + " completed successfully");
+                        System.out.println("Inductive charging " + e.getId() + " completed successfully in " + e.getChargingStationName());
                     }
                 }
                 e.setCondition("parking");
@@ -72,7 +72,7 @@ public class ParkingSlot {
                     timestamp2 = System.currentTimeMillis();
                 } while (running && (timestamp2 - timestamp1 < diff));
                 synchronized (this) {
-                    System.out.println("The parking " + e.getId() + " completed successfully");
+                    System.out.println("Parking " + e.getId() + " completed successfully in " + e.getChargingStationName());
                     e.setCondition("finished");
                     ParkingEvent.parkLog.add(e);
                     setParkingEvent(null);

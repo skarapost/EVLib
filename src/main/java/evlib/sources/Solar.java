@@ -1,18 +1,19 @@
-package EVLib.Sources;
+package evlib.sources;
 
 import java.util.ArrayList;
 
-public class Wave extends EnergySource
+public class Solar extends EnergySource
 {
     private final ArrayList<Double> energyAmount;
 
-    public Wave(double[] energyAmoun)
+    public Solar(double[] energyAmoun)
     {
         energyAmount = new ArrayList<>();
-        for (double anEnergyAmoun : energyAmoun) energyAmount.add(anEnergyAmoun);
+        for (double anEnergyAmoun : energyAmoun)
+            energyAmount.add(anEnergyAmoun);
     }
 
-    public Wave()
+    public Solar()
     {
         energyAmount = new ArrayList<>();
     }

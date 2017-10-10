@@ -1,7 +1,7 @@
-package EVLib.Station;
+package evlib.station;
 
-import EVLib.EV.Battery;
-import EVLib.EV.ElectricVehicle;
+import evlib.ev.Battery;
+import evlib.ev.ElectricVehicle;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -283,7 +283,7 @@ public class ChargingEvent
     public long getRemainingChargingTime()
     {
         long diff = System.currentTimeMillis() - timestamp;
-        if ((chargingTime - diff >= 0) && (condition.equals("charging")))
+        if ((chargingTime - diff >= 0) && (condition.equals("charging") || condition.equals("swapping")))
             this.remainingChargingTime = chargingTime - diff;
         else
             return 0;

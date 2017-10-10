@@ -1,6 +1,6 @@
-package EVLib.Station;
+package evlib.station;
 
-import EVLib.EV.ElectricVehicle;
+import evlib.ev.ElectricVehicle;
 
 import java.util.ArrayList;
 import java.util.HashMap;

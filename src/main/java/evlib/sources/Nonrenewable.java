@@ -1,20 +1,24 @@
-package EVLib.Sources;
+package evlib.sources;
 
 import java.util.ArrayList;
 
-public class Geothermal extends EnergySource
-{
+public class Nonrenewable extends EnergySource{
     private final ArrayList<Double> energyAmount;
 
-    public Geothermal(double[] energyAmoun) {
+    public Nonrenewable(double[] energyAmoun)
+    {
         energyAmount = new ArrayList<>();
         for (double anEnergyAmoun : energyAmoun)
             energyAmount.add(anEnergyAmoun);
     }
 
-    public Geothermal() { energyAmount = new ArrayList<>(); }
+    public Nonrenewable()
+    {
+        energyAmount = new ArrayList<>();
+    }
 
-    public double popAmount() {
+    public double popAmount()
+    {
         if ((energyAmount == null)||(energyAmount.size() == 0))
             return 0;
         else
