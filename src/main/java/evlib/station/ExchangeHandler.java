@@ -85,7 +85,7 @@ public class ExchangeHandler
             station.joinBattery(e.getElectricVehicle().getBattery());
             e.getElectricVehicle().setBattery(e.givenBattery);
             e.getElectricVehicle().getDriver().setDebt(e.getElectricVehicle().getDriver().getDebt() + station.calculatePrice(e));
-            System.out.println("Battery exchange " + e.getId() + " completed successfully in " + e.getChargingStationName());
+            System.out.println("Battery exchange " + e.getId() + ", " + e.getChargingStationName() + ", OK");
             e.setCondition("finished");
             ChargingEvent.exchangeLog.add(e);
             setChargingEvent(null);

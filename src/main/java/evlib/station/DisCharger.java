@@ -39,7 +39,7 @@ public class DisCharger
             e.getElectricVehicle().getDriver().setProfit(e.getElectricVehicle().getDriver().getProfit() + e.getProfit());
             double energy = station.getMap().get("DisCharging") + e.getAmountOfEnergy();
             station.setSpecificAmount("DisCharging", energy);
-            System.out.println("Discharging " + e.getId() + " completed succesfully in " + e.getChargingStationName());
+            System.out.println("Discharging " + e.getId() + ", " + e.getChargingStationName() + ", OK");
             e.setCondition("finished");
             DisChargingEvent.dischargingLog.add(e);
             setDisChargingEvent(null);
