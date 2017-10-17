@@ -56,6 +56,9 @@ public class ChargingStation {
     private Lock lock8 = new ReentrantLock();
     public int FAST_CHARGERS;
     public int SLOW_CHARGERS;
+    ArrayList<ChargingEvent> events = new ArrayList<ChargingEvent>();
+    ArrayList<Integer> numberOfChargers = new ArrayList<Integer>();
+    boolean execEvents;
 
     private class checkUpdate extends TimerTask {
         public void run() {
@@ -83,10 +86,10 @@ public class ChargingStation {
             sources.add(source[q]);
         this.sources.add("DisCharging");
         setSpecificAmount("DisCharging", 0.0);
-        this.chargingRatioSlow = 1;
-        this.chargingRatioFast = 2;
-        this.disChargingRatio = 1;
-        this.inductiveChargingRatio = 0.5;
+        this.chargingRatioSlow = 0.001;
+        this.chargingRatioFast = 0.01;
+        this.disChargingRatio = 0.01;
+        this.inductiveChargingRatio = 0.0001;
         for (int i = 0; i < source.length; i++) {
             switch (source[i]) {
                 case "Solar":
@@ -155,10 +158,10 @@ public class ChargingStation {
             sources.add(source[q]);
         this.sources.add("DisCharging");
         setSpecificAmount("DisCharging", 0.0);
-        this.chargingRatioSlow = 1;
-        this.chargingRatioFast = 2;
-        this.disChargingRatio = 1;
-        this.inductiveChargingRatio = 0.5;
+        this.chargingRatioSlow = 0.001;
+        this.chargingRatioFast = 0.01;
+        this.disChargingRatio = 0.01;
+        this.inductiveChargingRatio = 0.0001;
         for (int i = 0; i < source.length; i++) {
             switch (source[i]) {
                 case "Solar":
@@ -222,10 +225,10 @@ public class ChargingStation {
         this.sources.add("DisCharging");
         setSpecificAmount("DisCharging", 0.0);
         this.automaticQueueHandling = true;
-        this.chargingRatioSlow = 1;
-        this.chargingRatioFast = 2;
-        this.disChargingRatio = 1;
-        this.inductiveChargingRatio = 0.5;
+        this.chargingRatioSlow = 0.001;
+        this.chargingRatioFast = 0.01;
+        this.disChargingRatio = 0.001;
+        this.inductiveChargingRatio = 0.0001;
     }
 
     /**
@@ -943,6 +946,12 @@ public class ChargingStation {
                 if (Objects.equals(kind, chargers.get(i).getKindOfCharging())) {
                     if(chargers.get(i).getChargingEvent() != null) {
                         long diff = chargers.get(i).getChargingEvent().getRemainingChargingTime();
+                        long counter = 0;
+                        if (chargers.get(i).planTime.size() != 0) {
+                            for (long time : chargers.get(i).planTime)
+                                counter += time;
+                            diff += counter;
+                        }
                         if (min > diff) {
                             min = diff;
                             index = i;
@@ -1234,6 +1243,99 @@ public class ChargingStation {
         return name;
     }
 
+    /**
+     * The method is responsible for the partial execution of a predefined plan of chargings. The plan is given through a txt file.
+     * There can only be only one simultaneous execution of a plan. We assume that there are adequate resources(energy and chargers)
+     * for the successful completion of the plan.
+     *
+     * @param filepath The file with plan of chargings.
+     * @throws FileNotFoundException In case the file was not found.
+     */
+    public void execEvents(String filepath) throws FileNotFoundException {
+        if (!execEvents) {
+            execEvents = true;
+            BufferedReader in = new BufferedReader(new FileReader(new File(filepath)));
+            String line;
+            String[] tokens;
+            try {
+                while ((line = in.readLine()) != null) {
+                    tokens = line.split(",");
+                    if (tokens[0].equals("ev")) {
+                        ChargingEvent event = new ChargingEvent(this, null, Double.parseDouble(tokens[1]), "partial");
+                        event.setEnergyToBeReceived(Double.parseDouble(tokens[1]));
+                        event.setCost(calculatePrice(event));
+                        event.setCondition("interrupted");
+                        events.add(event);
+                        double sdf;
+                        sdf = Double.parseDouble(tokens[1]);
+                        for (String s : sources) {
+                            if (sdf < amounts.get(s)) {
+                                double ert = amounts.get(s) - sdf;
+                                amounts.put(s, ert);
+                                break;
+                            } else {
+                                sdf -= amounts.get(s);
+                                amounts.put(s, 0.0);
+                            }
+                        }
+                    } else if (tokens[0].equals("de")) {
+                        boolean flag = false;
+                        int j = 0;
+                        while (!flag) {
+                            if (chargers.get(j).getChargingEvent() == null)
+                                flag = true;
+                            if (!flag)
+                                j++;
+                        }
+                        numberOfChargers.add(j);
+                        for (int i = 1; i < tokens.length; i++) {
+                            switch (tokens[i]) {
+                                case "ch":
+                                    if (chargers.get(j).planEvent.size() == 0) {
+                                        chargers.get(j).planEvent.add(0);
+                                        chargers.get(j).setChargingEvent(events.get(Integer.parseInt(tokens[i + 1]) - 1));
+                                        events.get(Integer.parseInt(tokens[i + 1]) - 1).setChargingTime(Long.parseLong(tokens[i + 2]));
+                                        events.get(Integer.parseInt(tokens[i + 1]) - 1).accumulatorOfChargingTime += events.get(Integer.parseInt(tokens[i + 1]) - 1).getChargingTime();
+                                    } else {
+                                        chargers.get(j).planEvent.add(Integer.parseInt(tokens[i + 1]));
+                                        chargers.get(j).planTime.add(Long.parseLong(tokens[i + 2]));
+                                    }
+                                    break;
+                                case "int":
+                                    if (chargers.get(j).planEvent.size() == 0) {
+                                        ChargingEvent e = new ChargingEvent(this, null, 0, null);
+                                        e.setChargingTime(Long.parseLong(tokens[i + 1]));
+                                        chargers.get(j).setChargingEvent(e);
+                                    } else {
+                                        chargers.get(j).planEvent.add(-1);
+                                        chargers.get(j).planTime.add(Long.parseLong(tokens[i + 1]));
+                                    }
+                                    break;
+                            }
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                try {
+                    in.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+            numberOfChargers.forEach(e -> chargers.get(e).planEvent.remove(0));
+            numberOfChargers.forEach(e -> chargers.get(e).executeChargingEvent(true));
+        }
+    }
+
+    /**
+     * Sets if the created threads are deamons or not.
+     *
+     * @param deamon The value to be set. True means deamon, false not deamons.
+     */
+    public void setDeamon(boolean deamon) {
+        this.deamon = deamon;
+    }
+
     private class Statistics {
         private final List<String> energyLog;
 
@@ -1252,47 +1354,71 @@ public class ChargingStation {
             content.add("Id: " + id);
             content.add("Name: " + name);
             content.add("Remaining energy: " + getTotalEnergy());
-            content.add("Number of chargers: " + getChargers().length);
-            content.add("Number of dischargers: " + getDisChargers().length);
-            content.add("Number of exchange handlers: " + getExchangeHandlers().length);
-            content.add("Number of parking slots: " + getParkingSlots().length);
-            content.add("Number of chargings: " + ChargingEvent.chargingLog.size());
-            content.add("Number of dischargings: " + DisChargingEvent.dischargingLog.size());
-            content.add("Number of battery swappings: " + ChargingEvent.exchangeLog.size());
-            content.add("Number of vehicles waiting for fast charging: " + fast.getSize());
-            content.add("Number of vehicles waiting for slow charging: " + slow.getSize());
-            content.add("Number of vehicles waiting for discharging: " + discharging.getSize());
-            content.add("Number of vehicles waiting for battery swapping: " + exchange.getSize());
+            content.add("Slow chargers: " + SLOW_CHARGERS);
+            content.add("Fast chargers: " + FAST_CHARGERS);
+            content.add("Dischargers: " + dischargers.size());
+            content.add("Exchange handlers: " + exchangeHandlers.size());
+            content.add("Parking slots: " + parkingSlots.size());
+            content.add("Completed chargings: " + ChargingEvent.chargingLog.size());
+            content.add("Completed dischargings: " + DisChargingEvent.dischargingLog.size());
+            content.add("Completed battery swappings: " + ChargingEvent.exchangeLog.size());
+            content.add("Completed parkings: " + ParkingEvent.parkLog.size());
+            content.add("Vehicles waiting for fast charging: " + fast.getSize());
+            content.add("Vehicles waiting for slow charging: " + slow.getSize());
+            content.add("Vehicles waiting for discharging: " + discharging.getSize());
+            content.add("Vehicles waiting for battery swapping: " + exchange.getSize());
             content.add("Energy sources: ");
             for (String s : getSources())
                 content.add("  " + s + ": " + getSpecificAmount(s));
             content.add("");
             content.add("***Charging events***");
             for (ChargingEvent ev : ChargingEvent.chargingLog) {
-                content.add("");
-                content.add("Electric vehicle: " + ev.getElectricVehicle().getBrand());
-                content.add("Energy: " + ev.getEnergyToBeReceived());
-                content.add("Charging time: " + ev.getChargingTime());
-                content.add("Waiting time: " + ev.getMaxWaitingTime());
-                content.add("Cost: " + ev.getCost());
+                if (ev.getChargingStationName().equals(name)) {
+                    content.add("");
+                    content.add("Electric vehicle: " + ev.getElectricVehicle().getBrand());
+                    content.add("Amount of energy: " + ev.getAmountOfEnergy());
+                    content.add("Energy to be received: " + ev.getEnergyToBeReceived());
+                    content.add("Charging time: " + ev.getChargingTime());
+                    content.add("Waiting time: " + ev.getWaitingTime());
+                    content.add("Maximum Waiting time: " + ev.getMaxWaitingTime());
+                    content.add("Cost: " + ev.getCost());
+                }
             }
             content.add("");
             content.add("***DisCharging events***");
             for (DisChargingEvent ev : DisChargingEvent.dischargingLog) {
-                content.add("");
-                content.add("Electric vehicle: " + ev.getElectricVehicle().getBrand());
-                content.add("Energy: " + ev.getAmountOfEnergy());
-                content.add("Charging time: " + ev.getDisChargingTime());
-                content.add("Waiting time: " + ev.getMaxWaitingTime());
-                content.add("Profit: " + ev.getProfit());
+                if (ev.getChargingStationName().equals(name)) {
+                    content.add("");
+                    content.add("Electric vehicle: " + ev.getElectricVehicle().getBrand());
+                    content.add("Amount of energy: " + ev.getAmountOfEnergy());
+                    content.add("DisCharging time: " + ev.getDisChargingTime());
+                    content.add("Waiting time: " + ev.getWaitingTime());
+                    content.add("Maximum Waiting time: " + ev.getMaxWaitingTime());
+                    content.add("Profit: " + ev.getProfit());
+                }
             }
             content.add("");
             content.add("***Exchange events***");
             for (ChargingEvent ev : ChargingEvent.exchangeLog) {
-                content.add("");
-                content.add("Electric vehicle: " + ev.getElectricVehicle().getBrand());
-                content.add("Waiting time: " + ev.getMaxWaitingTime());
-                content.add("Cost: " + ev.getCost());
+                if (ev.getChargingStationName().equals(name)) {
+                    content.add("");
+                    content.add("Electric vehicle: " + ev.getElectricVehicle().getBrand());
+                    content.add("Waiting time: " + ev.getWaitingTime());
+                    content.add("Maximum Waiting time: " + ev.getMaxWaitingTime());
+                    content.add("Cost: " + ev.getCost());
+                }
+            }
+            content.add("");
+            content.add("***Parking events***");
+            for (ParkingEvent ev : ParkingEvent.parkLog) {
+                if (ev.getChargingStationName().equals(name)) {
+                    content.add("");
+                    content.add("Electric vehicle: " + ev.getElectricVehicle().getBrand());
+                    content.add("Parking time: " + ev.getParkingTime());
+                    content.add("Charging time: " + ev.getChargingTime());
+                    content.add("Amount of energy: " + ev.getAmountOfEnergy());
+                    content.add("Cost: " + ev.getCost());
+                }
             }
             content.add("");
             content.add("***Energy additions***");
@@ -1321,13 +1447,5 @@ public class ChargingStation {
                     }
             }
         }
-    }
-
-    /**
-     * Sets if the created threads are deamons or not.
-     * @param deamon The value to be set. True means deamon, false not deamons.
-     */
-    public void setDeamon(boolean deamon) {
-        this.deamon = deamon;
     }
 }

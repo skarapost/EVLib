@@ -28,6 +28,7 @@ public class ChargingEvent
     private long timestamp;
     private double cost;
     private ExchangeHandler exchange;
+    long accumulatorOfChargingTime = 0;
     public static final List<ChargingEvent> chargingLog = new ArrayList<>();
     public static final List<ChargingEvent> exchangeLog = new ArrayList<>();
 
@@ -162,7 +163,7 @@ public class ChargingEvent
                 setCondition("charging");
                 vehicle.getBattery().addCharging();
                 try {
-                    charger.executeChargingEvent();
+                    charger.executeChargingEvent(false);
                 } catch (NullPointerException ex) {
                     System.out.println("No processed");
                 }

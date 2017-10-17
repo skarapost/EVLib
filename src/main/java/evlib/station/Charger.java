@@ -1,5 +1,6 @@
 package evlib.station;
 
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Charger {
@@ -8,6 +9,8 @@ public class Charger {
     private String name;
     private ChargingEvent e;
     private final ChargingStation station;
+    ArrayList<Integer> planEvent = new ArrayList<Integer>();
+    ArrayList<Long> planTime = new ArrayList<Long>();
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
     private volatile boolean running = true;
 
@@ -42,25 +45,64 @@ public class Charger {
      * battery's remaining amount. In the end, if the automatic queue's handling is activated the Charger checks
      * the waiting list.
      */
-    void executeChargingEvent() {
+    void executeChargingEvent(boolean type) {
         running = true;
         Thread ch = new Thread(() ->
         {
             e.setChargingTime(e.getChargingTime());
+            e.setCondition("charging");
             long timestamp1 = System.currentTimeMillis();
             long timestamp2;
             do {
                 timestamp2 = System.currentTimeMillis();
             } while (running && (timestamp2 - timestamp1 < e.getChargingTime()));
-            e.getElectricVehicle().getBattery().setRemAmount(e.getEnergyToBeReceived() + e.getElectricVehicle().getBattery().getRemAmount());
-            if (e.getElectricVehicle().getDriver() != null)
-                e.getElectricVehicle().getDriver().setDebt(e.getElectricVehicle().getDriver().getDebt() + e.getCost());
-            System.out.println("Charging " + e.getId() + ", " + e.getChargingStationName() + ", OK");
-            e.setCondition("finished");
-            ChargingEvent.chargingLog.add(e);
-            setChargingEvent(null);
-            if (station.getQueueHandling())
-                handleQueueEvents();
+            if (!type) {
+                e.getElectricVehicle().getBattery().setRemAmount(e.getEnergyToBeReceived() + e.getElectricVehicle().getBattery().getRemAmount());
+                if (e.getElectricVehicle().getDriver() != null)
+                    e.getElectricVehicle().getDriver().setDebt(e.getElectricVehicle().getDriver().getDebt() + e.getCost());
+                System.out.println("Charging " + e.getId() + ", " + e.getChargingStationName() + ", OK");
+                e.setCondition("finished");
+                ChargingEvent.chargingLog.add(e);
+                setChargingEvent(null);
+                if (station.getQueueHandling())
+                    handleQueueEvents();
+            } else {
+                if (!planEvent.contains(station.events.indexOf(e) + 1))
+                    if (e.getKindOfCharging() != null) {
+                        ChargingEvent.chargingLog.add(e);
+                        e.setCondition("finished");
+                        e.setChargingTime(e.accumulatorOfChargingTime);
+                    } else
+                        e.setCondition("interrupted");
+                if (planEvent.size() != 0) {
+                    if (planEvent.get(0) != -1) {
+                        setChargingEvent(station.events.get(planEvent.remove(0) - 1));
+                        e.setChargingTime(planTime.remove(0));
+                        e.accumulatorOfChargingTime += e.getChargingTime();
+                    } else {
+                        ChargingEvent e = new ChargingEvent(station, null, 0, null);
+                        e.setChargingTime(planTime.remove(0));
+                        planEvent.remove(0);
+                        setChargingEvent(e);
+                    }
+                    executeChargingEvent(true);
+                } else {
+                    setChargingEvent(null);
+                    planTime.clear();
+                    planEvent.clear();
+                    System.out.println(name + " plan, OK");
+                    boolean flag = true;
+                    for (int i : station.numberOfChargers)
+                        if (station.getChargers()[i].getChargingEvent() != null)
+                            flag = false;
+                    if (flag) {
+                        System.out.println("Plan, OK");
+                        station.execEvents = false;
+                        station.numberOfChargers.clear();
+                        station.events.clear();
+                    }
+                }
+            }
         });
         if(station.getDeamon())
             ch.setDaemon(true);
