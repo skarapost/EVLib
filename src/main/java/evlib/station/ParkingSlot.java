@@ -72,7 +72,7 @@ public class ParkingSlot {
                     timestamp2 = System.currentTimeMillis();
                 } while (running && (timestamp2 - timestamp1 < diff));
                 synchronized (this) {
-                    System.out.println("Parking " + e.getId() + " completed successfully in " + e.getChargingStationName());
+                    System.out.println("Parking " + e.getId() + ", " + e.getChargingStationName() + ", OK");
                     e.setCondition("finished");
                     ParkingEvent.parkLog.add(e);
                     setParkingEvent(null);

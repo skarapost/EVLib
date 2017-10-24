@@ -82,8 +82,7 @@ public class ChargingStation {
         this.n = new ArrayList<>();
         this.sources = new ArrayList<>();
         this.batteries = new ArrayList<>();
-        for (int q = 0; q < source.length; q++)
-            sources.add(source[q]);
+        Collections.addAll(sources, source);
         this.sources.add("DisCharging");
         setSpecificAmount("DisCharging", 0.0);
         this.chargingRatioSlow = 0.001;
@@ -154,8 +153,7 @@ public class ChargingStation {
         this.parkingSlots = new ArrayList<>();
         this.n = new ArrayList<>();
         this.sources = new ArrayList<>();
-        for (int q = 0; q < source.length; q++)
-            sources.add(source[q]);
+        Collections.addAll(sources, source);
         this.sources.add("DisCharging");
         setSpecificAmount("DisCharging", 0.0);
         this.chargingRatioSlow = 0.001;
@@ -342,8 +340,8 @@ public class ChargingStation {
                 }
         } finally {
             lock4.unlock();
-            return ch;
         }
+        return ch;
     }
 
     /**
@@ -368,8 +366,8 @@ public class ChargingStation {
                 }
         } finally {
             lock5.unlock();
-            return dsch;
         }
+        return dsch;
     }
 
     /**
@@ -394,8 +392,8 @@ public class ChargingStation {
                 }
         } finally {
             lock6.unlock();
-            return ch;
         }
+        return ch;
     }
 
     /**
@@ -412,16 +410,24 @@ public class ChargingStation {
             if (parkingSlots.size() != 0)
                 while (!flag && i < parkingSlots.size()) {
                     if (parkingSlots.get(i).getParkingEvent() == null) {
-                        parkingSlots.get(i).setParkingEvent(event);
-                        flag = true;
-                        ch = parkingSlots.get(i);
+                        if (event.getAmountOfEnergy() > 0) {
+                            if (parkingSlots.get(i).getInSwitch()) {
+                                parkingSlots.get(i).setParkingEvent(event);
+                                flag = true;
+                                ch = parkingSlots.get(i);
+                            }
+                        } else {
+                            parkingSlots.get(i).setParkingEvent(event);
+                            flag = true;
+                            ch = parkingSlots.get(i);
+                        }
                     }
                     ++i;
                 }
         } finally {
             lock7.unlock();
-            return ch;
         }
+        return ch;
     }
 
     /**
@@ -445,8 +451,8 @@ public class ChargingStation {
                 }
         } finally {
             lock8.unlock();
-            return bat;
         }
+        return bat;
     }
 
     /**
@@ -1375,7 +1381,8 @@ public class ChargingStation {
             for (ChargingEvent ev : ChargingEvent.chargingLog) {
                 if (ev.getChargingStationName().equals(name)) {
                     content.add("");
-                    content.add("Electric vehicle: " + ev.getElectricVehicle().getBrand());
+                    content.add("Id: " + ev.getId());
+                    content.add("Station name: " + ev.getChargingStationName());
                     content.add("Amount of energy: " + ev.getAmountOfEnergy());
                     content.add("Energy to be received: " + ev.getEnergyToBeReceived());
                     content.add("Charging time: " + ev.getChargingTime());
@@ -1389,7 +1396,8 @@ public class ChargingStation {
             for (DisChargingEvent ev : DisChargingEvent.dischargingLog) {
                 if (ev.getChargingStationName().equals(name)) {
                     content.add("");
-                    content.add("Electric vehicle: " + ev.getElectricVehicle().getBrand());
+                    content.add("Id: " + ev.getId());
+                    content.add("Station name: " + ev.getChargingStationName());
                     content.add("Amount of energy: " + ev.getAmountOfEnergy());
                     content.add("DisCharging time: " + ev.getDisChargingTime());
                     content.add("Waiting time: " + ev.getWaitingTime());
@@ -1402,7 +1410,8 @@ public class ChargingStation {
             for (ChargingEvent ev : ChargingEvent.exchangeLog) {
                 if (ev.getChargingStationName().equals(name)) {
                     content.add("");
-                    content.add("Electric vehicle: " + ev.getElectricVehicle().getBrand());
+                    content.add("Id: " + ev.getId());
+                    content.add("Station name: " + ev.getChargingStationName());
                     content.add("Waiting time: " + ev.getWaitingTime());
                     content.add("Maximum Waiting time: " + ev.getMaxWaitingTime());
                     content.add("Cost: " + ev.getCost());
@@ -1413,10 +1422,12 @@ public class ChargingStation {
             for (ParkingEvent ev : ParkingEvent.parkLog) {
                 if (ev.getChargingStationName().equals(name)) {
                     content.add("");
-                    content.add("Electric vehicle: " + ev.getElectricVehicle().getBrand());
+                    content.add("Id: " + ev.getId());
+                    content.add("Station name: " + ev.getChargingStationName());
+                    content.add("Amount of energy: " + ev.getAmountOfEnergy());
+                    content.add("Energy to be received: " + ev.getEnergyToBeReceived());
                     content.add("Parking time: " + ev.getParkingTime());
                     content.add("Charging time: " + ev.getChargingTime());
-                    content.add("Amount of energy: " + ev.getAmountOfEnergy());
                     content.add("Cost: " + ev.getCost());
                 }
             }

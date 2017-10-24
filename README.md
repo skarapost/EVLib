@@ -1,5 +1,5 @@
 # EVLib
-EVLib is a library for the management and the simulation of EV activities in a charging station level which makes use of a set of available energy sources. It is implemented in the JAVA programming language, and its main goal is to manage the charging, discharging and battery swap functions and support their integration into a single charging station. The library supports a large number of functions to properly manage EV-related activities. There are three main functions, as well as a number of secondary ones.
+EVLib is a library for the management and the simulation of EV activities in a charging station level which makes use of a set of available energy sources. It is implemented in the JAVA programming language, and its main goal is to manage the charging, discharging, battery swap functions and parking/charging inductively and support their integration into a single charging station. The library supports a large number of functions to properly manage EV-related activities. There are four main functions, as well as a number of secondary ones.
 
 ## Compilation
 The library has to be compiled using Maven.
@@ -15,8 +15,11 @@ Similar to a charging event, a discharging event first demands the pre-processin
 ### Battery Exchange: 
 The pre-processing phase requires for a battery with enough range to be available in the charging station. If such a battery is found, the battery is swapped into the EV.
 
+### Parking Event:
+The vehicle can either simply park or charging inductively. The pre-processing phase looks for an empty parking slot. If the parking event requires energy as well, the parking slot needs to have enabled the switch for inductive charging. The next check is for energy. The waiting list is not supported in this operation.
+
 ## Extra Functions
-The library also supports a number of secondary functions: The creation of a charging station, as well as the creation and integration of a charger, dis-charger or battery swapper in the station. Additional operations are the recharging of batteries which are later to be swapped into EVs, as well as the ability to add new batteries to the storage in order seamless operation of the battery exchange process to be achieved. The total cost of the charging, discharging and battery swapping can be calculated based on a series of costs (e.g., energy cost) defined by the user. During the creation of the charging station, 4 waiting lists are created. A list for the charging events which want fast charging, a list for the charging events which want slow charging, a list for the discharging events, and a list for the vehicles waiting for battery exchange.
+The library also supports a number of secondary functions: The creation of a charging station, as well as the creation and integration of a charger, dis-charger, battery swapper or parking slot in the station. Additional operations are the recharging of batteries which are later to be swapped into EVs, as well as the ability to add new batteries to the storage in order seamless operation of the battery exchange process to be achieved. The total cost of the charging, discharging and battery swapping can be calculated based on a series of costs (e.g., energy cost) defined by the user. During the creation of the charging station, 4 waiting lists are created. A list for the charging events which want fast charging, a list for the charging events which want slow charging, a list for the discharging events, and a list for the vehicles waiting for battery exchange.
 
 ## Example
 ```
@@ -103,6 +106,7 @@ The library also supports a number of secondary functions: The creation of a cha
   ev5.setWaitingTime(1200000);
   ev6.setWaitingTime(450000);
   
+  //Call of pre-processing and execution methods for each event 
   ev1.preProcessing();
   ev1.execution();
   
@@ -126,4 +130,8 @@ The library also supports a number of secondary functions: The creation of a cha
           
   ev8.preProcessing();
   ev8.execution();
+  
+  //Extraction of a report for the station
+  station.generateReport("~/report.txt")
+  
 ```

@@ -91,7 +91,6 @@ public class ChargingEvent
                                 energyToBeReceived = station.getTotalEnergy();
                             else
                                 energyToBeReceived = vehicle.getBattery().getCapacity() - vehicle.getBattery().getRemAmount();
-
                         }
                         if ("fast".equals(kindOfCharging))
                             chargingTime = ((long) (energyToBeReceived / station.getChargingRatioFast()));
@@ -124,10 +123,12 @@ public class ChargingEvent
                         }
                 } else {
                     exchange = station.assignExchangeHandler(this);
-                    givenBattery = station.assignBattery();
                     if (givenBattery == null) {
-                        setCondition("nonExecutable");
-                        return;
+                        givenBattery = station.assignBattery();
+                        if (givenBattery == null) {
+                            setCondition("nonExecutable");
+                            return;
+                        }
                     }
                     if (exchange != null) {
                         chargingTime = station.getTimeOfExchange();

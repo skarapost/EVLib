@@ -84,7 +84,8 @@ public class ExchangeHandler
             } while (running && (timestamp2 - timestamp1 < e.getChargingTime()));
             station.joinBattery(e.getElectricVehicle().getBattery());
             e.getElectricVehicle().setBattery(e.givenBattery);
-            e.getElectricVehicle().getDriver().setDebt(e.getElectricVehicle().getDriver().getDebt() + station.calculatePrice(e));
+            if (e.getElectricVehicle().getDriver() != null)
+                e.getElectricVehicle().getDriver().setDebt(e.getElectricVehicle().getDriver().getDebt() + station.calculatePrice(e));
             System.out.println("Battery exchange " + e.getId() + ", " + e.getChargingStationName() + ", OK");
             e.setCondition("finished");
             ChargingEvent.exchangeLog.add(e);

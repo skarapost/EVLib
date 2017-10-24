@@ -69,43 +69,44 @@ public class ParkingEvent {
      **/
     public synchronized void preProcessing()
     {
-        parkingSlot = station.assignParkingSlot(this);
-        if (parkingSlot != null) {
-            if (parkingSlot.getInSwitch() && (vehicle.getBattery().getActive())) {
-                if (amountOfEnergy < station.getTotalEnergy()) {
-                    if (amountOfEnergy <= (vehicle.getBattery().getCapacity() - vehicle.getBattery().getRemAmount()))
-                        energyToBeReceived = amountOfEnergy;
-                    else
-                        energyToBeReceived = vehicle.getBattery().getCapacity() - vehicle.getBattery().getRemAmount();
-                } else {
-                    if (station.getTotalEnergy() <= (vehicle.getBattery().getCapacity() - vehicle.getBattery().getRemAmount()))
-                        energyToBeReceived = station.getTotalEnergy();
-                    else
-                        energyToBeReceived = vehicle.getBattery().getCapacity() - vehicle.getBattery().getRemAmount();
-                }
-                chargingTime = (long) ((energyToBeReceived) / station.getInductiveRatio());
-                if (chargingTime > parkingTime) {
-                    energyToBeReceived = parkingTime * station.getInductiveRatio();
-                    chargingTime = parkingTime;
-                }
-                setCondition("ready");
-                cost = station.getInductivePrice() * energyToBeReceived;
-                double sdf;
-                sdf = energyToBeReceived;
-                HashMap<String, Double> keys = new HashMap<>(station.getMap());
-                for (HashMap.Entry<String, Double> energy : keys.entrySet()) {
-                    if (energyToBeReceived < station.getMap().get(energy.getKey())) {
-                        double ert = station.getMap().get(energy.getKey()) - sdf;
-                        station.setSpecificAmount(energy.getKey(), ert);
-                        break;
+        if (vehicle.getBattery().getActive()) {
+            if (condition.equals("arrived")) {
+                parkingSlot = station.assignParkingSlot(this);
+                if (parkingSlot != null) {
+                    if (amountOfEnergy < station.getTotalEnergy()) {
+                        if (amountOfEnergy <= (vehicle.getBattery().getCapacity() - vehicle.getBattery().getRemAmount()))
+                            energyToBeReceived = amountOfEnergy;
+                        else
+                            energyToBeReceived = vehicle.getBattery().getCapacity() - vehicle.getBattery().getRemAmount();
                     } else {
-                        sdf -= energy.getValue();
-                        station.setSpecificAmount(energy.getKey(), 0);
+                        if (station.getTotalEnergy() <= (vehicle.getBattery().getCapacity() - vehicle.getBattery().getRemAmount()))
+                            energyToBeReceived = station.getTotalEnergy();
+                        else
+                            energyToBeReceived = vehicle.getBattery().getCapacity() - vehicle.getBattery().getRemAmount();
                     }
-                }
+                    chargingTime = (long) ((energyToBeReceived) / station.getInductiveRatio());
+                    if (chargingTime > parkingTime) {
+                        energyToBeReceived = parkingTime * station.getInductiveRatio();
+                        chargingTime = parkingTime;
+                    }
+                    setCondition("ready");
+                    cost = station.getInductivePrice() * energyToBeReceived;
+                    double sdf;
+                    sdf = energyToBeReceived;
+                    HashMap<String, Double> keys = new HashMap<>(station.getMap());
+                    for (HashMap.Entry<String, Double> energy : keys.entrySet()) {
+                        if (energyToBeReceived < station.getMap().get(energy.getKey())) {
+                            double ert = station.getMap().get(energy.getKey()) - sdf;
+                            station.setSpecificAmount(energy.getKey(), ert);
+                            break;
+                        } else {
+                            sdf -= energy.getValue();
+                            station.setSpecificAmount(energy.getKey(), 0);
+                        }
+                    }
+                } else
+                    setCondition("nonExecutable");
             }
-            else
-                setCondition("ready");
         }
         else
             setCondition("nonExecutable");

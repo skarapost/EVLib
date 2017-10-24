@@ -36,7 +36,8 @@ public class DisCharger
                 timestamp2 = System.currentTimeMillis();
             } while (running && (timestamp2 - timestamp1 < e.getDisChargingTime()));
             e.getElectricVehicle().getBattery().setRemAmount(e.getElectricVehicle().getBattery().getRemAmount() - e.getAmountOfEnergy());
-            e.getElectricVehicle().getDriver().setProfit(e.getElectricVehicle().getDriver().getProfit() + e.getProfit());
+            if (e.getElectricVehicle().getDriver() != null)
+                e.getElectricVehicle().getDriver().setProfit(e.getElectricVehicle().getDriver().getProfit() + e.getProfit());
             double energy = station.getMap().get("DisCharging") + e.getAmountOfEnergy();
             station.setSpecificAmount("DisCharging", energy);
             System.out.println("Discharging " + e.getId() + ", " + e.getChargingStationName() + ", OK");
