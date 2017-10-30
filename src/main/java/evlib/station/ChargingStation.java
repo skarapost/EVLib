@@ -564,7 +564,12 @@ public class ChargingStation {
      */
     public void deleteCharger(Charger charger)
     {
+
         chargers.remove(charger);
+        if (charger.getKindOfCharging().equals("slow"))
+            SLOW_CHARGERS--;
+        else
+            FAST_CHARGERS--;
     }
 
     /**
