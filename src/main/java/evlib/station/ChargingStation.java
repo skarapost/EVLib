@@ -225,7 +225,7 @@ public class ChargingStation {
         this.automaticQueueHandling = true;
         this.chargingRatioSlow = 0.001;
         this.chargingRatioFast = 0.01;
-        this.disChargingRatio = 0.001;
+        this.disChargingRatio = 0.01;
         this.inductiveChargingRatio = 0.0001;
     }
 

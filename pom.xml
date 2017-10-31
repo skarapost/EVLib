@@ -4,11 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>groupId</groupId>
+    <groupId>evlib</groupId>
     <artifactId>EVLib</artifactId>
     <version>1.0</version>
 
     <build>
+        <finalName>evlib</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -19,13 +20,34 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
+            <plugin>
+              <artifactId>maven-surefire-plugin</artifactId>
+              <version>2.19</version>
+              <dependencies>
+                <dependency>
+                  <groupId>org.junit.platform</groupId>
+                  <artifactId>junit-platform-surefire-provider</artifactId>
+                  <version>1.0.0</version>
+                </dependency>
+              </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
+
     <dependencies>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>RELEASE</version>
-        </dependency>
+      <dependency>
+         <groupId>org.junit.jupiter</groupId>
+         <artifactId>junit-jupiter-engine</artifactId>
+         <version>5.0.0</version>
+         <scope>test</scope>
+      </dependency>
     </dependencies>
+
 </project>
