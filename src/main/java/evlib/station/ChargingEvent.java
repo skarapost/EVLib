@@ -32,6 +32,13 @@ public class ChargingEvent
     public static final List<ChargingEvent> chargingLog = new ArrayList<>();
     public static final List<ChargingEvent> exchangeLog = new ArrayList<>();
 
+    /**
+     * Constructs a new ChargingEvent object. It sets the condition of the event to "arrived".
+     * @param station The ChargingStation object the event visited.
+     * @param vehicle The ElectricVehicle of the event.
+     * @param amEnerg The amount of energy the events asks.
+     * @param kindOfCharging The kind of charging the event demands.
+     */
     public ChargingEvent(ChargingStation station, ElectricVehicle vehicle, double amEnerg, String kindOfCharging)
     {
         this.id = idGenerator.incrementAndGet();
@@ -43,6 +50,14 @@ public class ChargingEvent
         this.chargingStationName = station.getName();
     }
 
+    /**
+     * Constructs a new ChargingEvent object. It sets the condition of the event
+     *  to "arrived". Calculates the amount of energy the event will take.
+     * @param station The charging station the event visited.
+     * @param vehicle The electric vehicle of the event.
+     * @param kindOfCharging The kind of charging the event demands.
+     * @param money The monetary fee the event desires to give for energy.
+     */
     public ChargingEvent(ChargingStation station, ElectricVehicle vehicle, String kindOfCharging, double money)
     {
         this.id = idGenerator.incrementAndGet();
@@ -57,6 +72,13 @@ public class ChargingEvent
         this.chargingStationName = station.getName();
     }
 
+    /**
+     * Constructs a new ChargingEvent object. This constructor is for the events
+     *  wanting battery swapping. It sets the condition of the event
+     *  to "arrived".
+     * @param station The charging station the event visited.
+     * @param vehicle The electric vehicle of the event.
+     */
     public ChargingEvent(ChargingStation station, ElectricVehicle vehicle)
     {
         this.id = idGenerator.incrementAndGet();

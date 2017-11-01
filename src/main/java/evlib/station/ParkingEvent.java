@@ -27,6 +27,12 @@ public class ParkingEvent {
     private double cost;
     public static final List<ParkingEvent> parkLog = new ArrayList<>();
 
+    /**
+     * Constructs a new ParkingEvent object. It sets the condition of the event to "arrived".
+     * @param station The ChargingStation object the event visited.
+     * @param vehicle The ElectricVehicle of the event.
+     * @param parkingTime The time the event wants to park. It is counted in milliseconds.
+     */
     public ParkingEvent(ChargingStation station, ElectricVehicle vehicle, long parkingTime)
     {
         this.id = idGenerator.incrementAndGet();
@@ -37,6 +43,16 @@ public class ParkingEvent {
         this.chargingStationName = station.getName();
     }
 
+    /**
+     * Constructs a new ParkingEvent object. It sets the condition of the event to "arrived".
+     * This constructor is for the objects that desire to charge inductively, as well. If the energy
+     * demands greater time than the parking time, then the vehicle will charge until the end of the parking time,
+     * taking the respective amount of energy.
+     * @param station The ChargingStation object the event visited.
+     * @param vehicle The ElectricVehicle of the event.
+     * @param parkingTime The time the event wants to park. It is counted in milliseconds.
+     * @param amountOfEnergy The amount of energy the event wants to take inductively.
+     */
     public ParkingEvent(ChargingStation station, ElectricVehicle vehicle, long parkingTime, double amountOfEnergy)
     {
         this.id = idGenerator.incrementAndGet();

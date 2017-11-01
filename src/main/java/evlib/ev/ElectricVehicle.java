@@ -10,6 +10,10 @@ public class ElectricVehicle
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
     private int id;
 
+    /**
+     * Constructs a new ElectricVehicle object, asking only for the brand.
+     * @param brand The brand of the ElectricVehicle.
+     */
     public ElectricVehicle(String brand)
     {
         this.id = idGenerator.incrementAndGet();

@@ -14,6 +14,11 @@ public class Charger {
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
     private volatile boolean running = true;
 
+    /**
+     * Creates a new Charger instance.
+     * @param station The ChargingStation object the Charger is linked with.
+     * @param kindOfCharging The kind of charging the Charger supports.
+     */
     public Charger(ChargingStation station, String kindOfCharging) {
         this.id = idGenerator.incrementAndGet();
         this.kindOfCharging = kindOfCharging;
@@ -44,6 +49,8 @@ public class Charger {
      * The cost of the ChargingEvent is assigned to the Driver. The amount of energy to be given is added to the
      * battery's remaining amount. In the end, if the automatic queue's handling is activated the Charger checks
      * the waiting list.
+     * @param type This parameter is for the plan execution function. Value of "True" means that the charger will be used
+     * for the plan execution operation, "False" signifies the opposite.
      */
     void executeChargingEvent(boolean type) {
         running = true;

@@ -5,6 +5,10 @@ import java.util.ArrayList;
 public class Nonrenewable extends EnergySource{
     private final ArrayList<Double> energyAmount;
 
+    /**
+     * Creates a new Nonrenewable object.
+     * @param energyAmoun An array with some energy packages.
+     */
     public Nonrenewable(double[] energyAmoun)
     {
         energyAmount = new ArrayList<>();
@@ -12,6 +16,9 @@ public class Nonrenewable extends EnergySource{
             energyAmount.add(anEnergyAmoun);
     }
 
+    /**
+     * Creates a new Nonrenewable object with no energy packages.
+     */
     public Nonrenewable()
     {
         energyAmount = new ArrayList<>();

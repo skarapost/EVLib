@@ -11,11 +11,14 @@ public class DisCharger
     private volatile boolean running = true;
     private String name;
 
+    /**
+     * Creates a new DisCharger instance.
+     * @param station The ChargingStation instance linked with.
+     */
     public DisCharger(ChargingStation station)
     {
         this.id = idGenerator.incrementAndGet();
         this.station = station;
-        this.e = null;
         this.name = "DisCharger " + String.valueOf(id);
     }
 

@@ -12,6 +12,11 @@ public class Battery
     private boolean active;
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
 
+    /**
+     * Creates a new Battery object.
+     * @param remAmount The remaining amount of energy in the Battery.
+     * @param capacity The capacity of the Battery.
+     */
     public Battery(double remAmount, double capacity)
     {
         this.id = idGenerator.incrementAndGet();

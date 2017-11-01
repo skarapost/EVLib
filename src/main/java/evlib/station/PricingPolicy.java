@@ -11,6 +11,11 @@ public class PricingPolicy {
     private LinkedList<Long> spaces;
     private final short option;
 
+    /**
+     * Creates a new PricingPolicy instance. The time frame for each price is steady.
+     * @param space The time space each price we desire to last.
+     * @param prices An array of prices for the PricingPolicy object.
+     */
     public PricingPolicy(long space, double[] prices) {
         this.id = idGenerator.incrementAndGet();
         this.space = space;
@@ -20,6 +25,12 @@ public class PricingPolicy {
         this.option = 1;
     }
 
+    /**
+     * Creates a new PricingPolicy object. The time space for each price may change.
+     * The constructor takes two arrays as parameters. Both arrays' sizes need to be equal.
+     * @param spaces The time spaces for which the prices will endure.
+     * @param prices An array with the prices of the PricingPolicy object.
+     */
     public PricingPolicy(long[] spaces, double[] prices) {
         this.id = idGenerator.incrementAndGet();
         this.prices = new LinkedList<>();
@@ -32,7 +43,7 @@ public class PricingPolicy {
     }
 
     /**
-     * @param position The time space that we want the price.
+     * @param position The time frame for which we want the price to last.
      * @return The price in this time space of the PricingPolicy.
      */
     public double getSpecificPrice(int position) {

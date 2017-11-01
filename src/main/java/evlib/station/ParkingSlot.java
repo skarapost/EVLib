@@ -11,6 +11,10 @@ public class ParkingSlot {
     private volatile boolean running = true;
     private String name;
 
+    /**
+     * Creates a new ParkingSlot object. It also activates the switch for inductive charging.
+     * @param station The ChargingStation object the ParkingSlot is linked with.
+     */
     public ParkingSlot(ChargingStation station)
     {
         this.id = idGenerator.incrementAndGet();

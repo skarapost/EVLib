@@ -24,6 +24,12 @@ public class DisChargingEvent
     private double profit;
     public static final List<DisChargingEvent> dischargingLog = new ArrayList<>();
 
+    /**
+     * Creates a new DisChargingEvent object. It assigns the value of "arrived" to the condition of the event.
+     * @param station The ChargingStation object the event visited.
+     * @param vehicle The ElectricVehicle of the event.
+     * @param amEnerg The amount of energy the events asks. 
+     */
     public DisChargingEvent(ChargingStation station, ElectricVehicle vehicle, double amEnerg)
     {
         this.id = idGenerator.incrementAndGet();

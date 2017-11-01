@@ -6,6 +6,10 @@ public class Solar extends EnergySource
 {
     private final ArrayList<Double> energyAmount;
 
+    /**
+     * Creates a new Solar instance with energy packages inside.
+     * @param energyAmoun An array of energy packages.
+     */
     public Solar(double[] energyAmoun)
     {
         energyAmount = new ArrayList<>();
@@ -13,6 +17,9 @@ public class Solar extends EnergySource
             energyAmount.add(anEnergyAmoun);
     }
 
+    /**
+     * Creates a new Solar object with no energy packages.
+     */
     public Solar()
     {
         energyAmount = new ArrayList<>();

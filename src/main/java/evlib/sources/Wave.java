@@ -6,12 +6,19 @@ public class Wave extends EnergySource
 {
     private final ArrayList<Double> energyAmount;
 
+    /**
+     * Constructor of a Wave object with some energy packages inside.
+     * @param energyAmoun An array with energy packages.
+     */
     public Wave(double[] energyAmoun)
     {
         energyAmount = new ArrayList<>();
         for (double anEnergyAmoun : energyAmoun) energyAmount.add(anEnergyAmoun);
     }
 
+    /**
+     * Constructs a new Wave object.
+     */
     public Wave()
     {
         energyAmount = new ArrayList<>();

@@ -12,6 +12,9 @@ public class WaitList<T>
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
     private Lock lock = new ReentrantLock();
 
+    /**
+     * Creates a new WaitingList object.
+     */
     public WaitList()
     {
         this.id = idGenerator.incrementAndGet();

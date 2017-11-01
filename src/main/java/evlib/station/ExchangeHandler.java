@@ -11,6 +11,10 @@ public class ExchangeHandler
     private volatile boolean running = true;
     private String name;
 
+    /**
+     * Creates a new ExchangeHandler object.
+     * @param station The ChargingStation object the ExchangeHandler is linked with.
+     */
     public ExchangeHandler(ChargingStation station)
     {
         this.id = idGenerator.incrementAndGet();

@@ -7,6 +7,9 @@ public abstract class EnergySource
     private int id;
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
 
+    /**
+     * Constructor of a new EnergySource object.
+     */
     public EnergySource()
     {
         this.id = idGenerator.incrementAndGet();
@@ -19,7 +22,6 @@ public abstract class EnergySource
 
     /**
      * Inserts a package of energy to the queue for update of the storage.
-     *
      * @param amount The package's amount of energy.
      */
     public abstract void insertAmount(double amount);

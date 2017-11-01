@@ -66,6 +66,20 @@ public class ChargingStation {
         }
     }
 
+    /**
+     * Creates a new ChargingStation instance. It also sets the handling of the queue to automatic,
+     * sets the slow charging ratio to 0.001, the fast charging ratio to 0.01, the discharging ratio
+     * to 0.01 and the inductive ratio to 0.0001. Regarding the energy sources, creates all the desired
+     * energy objects, assigning the energy packages to them. Finally, initializes all the waiting lists.
+     * @param name The name of the Charging Station.
+     * @param kinds An array with the initial kind of chargers. The value "slow" means a charger for slow charging,
+     * while "fast" signifies a Charger for fast charging.
+     * @param source An array with the desired EnergySource objects. The values need to be exactly as the names
+     * of the sources package, in order to be created an object.
+     * @param energyAmounts A two-dimension array with all the initial energy packages for the station's source.
+     * The first dimension must be equal to the length of the kinds array parameter. The second dimension shows
+     * the number of energy packages we provide.
+     */
     public ChargingStation(String name, String[] kinds, String[] source, double[][] energyAmounts) {
         this.amounts = new HashMap<>();
         this.id = idGenerator.incrementAndGet();
@@ -137,6 +151,17 @@ public class ChargingStation {
         }
     }
 
+    /**
+     * Creates a new ChargingStation instance. It also sets the handling of the queue to automatic,
+     * sets the slow charging ratio to 0.001, the fast charging ratio to 0.01, the discharging ratio
+     * to 0.01 and the inductive ratio to 0.0001. Regarding the energy sources, creates all the desired
+     * energy objects, assigning the energy packages to them. Finally, initializes all the waiting lists.
+     * @param name The name of the ChargingStation object.
+     * @param kinds An array with the initial kind of chargers. The value "slow" means a charger for slow charging,
+     * while "fast" signifies a Charger for fast charging.
+     * @param source An array with the desired EnergySource objects. The values need to be exactly as the names
+     * of the sources package, in order to be created an object.
+     */
     public ChargingStation(String name, String[] kinds, String[] source) {
         this.amounts = new HashMap<>();
         this.id = idGenerator.incrementAndGet();
@@ -204,6 +229,13 @@ public class ChargingStation {
         }
     }
 
+    /**
+     * Creates a new ChargingStation instance. It also sets the handling of the queue to automatic,
+     * sets the slow charging ratio to 0.001, the fast charging ratio to 0.01, the discharging ratio
+     * to 0.01 and the inductive ratio to 0.0001. Regarding the energy sources, creates all the desired
+     * energy objects, assigning the energy packages to them. Finally, initializes all the waiting lists.
+     * @param name The name of the ChargingStation.
+     */
     public ChargingStation(String name) {
         this.id = idGenerator.incrementAndGet();
         this.name = name;

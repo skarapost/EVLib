@@ -10,12 +10,19 @@ public class Driver
     private double profit;
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
 
+    /**
+     * Creates a new Driver object, asking only for the name.
+     * @param name The name of the Driver.
+     */
     public Driver(String name)
     {
         this.id = idGenerator.incrementAndGet();
         this.name = name;
     }
 
+    /**
+     * Crates a new Driver object.
+     */
     public Driver()
     {
         this.id = idGenerator.incrementAndGet();
