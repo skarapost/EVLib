@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>evlib</groupId>
-    <artifactId>EVLib</artifactId>
+    <artifactId>evlib</artifactId>
     <version>1.0</version>
 
     <properties>
@@ -14,7 +14,7 @@
     </properties>
 
     <build>
-        <finalName>evlib</finalName>
+	<finalName>evlib</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

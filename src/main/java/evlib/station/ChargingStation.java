@@ -541,26 +541,28 @@ public class ChargingStation {
      * @param source The EnergySource to be added.
      */
     public void addEnergySource(EnergySource source) {
-        n.add(source);
-        if (source instanceof Solar) {
+        if ((source instanceof Solar)&&(!sources.contains("Solar"))) {
             sources.add("Solar");
             setSpecificAmount("Solar", 0.0);
-        } else if (source instanceof Wave) {
+        } else if ((source instanceof Wave)&&(!sources.contains("Wave"))) {
             sources.add("Wave");
             setSpecificAmount("Wave", 0.0);
-        } else if (source instanceof Wind) {
+        } else if ((source instanceof Wind)&&(!sources.contains("Wind"))) {
             sources.add("Wind");
             setSpecificAmount("Wind", 0.0);
-        } else if (source instanceof Hydroelectric) {
+        } else if ((source instanceof Hydroelectric)&&(!sources.contains("Hydroelectric"))) {
             sources.add("Hydroelectric");
             setSpecificAmount("Hydroelectric", 0.0);
-        } else if (source instanceof Geothermal) {
+        } else if ((source instanceof Geothermal)&&(!sources.contains("Geothermal"))) {
             sources.add("Geothermal");
             setSpecificAmount("Geothermal", 0.0);
-        } else if (source instanceof Nonrenewable) {
+        } else if ((source instanceof Nonrenewable)&&(!sources.contains("Nonrenewable"))) {
             sources.add("Nonrenewable");
             setSpecificAmount("Nonrenewable", 0.0);
         }
+        else
+            return;
+        n.add(source);
     }
 
     /**

@@ -24,7 +24,7 @@ The library also supports a number of secondary functions: The creation of a cha
 ## Example
 ```
   String[] kinds = { "slow", "fast", "fast", "slow" };
-  String[] sources = { "geothermal", "nonrenewable", "wind", "wave" };
+  String[] sources = { "Geothermal", "Nonrenewable", "Wind", "Wave" };
   double[][] energyAm = new double[4][ 5];
   for (int i = 0; i<4; i++)
       for (int j = 0; j<5; j++)
