@@ -1,10 +1,8 @@
 package evlib.station;
 
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
-import evlib.sources.*;
-import evlib.station.*;
-import evlib.ev.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class PricingPolicyTest {
     private long space = 1000;

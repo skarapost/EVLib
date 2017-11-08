@@ -1,10 +1,9 @@
 package evlib.station;
 
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
-import evlib.sources.*;
-import evlib.station.*;
-import evlib.ev.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class WaitListTest {
     ChargingStation station = new ChargingStation("Miami");

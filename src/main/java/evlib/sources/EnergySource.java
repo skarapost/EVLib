@@ -1,7 +1,7 @@
 package evlib.sources;
 
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class EnergySource
 {

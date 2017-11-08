@@ -1,10 +1,11 @@
 package evlib.station;
 
-import static org.junit.jupiter.api.Assertions.*;
+import evlib.ev.Battery;
+import evlib.sources.EnergySource;
+import evlib.sources.Wind;
 import org.junit.jupiter.api.Test;
-import evlib.sources.*;
-import evlib.station.*;
-import evlib.ev.*;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class ChargingStationTest {
     private double[][] amounts = {{150, 500, 800, 900, 450}, {800, 560, 780, 900, 450}};

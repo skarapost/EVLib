@@ -12,6 +12,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
 
 public class ChargingStation {
     private int id;
@@ -1394,7 +1395,8 @@ public class ChargingStation {
 
         void generateReport(String filePath) {
             List<String> content = new ArrayList<>();
-            content.add("***********************************");
+            AtomicInteger counter = new AtomicInteger(0);
+            content.add("********************");
             content.add("");
             content.add("Id: " + id);
             content.add("Name: " + name);
@@ -1404,15 +1406,38 @@ public class ChargingStation {
             content.add("Dischargers: " + dischargers.size());
             content.add("Exchange handlers: " + exchangeHandlers.size());
             content.add("Parking slots: " + parkingSlots.size());
-            content.add("Completed chargings: " + ChargingEvent.chargingLog.size());
-            content.add("Completed dischargings: " + DisChargingEvent.dischargingLog.size());
-            content.add("Completed battery swappings: " + ChargingEvent.exchangeLog.size());
-            content.add("Completed parkings: " + ParkingEvent.parkLog.size());
+            Consumer<ChargingEvent> consumer1 = e -> {
+                if (e.getChargingStationName().equals(name))
+                    counter.incrementAndGet();
+            };
+            ChargingEvent.chargingLog.forEach(consumer1);
+            content.add("Completed chargings: " + counter);
+            counter.set(0);
+            Consumer<DisChargingEvent> consumer2 = e -> {
+                if (e.getChargingStationName().equals(name))
+                    counter.incrementAndGet();
+            };
+            DisChargingEvent.dischargingLog.forEach(consumer2);
+            content.add("Completed dischargings: " + counter);
+            counter.set(0);
+            Consumer<ChargingEvent> consumer3 = e -> {
+                if (e.getChargingStationName().equals(name))
+                    counter.incrementAndGet();
+            };
+            ChargingEvent.exchangeLog.forEach(consumer3);
+            content.add("Completed battery swappings: " + counter);
+            counter.set(0);
+            Consumer<ParkingEvent> consumer4 = e -> {
+                if (e.getChargingStationName().equals(name))
+                    counter.incrementAndGet();
+            };
+            ParkingEvent.parkLog.forEach(consumer4);
+            content.add("Completed parkings: " + counter);
             content.add("Vehicles waiting for fast charging: " + fast.getSize());
             content.add("Vehicles waiting for slow charging: " + slow.getSize());
             content.add("Vehicles waiting for discharging: " + discharging.getSize());
             content.add("Vehicles waiting for battery swapping: " + exchange.getSize());
-            content.add("Energy sources: ");
+            content.add("Energy amounts: ");
             for (String s : getSources())
                 content.add("  " + s + ": " + getSpecificAmount(s));
             content.add("");
@@ -1422,11 +1447,11 @@ public class ChargingStation {
                     content.add("");
                     content.add("Id: " + ev.getId());
                     content.add("Station name: " + ev.getChargingStationName());
-                    content.add("Amount of energy: " + ev.getAmountOfEnergy());
-                    content.add("Energy to be received: " + ev.getEnergyToBeReceived());
+                    content.add("Asking energy: " + ev.getAmountOfEnergy());
+                    content.add("Received energy: " + ev.getEnergyToBeReceived());
                     content.add("Charging time: " + ev.getChargingTime());
                     content.add("Waiting time: " + ev.getWaitingTime());
-                    content.add("Maximum Waiting time: " + ev.getMaxWaitingTime());
+                    content.add("Maximum waiting time: " + ev.getMaxWaitingTime());
                     content.add("Cost: " + ev.getCost());
                 }
             }
@@ -1437,10 +1462,10 @@ public class ChargingStation {
                     content.add("");
                     content.add("Id: " + ev.getId());
                     content.add("Station name: " + ev.getChargingStationName());
-                    content.add("Amount of energy: " + ev.getAmountOfEnergy());
+                    content.add("Asking energy: " + ev.getAmountOfEnergy());
                     content.add("DisCharging time: " + ev.getDisChargingTime());
                     content.add("Waiting time: " + ev.getWaitingTime());
-                    content.add("Maximum Waiting time: " + ev.getMaxWaitingTime());
+                    content.add("Maximum waiting time: " + ev.getMaxWaitingTime());
                     content.add("Profit: " + ev.getProfit());
                 }
             }
@@ -1452,7 +1477,7 @@ public class ChargingStation {
                     content.add("Id: " + ev.getId());
                     content.add("Station name: " + ev.getChargingStationName());
                     content.add("Waiting time: " + ev.getWaitingTime());
-                    content.add("Maximum Waiting time: " + ev.getMaxWaitingTime());
+                    content.add("Maximum waiting time: " + ev.getMaxWaitingTime());
                     content.add("Cost: " + ev.getCost());
                 }
             }
@@ -1464,7 +1489,7 @@ public class ChargingStation {
                     content.add("Id: " + ev.getId());
                     content.add("Station name: " + ev.getChargingStationName());
                     content.add("Amount of energy: " + ev.getAmountOfEnergy());
-                    content.add("Energy to be received: " + ev.getEnergyToBeReceived());
+                    content.add("Received energy: " + ev.getEnergyToBeReceived());
                     content.add("Parking time: " + ev.getParkingTime());
                     content.add("Charging time: " + ev.getChargingTime());
                     content.add("Cost: " + ev.getCost());
@@ -1477,7 +1502,7 @@ public class ChargingStation {
                 content.add(s);
             }
             content.add("");
-            content.add("***********************************");
+            content.add("********************");
             Writer writer = null;
             try {
                 writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath), "utf-8"));

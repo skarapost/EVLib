@@ -1,7 +1,8 @@
 package evlib.sources;
 
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class GeothermalTest {
     private double[] amounts = {150, 190, 600, 18000};

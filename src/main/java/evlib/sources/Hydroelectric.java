@@ -1,7 +1,5 @@
 package evlib.sources;
 
-import java.util.ArrayList;
-
 public class Hydroelectric extends EnergySource {
     /**
      * Constructs a new Hydroelectric instance, with no energy packages.

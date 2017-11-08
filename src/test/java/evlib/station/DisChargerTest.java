@@ -1,10 +1,11 @@
 package evlib.station;
 
-import static org.junit.jupiter.api.Assertions.*;
+import evlib.ev.Battery;
+import evlib.ev.Driver;
+import evlib.ev.ElectricVehicle;
 import org.junit.jupiter.api.Test;
-import evlib.sources.*;
-import evlib.station.*;
-import evlib.ev.*;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class DisChargerTest {
 

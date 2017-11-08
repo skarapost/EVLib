@@ -1,7 +1,5 @@
 package evlib.sources;
 
-import java.util.ArrayList;
-
 public class Solar extends EnergySource
 {
     /**
