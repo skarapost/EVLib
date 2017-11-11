@@ -100,7 +100,7 @@ public class ChargingEvent
     {
         if (vehicle.getBattery().getActive()) {
             if ((condition.equals("arrived")) || (condition.equals("wait"))) {
-                if (!"exchange".equals(kindOfCharging)) {
+                if (!"exchange".equalsIgnoreCase(kindOfCharging)) {
                     charger = station.assignCharger(this);
                     if (charger != null) {
                         if (amountOfEnergy < station.getTotalEnergy()) {
@@ -114,7 +114,7 @@ public class ChargingEvent
                             else
                                 energyToBeReceived = vehicle.getBattery().getCapacity() - vehicle.getBattery().getRemAmount();
                         }
-                        if ("fast".equals(kindOfCharging))
+                        if ("fast".equalsIgnoreCase(kindOfCharging))
                             chargingTime = ((long) (energyToBeReceived / station.getChargingRatioFast()));
                         else
                             chargingTime = ((long) (energyToBeReceived / station.getChargingRatioSlow()));
@@ -181,7 +181,7 @@ public class ChargingEvent
     public synchronized void execution()
     {
         if (condition.equals("ready"))
-            if (!kindOfCharging.equals("exchange"))
+            if (!kindOfCharging.equalsIgnoreCase("exchange"))
             {
                 setCondition("charging");
                 vehicle.getBattery().addCharging();
@@ -361,7 +361,7 @@ public class ChargingEvent
         long[] counter2 = new long[station.getExchangeHandlers().length];
         long min = 1000000000;
         int index = 1000000000;
-        if (!Objects.equals("exchange", getKindOfCharging()))
+        if (!"exchange".equalsIgnoreCase(getKindOfCharging()))
             for (int i = 0; i < station.getChargers ().length; i++) {
                 if (Objects.equals(getKindOfCharging(), station.getChargers()[i].getKindOfCharging())) {
                     long diff = station.getChargers()[i].getChargingEvent().getRemainingChargingTime();
@@ -382,7 +382,7 @@ public class ChargingEvent
                 counter2[i] = diff;
             }
         ChargingEvent e;
-        if ("slow".equals(getKindOfCharging()))
+        if ("slow".equalsIgnoreCase(getKindOfCharging()))
         {
             WaitList o = station.getSlow();
             for (int i = 0;i < o.getSize() ;i++)
@@ -395,7 +395,7 @@ public class ChargingEvent
             }
             return counter1[index];
         }
-        if ("fast".equals(getKindOfCharging()))
+        if ("fast".equalsIgnoreCase(getKindOfCharging()))
         {
             WaitList o = station.getFast();
             for(int i = 0; i < o.getSize() ;i++)
@@ -408,7 +408,7 @@ public class ChargingEvent
             }
             return counter1[index];
         }
-        if ("exchange".equals(getKindOfCharging()))
+        if ("exchange".equalsIgnoreCase(getKindOfCharging()))
         {
             for(int i = 0; i < station.getExchange().getSize();i++)
             {

@@ -129,13 +129,13 @@ public class Charger {
      */
     private void handleQueueEvents() {
         ChargingEvent e;
-        if ("fast".equals(getKindOfCharging())) {
+        if ("fast".equalsIgnoreCase(getKindOfCharging())) {
             if (station.getFast().getSize() != 0) {
                 e = (ChargingEvent) station.getFast().moveFirst();
                 e.preProcessing();
                 e.execution();
             }
-        } else if ("slow".equals(getKindOfCharging())) {
+        } else if ("slow".equalsIgnoreCase(getKindOfCharging())) {
             if (station.getSlow().getSize() != 0) {
                 e = (ChargingEvent) station.getSlow().moveFirst();
                 e.preProcessing();

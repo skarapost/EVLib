@@ -105,49 +105,43 @@ public class ChargingStation {
         this.disChargingRatio = 0.01;
         this.inductiveChargingRatio = 0.0001;
         for (int i = 0; i < source.length; i++) {
-            switch (source[i]) {
-                case "Solar":
-                    n.add(i, new Solar(energyAmounts[i]));
-                    setSpecificAmount("Solar", 0.0);
-                    break;
-                case "Wind":
-                    n.add(i, new Wind(energyAmounts[i]));
-                    setSpecificAmount("Wind", 0.0);
-                    break;
-                case "Geothermal":
-                    n.add(i, new Geothermal(energyAmounts[i]));
-                    setSpecificAmount("Geothermal", 0.0);
-                    break;
-                case "Wave":
-                    n.add(i, new Wave(energyAmounts[i]));
-                    setSpecificAmount("Wave", 0.0);
-                    break;
-                case "Hydroelectric":
-                    n.add(i, new Hydroelectric(energyAmounts[i]));
-                    setSpecificAmount("Hydroelectric", 0.0);
-                    break;
-                case "Nonrenewable":
-                    n.add(i, new Nonrenewable(energyAmounts[i]));
-                    setSpecificAmount("Nonrenewable", 0.0);
-                    break;
+            if (source[i].equalsIgnoreCase("Solar")) {
+                n.add(i, new Solar(energyAmounts[i]));
+                setSpecificAmount("Solar", 0.0);
+
+            } else if (source[i].equalsIgnoreCase("Wind")) {
+                n.add(i, new Wind(energyAmounts[i]));
+                setSpecificAmount("Wind", 0.0);
+
+            } else if (source[i].equalsIgnoreCase("Geothermal")) {
+                n.add(i, new Geothermal(energyAmounts[i]));
+                setSpecificAmount("Geothermal", 0.0);
+
+            } else if (source[i].equalsIgnoreCase("Wave")) {
+                n.add(i, new Wave(energyAmounts[i]));
+                setSpecificAmount("Wave", 0.0);
+
+            } else if (source[i].equalsIgnoreCase("Hydroelectric")) {
+                n.add(i, new Hydroelectric(energyAmounts[i]));
+                setSpecificAmount("Hydroelectric", 0.0);
+
+            } else if (source[i].equalsIgnoreCase("Nonrenewable")) {
+                n.add(i, new Nonrenewable(energyAmounts[i]));
+                setSpecificAmount("Nonrenewable", 0.0);
+
             }
         }
         for (String kind : kinds) {
-            switch (kind) {
-                case "slow":
-                case "fast":
-                    chargers.add(new Charger(this, kind));
-                    if (kind.equals("slow"))
-                        ++SLOW_CHARGERS;
-                    else
-                        ++FAST_CHARGERS;
-                    break;
-                case "exchange":
-                    exchangeHandlers.add(new ExchangeHandler(this));
-                    break;
-                case "park":
-                    parkingSlots.add(new ParkingSlot(this));
-                    break;
+            if (kind.equalsIgnoreCase("slow")) {
+                chargers.add(new Charger(this, "slow"));
+                ++SLOW_CHARGERS;
+            } else if (kind.equalsIgnoreCase("fast")) {
+                chargers.add(new Charger(this, "fast"));
+                ++FAST_CHARGERS;
+            } else if (kind.equals("exchange")) {
+                exchangeHandlers.add(new ExchangeHandler(this));
+            } else if (kind.equals("park")) {
+                parkingSlots.add(new ParkingSlot(this));
             }
         }
     }
@@ -363,7 +357,7 @@ public class ChargingStation {
         try {
             if (chargers.size() != 0)
                 while (!flag && i < chargers.size()) {
-                    if (event.getKindOfCharging().equals(chargers.get(i).getKindOfCharging()))
+                    if (event.getKindOfCharging().equalsIgnoreCase(chargers.get(i).getKindOfCharging()))
                         if (chargers.get(i).getChargingEvent() == null) {
                             chargers.get(i).setChargingEvent(event);
                             flag = true;
@@ -504,9 +498,9 @@ public class ChargingStation {
      */
     public void addCharger(Charger charger) {
         chargers.add(charger);
-        if (charger.getKindOfCharging().equals("slow"))
+        if (charger.getKindOfCharging().equalsIgnoreCase("slow"))
             ++SLOW_CHARGERS;
-        else if (charger.getKindOfCharging().equals("fast"))
+        else if (charger.getKindOfCharging().equalsIgnoreCase("fast"))
             ++FAST_CHARGERS;
     }
 
@@ -601,7 +595,7 @@ public class ChargingStation {
     {
 
         chargers.remove(charger);
-        if (charger.getKindOfCharging().equals("slow"))
+        if (charger.getKindOfCharging().equalsIgnoreCase("slow"))
             SLOW_CHARGERS--;
         else
             FAST_CHARGERS--;
@@ -832,32 +826,32 @@ public class ChargingStation {
      * @return The asking EnergySource.
      */
     public EnergySource getEnergySource(String source) {
-        if ("Solar".equals(source)) {
+        if ("Solar".equalsIgnoreCase(source)) {
             for (EnergySource aN : n)
                 if (aN instanceof Solar)
                     return aN;
         }
-        else if ("Wind".equals(source)) {
+        else if ("Wind".equalsIgnoreCase(source)) {
             for (EnergySource aN : n)
                 if (aN instanceof Wind)
                     return aN;
         }
-        else if ("Wave".equals(source)) {
+        else if ("Wave".equalsIgnoreCase(source)) {
             for (EnergySource aN : n)
                 if (aN instanceof Wave)
                     return aN;
         }
-        else if ("Hydroelectric".equals(source)) {
+        else if ("Hydroelectric".equalsIgnoreCase(source)) {
             for (EnergySource aN : n)
                 if (aN instanceof Hydroelectric)
                     return aN;
         }
-        else if ("Geothermal".equals(source)) {
+        else if ("Geothermal".equalsIgnoreCase(source)) {
             for (EnergySource aN : n)
                 if (aN instanceof Geothermal)
                     return aN;
         }
-        else if ("Nonrenewable".equals(source)) {
+        else if ("Nonrenewable".equalsIgnoreCase(source)) {
             for (EnergySource aN : n)
                 if (aN instanceof Nonrenewable)
                     return aN;
@@ -975,10 +969,10 @@ public class ChargingStation {
 
     /**
      * Calculates the waiting time the ElectricVehicle should wait.
-     * @param kind The function for which the waiting time has to be calculated. The keywords are: "slow" for
-     * slow charging, "fast" for fast charging, "exchange" for battery exchange function, "discharging" for
+     * @param kind The kind of operation for which the waiting time should be calculated. The acceptable values are: "slow" for
+     * slow charging, "fast" for fast charging, "exchange" for battery exchange function and "discharging" for
      * the discharging function.
-     * @return The time an ElectricVehicle should wait, to be served.
+     * @return The time an ElectricVehicle should wait, to be executed.
      */
     public long getWaitingTime(String kind) {
         long[] counter1 = new long[chargers.size()];
@@ -987,7 +981,7 @@ public class ChargingStation {
         long min = 1000000000;
         int index = 1000000000;
         boolean accessed = false;
-        if (Objects.equals("slow", kind)||Objects.equals("fast", kind))
+        if ("slow".equalsIgnoreCase(kind)||"fast".equalsIgnoreCase(kind))
             for (int i = 0; i < chargers.size(); i++) {
                 if (Objects.equals(kind, chargers.get(i).getKindOfCharging())) {
                     if(chargers.get(i).getChargingEvent() != null) {
@@ -1008,7 +1002,7 @@ public class ChargingStation {
                         return 0;
                 }
             }
-        else if(Objects.equals("exchange", kind))
+        else if("exchange".equalsIgnoreCase(kind))
             for (int i = 0; i<exchangeHandlers.size(); i++) {
                 if (exchangeHandlers.get(i).getChargingEvent() != null) {
                     long diff = exchangeHandlers.get(i).getChargingEvent().getRemainingChargingTime();
@@ -1021,7 +1015,7 @@ public class ChargingStation {
                 } else
                     return 0;
             }
-        else if(Objects.equals("discharging", kind))
+        else if("discharging".equalsIgnoreCase(kind))
             for (int i = 0; i<dischargers.size(); i++) {
                 if (dischargers.get(i).getDisChargingEvent() != null) {
                     long diff = dischargers.get(i).getDisChargingEvent().getRemainingDisChargingTime();
@@ -1040,7 +1034,7 @@ public class ChargingStation {
             return 0;
         ChargingEvent e;
         DisChargingEvent ey;
-        if ("slow".equals(kind)) {
+        if ("slow".equalsIgnoreCase(kind)) {
             WaitList o = this.slow;
             for (int i = 0; i < o.getSize() ; i++) {
                 e = (ChargingEvent) o.get(i);
@@ -1051,7 +1045,7 @@ public class ChargingStation {
             }
             return counter1[index];
         }
-        if ("fast".equals(kind)) {
+        if ("fast".equalsIgnoreCase(kind)) {
             WaitList o = this.fast;
             for(int i = 0; i < o.getSize() ; i++) {
                 e = (ChargingEvent) o.get(i);
@@ -1062,7 +1056,7 @@ public class ChargingStation {
             }
             return counter1[index];
         }
-        if ("exchange".equals(kind)) {
+        if ("exchange".equalsIgnoreCase(kind)) {
             for(int i = 0; i < this.exchange.getSize(); i++) {
                 counter2[index] = counter2[index] + timeOfExchange;
                 for (int j = 0; j < exchangeHandlers.size(); j++)
@@ -1071,7 +1065,7 @@ public class ChargingStation {
             }
             return counter2[index];
         }
-        if ("discharging".equals(kind)) {
+        if ("discharging".equalsIgnoreCase(kind)) {
             WaitList o = this.discharging;
             for(int i = 0; i < o.getSize() ; i++) {
                 ey = (DisChargingEvent) o.get(i);
@@ -1192,12 +1186,12 @@ public class ChargingStation {
     public double calculatePrice(ChargingEvent event)
     {
         if (policy == null)
-            if (!"exchange".equals(event.getKindOfCharging()))
+            if (!"exchange".equalsIgnoreCase(event.getKindOfCharging()))
                 return event.getEnergyToBeReceived() * getUnitPrice();
             else
                 return getExchangePrice();
         else if (policy.getDurationOfPolicy() < System.currentTimeMillis() - timestamp)
-            if (!"exchange".equals(event.getKindOfCharging()))
+            if (!"exchange".equalsIgnoreCase(event.getKindOfCharging()))
                 return event.getEnergyToBeReceived() * getUnitPrice();
             else
                 return getExchangePrice();
