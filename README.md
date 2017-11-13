@@ -1,25 +1,28 @@
 # EVLib
-EVLib is a library for the management and the simulation of EV activities in a charging station level which makes use of a set of available energy sources. It is implemented in the JAVA programming language, and its main goal is to manage the charging, discharging, battery swap functions and parking/charging inductively and support their integration into a single charging station. The library supports a large number of functions to properly manage EV-related activities. There are four main functions, as well as a number of secondary ones.
+EVLib is a library for the management and the simulation of EV activities in a charging station level which makes use of a set of available energy sources. It is implemented using Java, and its main goal is to manage the charging, discharging, battery swap and parking/charging inductively functions and support their integration into a single charging station. The library supports a large number of operations to properly manage EV-related activities.
 
-## Build
-EVLib build phase demands maven. The target directory contains the library which is the ```evlib.jar``` file. It also includes the documentation of EVLib in the ```evlib-javadoc.jar``` file.
+## Documentation
+The documentation of EVLib is included in the evlib-javadoc.jar file in the ```/target``` directory.
 
 ## Main Functions
 
 ### Charging:
-There are 2 types of charging depending on the ratio, namely the fast and the slow charging.
+There are 2 types of charging depending on the ratio, namely the fast and the slow charging. It is implemented through the ChargingEvent class. A proper execution first demands the call of preProcessing() method and then the call of execution() method.
 
 ### DisCharging:
-Similar to a charging event, a discharging event first demands the pre-processing phase where a quest for an empty dis-charger is made.
+Similar to a charging event, a discharging event first demands the pre-processing phase and then the execution phase. The DisChargingEvent is responsible for creating a discharging event.
 
 ### Battery Exchange:
-The pre-processing phase requires for a battery with enough range to be available in the charging station. If such a battery is found, the battery is swapped into the EV.
+The pre-processing phase requires for a battery with enough range to be available in the charging station. If such a battery is found, the battery is swapped into the EV. Battery exchange is implemented through ChargingEvent class.
 
 ### Parking Event:
-The vehicle can either simply park or charging inductively. The pre-processing phase looks for an empty parking slot. If the parking event requires energy as well, the parking slot needs to have enabled the switch for inductive charging. The next check is for energy. The waiting list is not supported in this operation.
+The vehicle can either simply park or charging inductively. The pre-processing phase looks for an empty parking slot. If the parking event requires energy as well, the parking slot needs to have enabled the switch for inductive charging. The next check is for energy. The waiting list is not supported in this operation. ParkingEvent class is competent for the implementation of this function.
+
+## Waiting queue:
+An event is automatically inserted to a waiting list during an unsuccessful pre-processing phase. This means that no any empty charger, diacharger, battery handler or parking slot was found. The maximum waiting list is calculated before the insertion of it. If the calculated time is less than the time the vehicle can wait, then it is added to the list. The waiting queue can be managed either automatically or manually.
 
 ## Extra Functions
-The library also supports a number of secondary functions: The creation of a charging station, as well as the creation and integration of a charger, dis-charger, battery swapper or parking slot in the station. Additional operations are the recharging of batteries which are later to be swapped into EVs, as well as the ability to add new batteries to the storage in order seamless operation of the battery exchange process to be achieved. The total cost of the charging, discharging and battery swapping can be calculated based on a series of costs (e.g., energy cost) defined by the user. During the creation of the charging station, 4 waiting lists are created. A list for the charging events which want fast charging, a list for the charging events which want slow charging, a list for the discharging events, and a list for the vehicles waiting for battery exchange. The user has the capability to attach a pricing policy,as well.
+The library also supports a number of secondary functions: The creation of a charging station, as well as the creation and integration of a charger, dis-charger, battery swapper or parking slot in the station. Additional operations are the recharging of batteries which are later to be swapped into EVs, as well as the ability to add new batteries to the storage in order seamless operation of the battery exchange process to be achieved. The total cost of the charging, discharging and battery swapping can be calculated based on a series of costs (e.g., energy cost) defined by the user. During the creation of the charging station, 4 waiting lists are created. A list for the charging events which want fast charging, a list for the charging events which want slow charging, a list for the discharging events, and a list for the vehicles waiting for battery exchange. The user has the capability to attach a pricing policy, as well.
 
 ## Example
 ```
@@ -31,8 +34,9 @@ The library also supports a number of secondary functions: The creation of a cha
           energyAm [i][j] = 1500;
 
   /* Creation of a ChargingStation with, 4 Charger objects(2 slow and 2 fast), 4
-     energy sources(Geothermal, Nonrenewable, Wind, Wave) that means 4 EnergySource
-     objects and 5 energy packages for each energy sources
+     energy sources(Geothermal, Nonrenewable, Wind, Wave). We also 5 energy packages
+     for each energy sources. At each update storage one package from each energy source will
+     be inserted to the charging station.
   */
   ChargingStation station = new ChargingStation("Miami", kinds, sources, energyAm);
 
@@ -48,6 +52,9 @@ The library also supports a number of secondary functions: The creation of a cha
   //Sets the space between every update in milliseconds.
   station.setAutomaticUpdateMode(true);
   station.setUpdateSpace(10000);
+
+  //Stop for a half-second to be completed at least one update storage(energy transfer from energy sources to the station)
+  Thread.sleep(500);
 
   station.setTimeOfExchange(5000);
 
@@ -112,7 +119,8 @@ The library also supports a number of secondary functions: The creation of a cha
   ev6.setWaitingTime(450000);
 
   /* Pre-processing and execution methods for each event. If an event is inserted
-     in the waiting list, then the execution phase will not be executed.
+     in the waiting list, then the execution phase will not be executed, the event's
+     condition is set to "wait".
   */
   ev1.preProcessing();
   ev1.execution();
