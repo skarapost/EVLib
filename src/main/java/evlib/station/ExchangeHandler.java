@@ -90,7 +90,10 @@ public class ExchangeHandler
             e.getElectricVehicle().setBattery(e.givenBattery);
             if (e.getElectricVehicle().getDriver() != null)
                 e.getElectricVehicle().getDriver().setDebt(e.getElectricVehicle().getDriver().getDebt() + station.calculatePrice(e));
-            System.out.println("Battery exchange " + e.getId() + ", " + e.getChargingStationName() + ", OK");
+            if (e.getElectricVehicle().getDriver() == null && e.getElectricVehicle().getBrand() == null)
+                System.out.println("Battery exchange " + e.getId() + ", " + e.getChargingStationName() + ", OK");
+            else
+                System.out.println("Battery exchange " + e.getId() + ", " + e.getElectricVehicle().getDriver().getName() + ", " + e.getElectricVehicle().getBrand() + ", " + e.getChargingStationName() + ", OK");
             e.setCondition("finished");
             ChargingEvent.exchangeLog.add(e);
             setChargingEvent(null);

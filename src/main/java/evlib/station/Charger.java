@@ -67,7 +67,10 @@ public class Charger {
                 e.getElectricVehicle().getBattery().setRemAmount(e.getEnergyToBeReceived() + e.getElectricVehicle().getBattery().getRemAmount());
                 if (e.getElectricVehicle().getDriver() != null)
                     e.getElectricVehicle().getDriver().setDebt(e.getElectricVehicle().getDriver().getDebt() + e.getCost());
-                System.out.println("Charging " + e.getId() + ", " + e.getChargingStationName() + ", OK");
+                if (e.getElectricVehicle().getDriver() == null && e.getElectricVehicle().getBrand() == null)
+                    System.out.println("Charging " + e.getId() + ", " + e.getChargingStationName() + ", OK");
+                else
+                    System.out.println("Charging " + e.getId() + ", " + e.getElectricVehicle().getDriver().getName() + ", " + e.getElectricVehicle().getBrand() + ", " + e.getChargingStationName() + ", OK");
                 e.setCondition("finished");
                 ChargingEvent.chargingLog.add(e);
                 setChargingEvent(null);
