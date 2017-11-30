@@ -1,6 +1,7 @@
 package evlib.station;
 
 import evlib.ev.Battery;
+import evlib.ev.ElectricVehicle;
 import evlib.sources.EnergySource;
 import evlib.sources.Wind;
 import org.junit.jupiter.api.Test;
@@ -76,11 +77,15 @@ class ChargingStationTest {
 
     @Test
     void assignBattery() {
-        assertNull(station.assignBattery());
+        ElectricVehicle vehicle = new ElectricVehicle("Audi");
+        Battery bat = new Battery(1500, 1500);
+        vehicle.setBattery(bat);
+        ChargingEvent event = new ChargingEvent(station, vehicle);
+        assertNull(station.assignBattery(event));
 
         Battery battery = new Battery(1500, 6000);
         station.joinBattery(battery);
-        assertEquals(station.assignBattery(), battery);
+        assertEquals(station.assignBattery(event), battery);
         assertEquals(station.getBatteries().length, 0);
     }
 

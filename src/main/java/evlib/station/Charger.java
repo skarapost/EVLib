@@ -72,14 +72,12 @@ public class Charger {
                 else
                     System.out.println("Charging " + e.getId() + ", " + e.getElectricVehicle().getDriver().getName() + ", " + e.getElectricVehicle().getBrand() + ", " + e.getChargingStationName() + ", OK");
                 e.setCondition("finished");
-                ChargingEvent.chargingLog.add(e);
                 setChargingEvent(null);
                 if (station.getQueueHandling())
                     handleQueueEvents();
             } else {
                 if (!planEvent.contains(station.events.indexOf(e) + 1))
                     if (e.getKindOfCharging() != null) {
-                        ChargingEvent.chargingLog.add(e);
                         e.setCondition("finished");
                         e.setChargingTime(e.accumulatorOfChargingTime);
                     } else

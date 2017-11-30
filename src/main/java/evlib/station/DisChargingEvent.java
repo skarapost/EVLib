@@ -13,7 +13,7 @@ public class DisChargingEvent
     private ElectricVehicle vehicle;
     private final ChargingStation station;
     private final String chargingStationName;
-    private DisCharger disCharger;
+    DisCharger disCharger;
     private double amountOfEnergy;
     private long disChargingTime;
     private long remainingDisChargingTime;
@@ -38,6 +38,7 @@ public class DisChargingEvent
         this.vehicle = vehicle;
         this.condition = "arrived";
         this.chargingStationName = station.getName();
+        this.dischargingLog.add(this);
     }
 
     /**
@@ -80,7 +81,7 @@ public class DisChargingEvent
     {
         if (getElectricVehicle().getBattery().getActive()) {
             if ((condition.equals("arrived")) || (condition.equals("wait"))) {
-                disCharger = station.assignDisCharger(this);
+                station.assignDisCharger(this);
                 if (disCharger != null) {
                     disChargingTime = (long) (amountOfEnergy / station.getDisChargingRatio());
                     setCondition("ready");

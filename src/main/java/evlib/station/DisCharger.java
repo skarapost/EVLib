@@ -48,7 +48,6 @@ public class DisCharger
             else
                 System.out.println("Discharging " + e.getId() + ", " + e.getElectricVehicle().getDriver().getName() + ", " + e.getElectricVehicle().getBrand() + ", " + e.getChargingStationName() + ", OK");
             e.setCondition("finished");
-            DisChargingEvent.dischargingLog.add(e);
             setDisChargingEvent(null);
             if (station.getQueueHandling())
                 handleQueueEvents();

@@ -84,7 +84,6 @@ public class ParkingSlot {
                     else
                         System.out.println("Parking " + e.getId() + ", " + e.getElectricVehicle().getDriver().getName() + ", " + e.getElectricVehicle().getBrand() + ", " + e.getChargingStationName() + ", OK");
                     e.setCondition("finished");
-                    ParkingEvent.parkLog.add(e);
                     setParkingEvent(null);
                 }
             }

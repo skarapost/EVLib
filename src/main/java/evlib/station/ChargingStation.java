@@ -362,6 +362,7 @@ public class ChargingStation {
                             chargers.get(i).setChargingEvent(event);
                             flag = true;
                             ch = chargers.get(i);
+                            event.charger = chargers.get(i);
                         }
                     ++i;
                 }
@@ -388,6 +389,7 @@ public class ChargingStation {
                         dischargers.get(i).setDisChargingEvent(event);
                         flag = true;
                         dsch = dischargers.get(i);
+                        event.disCharger = dischargers.get(i);
                     }
                     ++i;
                 }
@@ -414,6 +416,7 @@ public class ChargingStation {
                         exchangeHandlers.get(i).setChargingEvent(event);
                         flag = true;
                         ch = exchangeHandlers.get(i);
+                        event.exchange = exchangeHandlers.get(i);
                     }
                     ++i;
                 }
@@ -442,11 +445,13 @@ public class ChargingStation {
                                 parkingSlots.get(i).setParkingEvent(event);
                                 flag = true;
                                 ch = parkingSlots.get(i);
+                                event.parkingSlot = parkingSlots.get(i);
                             }
                         } else {
                             parkingSlots.get(i).setParkingEvent(event);
                             flag = true;
                             ch = parkingSlots.get(i);
+                            event.parkingSlot = parkingSlots.get(i);
                         }
                     }
                     ++i;
@@ -462,7 +467,7 @@ public class ChargingStation {
      * the battery is returned.
      * @return The assigned Battery, or null if no Battery found.
      */
-    public Battery assignBattery() {
+    public Battery assignBattery(ChargingEvent event) {
         lock8.lock();
         int i = 0;
         Battery bat = null;
@@ -472,7 +477,8 @@ public class ChargingStation {
                 while (!flag && i < batteries.size()) {
                     if (batteries.get(i).getRemAmount() > 0) {
                         flag = true;
-                        bat = batteries.remove(i);
+                        bat = batteries.get(i);
+                        event.givenBattery = batteries.remove(i);
                     }
                     ++i;
                 }

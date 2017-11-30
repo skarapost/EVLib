@@ -15,7 +15,7 @@ public class ParkingEvent {
     private final String chargingStationName;
     private ElectricVehicle vehicle;
     private final ChargingStation station;
-    private ParkingSlot parkingSlot;
+    ParkingSlot parkingSlot;
     private long remainingParkingTime;
     private long chargingTime;
     private long remainingChargingTime;
@@ -41,6 +41,7 @@ public class ParkingEvent {
         this.condition = "arrived";
         this.parkingTime = parkingTime;
         this.chargingStationName = station.getName();
+        this.parkLog.add(this);
     }
 
     /**
@@ -62,6 +63,7 @@ public class ParkingEvent {
         this.condition = "arrived";
         this.parkingTime = parkingTime;
         this.chargingStationName = station.getName();
+        this.parkLog.add(this);
     }
 
     /**
@@ -87,7 +89,7 @@ public class ParkingEvent {
     {
         if (vehicle.getBattery().getActive()) {
             if (condition.equals("arrived")) {
-                parkingSlot = station.assignParkingSlot(this);
+                station.assignParkingSlot(this);
                 if (parkingSlot != null) {
                     if (amountOfEnergy < station.getTotalEnergy()) {
                         if (amountOfEnergy <= (vehicle.getBattery().getCapacity() - vehicle.getBattery().getRemAmount()))

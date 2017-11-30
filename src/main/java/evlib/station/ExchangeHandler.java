@@ -95,7 +95,6 @@ public class ExchangeHandler
             else
                 System.out.println("Battery exchange " + e.getId() + ", " + e.getElectricVehicle().getDriver().getName() + ", " + e.getElectricVehicle().getBrand() + ", " + e.getChargingStationName() + ", OK");
             e.setCondition("finished");
-            ChargingEvent.exchangeLog.add(e);
             setChargingEvent(null);
             if (station.getQueueHandling())
                 handleQueueEvents();

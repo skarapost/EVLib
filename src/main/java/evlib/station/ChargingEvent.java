@@ -22,12 +22,12 @@ public class ChargingEvent
     private long remainingChargingTime;
     private String condition;
     Battery givenBattery;
-    private Charger charger;
+    Charger charger;
     private double energyToBeReceived;
     private long maxWaitingTime;
     private long timestamp;
     private double cost;
-    private ExchangeHandler exchange;
+    ExchangeHandler exchange;
     long accumulatorOfChargingTime = 0;
     public static final List<ChargingEvent> chargingLog = new ArrayList<>();
     public static final List<ChargingEvent> exchangeLog = new ArrayList<>();
@@ -48,6 +48,7 @@ public class ChargingEvent
         this.vehicle = vehicle;
         this.condition = "arrived";
         this.chargingStationName = station.getName();
+        this.chargingLog.add(this);
     }
 
     /**
@@ -70,6 +71,7 @@ public class ChargingEvent
         else
             this.amountOfEnergy = station.getTotalEnergy();
         this.chargingStationName = station.getName();
+        this.chargingLog.add(this);
     }
 
     /**
@@ -88,6 +90,7 @@ public class ChargingEvent
         this.chargingTime = station.getTimeOfExchange();
         this.condition = "arrived";
         this.chargingStationName = station.getName();
+        this.exchangeLog.add(this);
     }
 
     /**
@@ -101,7 +104,7 @@ public class ChargingEvent
         if (vehicle.getBattery().getActive()) {
             if ((condition.equals("arrived")) || (condition.equals("wait"))) {
                 if (!"exchange".equalsIgnoreCase(kindOfCharging)) {
-                    charger = station.assignCharger(this);
+                    station.assignCharger(this);
                     if (charger != null) {
                         if (amountOfEnergy < station.getTotalEnergy()) {
                             if (amountOfEnergy <= (vehicle.getBattery().getCapacity() - vehicle.getBattery().getRemAmount()))
@@ -144,9 +147,9 @@ public class ChargingEvent
                                 setCondition("nonExecutable");
                         }
                 } else {
-                    exchange = station.assignExchangeHandler(this);
+                    station.assignExchangeHandler(this);
                     if (givenBattery == null) {
-                        givenBattery = station.assignBattery();
+                        station.assignBattery(this);
                         if (givenBattery == null) {
                             setCondition("nonExecutable");
                             return;
