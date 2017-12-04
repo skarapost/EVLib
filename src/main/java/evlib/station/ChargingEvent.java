@@ -117,6 +117,10 @@ public class ChargingEvent
                             else
                                 energyToBeReceived = vehicle.getBattery().getCapacity() - vehicle.getBattery().getRemAmount();
                         }
+                        if (energyToBeReceived == 0) {
+                            condition = "nonExecutable";
+                            return;
+                        }
                         if ("fast".equalsIgnoreCase(kindOfCharging))
                             chargingTime = ((long) (energyToBeReceived / station.getChargingRatioFast()));
                         else
