@@ -63,6 +63,7 @@ public class ChargingStation {
 
     private class checkUpdate extends TimerTask {
         public void run() {
+            Thread.currentThread().setName("UpdateStorageTimer" + id);
             updateStorage();
         }
     }
@@ -98,8 +99,8 @@ public class ChargingStation {
         this.sources = new ArrayList<>();
         this.batteries = new ArrayList<>();
         Collections.addAll(sources, source);
-        this.sources.add("DisCharging");
-        setSpecificAmount("DisCharging", 0.0);
+        this.sources.add("Discharging");
+        setSpecificAmount("Discharging", 0.0);
         this.chargingRatioSlow = 0.001;
         this.chargingRatioFast = 0.01;
         this.disChargingRatio = 0.01;
@@ -174,8 +175,8 @@ public class ChargingStation {
         this.n = new ArrayList<>();
         this.sources = new ArrayList<>();
         Collections.addAll(sources, source);
-        this.sources.add("DisCharging");
-        setSpecificAmount("DisCharging", 0.0);
+        this.sources.add("Discharging");
+        setSpecificAmount("Discharging", 0.0);
         this.chargingRatioSlow = 0.001;
         this.chargingRatioFast = 0.01;
         this.disChargingRatio = 0.01;
@@ -247,8 +248,8 @@ public class ChargingStation {
         this.dischargers = new ArrayList<>();
         this.n = new ArrayList<>();
         this.sources = new ArrayList<>();
-        this.sources.add("DisCharging");
-        setSpecificAmount("DisCharging", 0.0);
+        this.sources.add("Discharging");
+        setSpecificAmount("Discharging", 0.0);
         this.automaticQueueHandling = true;
         this.chargingRatioSlow = 0.001;
         this.chargingRatioFast = 0.01;
@@ -465,6 +466,7 @@ public class ChargingStation {
     /**
      * Looks for any available Battery. If there is one and the remaining amount is greater than 0,
      * the battery is returned.
+     * @param event The event that wants the battery.
      * @return The assigned Battery, or null if no Battery found.
      */
     public Battery assignBattery(ChargingEvent event) {
@@ -965,7 +967,7 @@ public class ChargingStation {
             if (battery.getRemAmount() < battery.getCapacity()) {
                 r = new ElectricVehicle("Station");
                 r.setBattery(battery);
-                driver = new Driver("Station");
+                driver = new Driver("StationDriver");
                 r.setDriver(driver);
                 e = new ChargingEvent(this, r, battery.getCapacity() - battery.getRemAmount(), kind);
                 e.preProcessing();
@@ -1369,7 +1371,7 @@ public class ChargingStation {
                 }
             }
             numberOfChargers.forEach(e -> chargers.get(e).planEvent.remove(0));
-            numberOfChargers.forEach(e -> chargers.get(e).executeChargingEvent(true));
+            numberOfChargers.forEach(e -> chargers.get(e).startCharger());
         }
     }
 
@@ -1456,14 +1458,14 @@ public class ChargingStation {
                 }
             }
             content.add("");
-            content.add("***DisCharging events***");
+            content.add("***Discharging events***");
             for (DisChargingEvent ev : DisChargingEvent.dischargingLog) {
                 if (ev.getChargingStationName().equals(name)) {
                     content.add("");
                     content.add("Id: " + ev.getId());
                     content.add("Station name: " + ev.getChargingStationName());
                     content.add("Asking energy: " + ev.getAmountOfEnergy());
-                    content.add("DisCharging time: " + ev.getDisChargingTime());
+                    content.add("Discharging time: " + ev.getDisChargingTime());
                     content.add("Waiting time: " + ev.getWaitingTime());
                     content.add("Maximum waiting time: " + ev.getMaxWaitingTime());
                     content.add("Profit: " + ev.getProfit());

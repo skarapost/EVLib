@@ -176,8 +176,8 @@ class ChargingStationTest {
 
     @Test
     void customEnergySorting() {
-        String[] actual = {"Solar", "Geothermal", "DisCharging"};
-        String[] energies = {"Geothermal", "DisCharging", "Solar"};
+        String[] actual = {"Solar", "Geothermal", "Discharging"};
+        String[] energies = {"Geothermal", "Discharging", "Solar"};
         assertArrayEquals(station.getSources(), actual);
         station.customEnergySorting(energies);
         assertArrayEquals(station.getSources(), energies);

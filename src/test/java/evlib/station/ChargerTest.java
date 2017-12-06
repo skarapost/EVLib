@@ -27,7 +27,7 @@ class ChargerTest {
         vehicle.setBattery(battery);
         ChargingEvent event = new ChargingEvent(station, vehicle, 20, "fast");
         event.preProcessing();
-        charger.executeChargingEvent(false);
+        charger.startCharger();
 
         Thread.sleep(2500);
 

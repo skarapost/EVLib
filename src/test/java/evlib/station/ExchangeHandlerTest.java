@@ -28,7 +28,7 @@ class ExchangeHandlerTest {
         ChargingEvent event = new ChargingEvent(station, vehicle);
         event.preProcessing();
         event.setCondition("swapping");
-        station.getExchangeHandlers()[0].executeExchange();
+        station.getExchangeHandlers()[0].startExchangeHandler();
 
         Thread.sleep(150);
 
@@ -37,7 +37,7 @@ class ExchangeHandlerTest {
         assertNull(station.getExchangeHandlers()[0].getChargingEvent());
         assertEquals(driver.getDebt(), 0);
         assertEquals(event.getElectricVehicle().getBattery().getRemAmount(), 1500);
-        assertEquals(station.getExchangeHandlers()[0].getName(), "ExchangeHandler 1");
+        assertEquals(station.getExchangeHandlers()[0].getName(), "ExchangeHandler1");
         assertEquals(event.getChargingTime(), 100);
     }
 

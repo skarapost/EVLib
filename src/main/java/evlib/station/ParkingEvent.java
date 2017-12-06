@@ -139,15 +139,11 @@ public class ParkingEvent {
             if(chargingTime != 0 ) {
                 setCondition("charging");
                 vehicle.getBattery().addCharging();
-                try {
-                    parkingSlot.parkingVehicle();
-                } catch (NullPointerException ex) {
-                    System.out.println("No processed");
-                }
+                parkingSlot.startParkingSlot();
             }
             else {
                 setCondition("parking");
-                parkingSlot.parkingVehicle();
+                parkingSlot.startParkingSlot();
             }
     }
 

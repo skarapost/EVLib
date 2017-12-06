@@ -109,14 +109,9 @@ public class DisChargingEvent
      */
     public synchronized void execution()
     {
-        if(condition.equals("ready"))
-        {
+        if(condition.equals("ready")) {
             setCondition("discharging");
-            try {
-                disCharger.executeDisChargingEvent();
-            } catch (NullPointerException ex) {
-                System.out.println("No processed");
-            }
+            disCharger.startDisCharger();
         }
     }
 

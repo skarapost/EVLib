@@ -8,11 +8,11 @@ public class Charger {
     private final String kindOfCharging;
     private String name;
     private ChargingEvent e;
-    private final ChargingStation station;
+    private ChargingStation station;
     ArrayList<Integer> planEvent = new ArrayList<Integer>();
     ArrayList<Long> planTime = new ArrayList<Long>();
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
-    private volatile boolean running = true;
+    private volatile Thread running;
 
     /**
      * Creates a new Charger instance.
@@ -23,7 +23,7 @@ public class Charger {
         this.id = idGenerator.incrementAndGet();
         this.kindOfCharging = kindOfCharging;
         this.station = station;
-        this.name = "Charger " + String.valueOf(id);
+        this.name = "Charger" + String.valueOf(id);
     }
 
     /**
@@ -49,73 +49,70 @@ public class Charger {
      * The cost of the ChargingEvent is assigned to the Driver. The amount of energy to be given is added to the
      * battery's remaining amount. In the end, if the automatic queue's handling is activated the Charger checks
      * the waiting list.
-     * @param type This parameter is for the plan execution function. Value of "True" means that the charger will be used
-     * for the plan execution operation, "False" signifies the opposite.
      */
-    void executeChargingEvent(boolean type) {
-        running = true;
-        Thread ch = new Thread(() ->
-        {
-            e.setChargingTime(e.getChargingTime());
-            e.setCondition("charging");
-            long timestamp1 = System.currentTimeMillis();
-            long timestamp2;
-            do {
-                timestamp2 = System.currentTimeMillis();
-            } while (running && (timestamp2 - timestamp1 < e.getChargingTime()));
-            if (!type) {
-                e.getElectricVehicle().getBattery().setRemAmount(e.getEnergyToBeReceived() + e.getElectricVehicle().getBattery().getRemAmount());
-                if (e.getElectricVehicle().getDriver() != null)
-                    e.getElectricVehicle().getDriver().setDebt(e.getElectricVehicle().getDriver().getDebt() + e.getCost());
-                if (e.getElectricVehicle().getDriver() == null && e.getElectricVehicle().getBrand() == null)
-                    System.out.println("Charging " + e.getId() + ", " + e.getChargingStationName() + ", OK");
-                else
-                    System.out.println("Charging " + e.getId() + ", " + e.getElectricVehicle().getDriver().getName() + ", " + e.getElectricVehicle().getBrand() + ", " + e.getChargingStationName() + ", OK");
-                e.setCondition("finished");
-                setChargingEvent(null);
-                if (station.getQueueHandling())
-                    handleQueueEvents();
-            } else {
-                if (!planEvent.contains(station.events.indexOf(e) + 1))
-                    if (e.getKindOfCharging() != null) {
-                        e.setCondition("finished");
-                        e.setChargingTime(e.accumulatorOfChargingTime);
-                    } else
-                        e.setCondition("interrupted");
-                if (planEvent.size() != 0) {
-                    if (planEvent.get(0) != -1) {
-                        setChargingEvent(station.events.get(planEvent.remove(0) - 1));
-                        e.setChargingTime(planTime.remove(0));
-                        e.accumulatorOfChargingTime += e.getChargingTime();
-                    } else {
-                        ChargingEvent e = new ChargingEvent(station, null, 0, null);
-                        e.setChargingTime(planTime.remove(0));
-                        planEvent.remove(0);
-                        setChargingEvent(e);
-                    }
-                    executeChargingEvent(true);
-                } else {
+    public void startCharger() {
+        running = new Thread(() -> {
+            try {
+                e.setChargingTime(e.getChargingTime());
+                Thread.sleep(e.getChargingTime());
+                if ((planEvent.size() == 0) && (planTime.size() == 0)) {
+                    e.getElectricVehicle().getBattery().setRemAmount(e.getEnergyToBeReceived() + e.getElectricVehicle().getBattery().getRemAmount());
+                    if (e.getElectricVehicle().getDriver() != null)
+                        e.getElectricVehicle().getDriver().setDebt(e.getElectricVehicle().getDriver().getDebt() + e.getCost());
+                    if (e.getElectricVehicle().getDriver() == null && e.getElectricVehicle().getBrand() == null)
+                        System.out.println("Charging " + e.getId() + ", " + e.getChargingStationName() + ", OK");
+                    else
+                        System.out.println("Charging " + e.getId() + ", " + e.getElectricVehicle().getDriver().getName() + ", " + e.getElectricVehicle().getBrand() + ", " + e.getChargingStationName() + ", OK");
+                    e.setCondition("finished");
                     setChargingEvent(null);
-                    planTime.clear();
-                    planEvent.clear();
-                    System.out.println(name + " plan, OK");
-                    boolean flag = true;
-                    for (int i : station.numberOfChargers)
-                        if (station.getChargers()[i].getChargingEvent() != null)
-                            flag = false;
-                    if (flag) {
-                        System.out.println("Plan, OK");
-                        station.execEvents = false;
-                        station.numberOfChargers.clear();
-                        station.events.clear();
+                    if (station.getQueueHandling())
+                        handleQueueEvents();
+                } else {
+                    if (!planEvent.contains(station.events.indexOf(e) + 1))
+                        if (e.getKindOfCharging() != null) {
+                            e.setCondition("finished");
+                            e.setChargingTime(e.accumulatorOfChargingTime);
+                        } else
+                            e.setCondition("interrupted");
+                    if (planEvent.size() != 0) {
+                        if (planEvent.get(0) != -1) {
+                            setChargingEvent(station.events.get(planEvent.remove(0) - 1));
+                            e.setChargingTime(planTime.remove(0));
+                            e.accumulatorOfChargingTime += e.getChargingTime();
+                        } else {
+                            ChargingEvent e = new ChargingEvent(station, null, 0, null);
+                            e.setChargingTime(planTime.remove(0));
+                            planEvent.remove(0);
+                            setChargingEvent(e);
+                        }
+                    } else {
+                        setChargingEvent(null);
+                        planTime.clear();
+                        planEvent.clear();
+                        System.out.println(name + " plan, OK");
+                        boolean flag = true;
+                        for (int i : station.numberOfChargers)
+                            if (station.getChargers()[i].getChargingEvent() != null)
+                                flag = false;
+                        if (flag) {
+                            System.out.println("Plan, OK");
+                            station.execEvents = false;
+                            station.numberOfChargers.clear();
+                            station.events.clear();
+                        }
                     }
                 }
+            } catch (InterruptedException e1) {
+                setChargingEvent(null);
+                System.out.println(name + " stopped");
+            } catch (NullPointerException e2) {
+                System.out.println("not processed");
             }
         });
-        if(station.getDeamon())
-            ch.setDaemon(true);
-        ch.setName("Charger: " + String.valueOf(id));
-        ch.start();
+        if (station.getDeamon())
+            running.setDaemon(true);
+        running.setName("Charger" + String.valueOf(id));
+        running.start();
     }
 
     /**
@@ -173,12 +170,4 @@ public class Charger {
      * @param id The id to be set.
      */
     public void setId(int id) { this.id = id; }
-
-    /**
-     * Stops the operation of the Charger.
-     */
-    public void stopCharger()
-    {
-        running = false;
-    }
 }

@@ -5,10 +5,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ExchangeHandler
 {
     private int id;
-    private final ChargingStation station;
+    private ChargingStation station;
     private ChargingEvent e;
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
-    private volatile boolean running = true;
+    private volatile Thread running;
     private String name;
 
     /**
@@ -19,7 +19,7 @@ public class ExchangeHandler
     {
         this.id = idGenerator.incrementAndGet();
         this.station = station;
-        this.name = "ExchangeHandler " + String.valueOf(id);
+        this.name = "ExchangeHandler" + String.valueOf(id);
     }
 
     /**
@@ -76,33 +76,34 @@ public class ExchangeHandler
      * The cost of the ChargingEvent is assigned to the Driver. The battery to be given is added to the ElectricVehicle.
      * In the end, if the automatic queue's handling is activated the ExchangeHandler checks the WaitingList.
      */
-    void executeExchange()
-    {
-        running = true;
-        Thread ch = new Thread (() -> {
-            e.setChargingTime(station.getTimeOfExchange());
-            long timestamp1 = System.currentTimeMillis();
-            long timestamp2;
-            do {
-                timestamp2 = System.currentTimeMillis();
-            } while (running && (timestamp2 - timestamp1 < e.getChargingTime()));
-            station.joinBattery(e.getElectricVehicle().getBattery());
-            e.getElectricVehicle().setBattery(e.givenBattery);
-            if (e.getElectricVehicle().getDriver() != null)
-                e.getElectricVehicle().getDriver().setDebt(e.getElectricVehicle().getDriver().getDebt() + station.calculatePrice(e));
-            if (e.getElectricVehicle().getDriver() == null && e.getElectricVehicle().getBrand() == null)
-                System.out.println("Battery exchange " + e.getId() + ", " + e.getChargingStationName() + ", OK");
-            else
-                System.out.println("Battery exchange " + e.getId() + ", " + e.getElectricVehicle().getDriver().getName() + ", " + e.getElectricVehicle().getBrand() + ", " + e.getChargingStationName() + ", OK");
-            e.setCondition("finished");
-            setChargingEvent(null);
-            if (station.getQueueHandling())
-                handleQueueEvents();
+    public void startExchangeHandler() {
+        running = new Thread(() -> {
+            try {
+                e.setChargingTime(station.getTimeOfExchange());
+                Thread.sleep(e.getChargingTime());
+                station.joinBattery(e.getElectricVehicle().getBattery());
+                e.getElectricVehicle().setBattery(e.givenBattery);
+                if (e.getElectricVehicle().getDriver() != null)
+                    e.getElectricVehicle().getDriver().setDebt(e.getElectricVehicle().getDriver().getDebt() + station.calculatePrice(e));
+                if (e.getElectricVehicle().getDriver() == null && e.getElectricVehicle().getBrand() == null)
+                    System.out.println("Battery exchange " + e.getId() + ", " + e.getChargingStationName() + ", OK");
+                else
+                    System.out.println("Battery exchange " + e.getId() + ", " + e.getElectricVehicle().getDriver().getName() + ", " + e.getElectricVehicle().getBrand() + ", " + e.getChargingStationName() + ", OK");
+                e.setCondition("finished");
+                setChargingEvent(null);
+                if (station.getQueueHandling())
+                    handleQueueEvents();
+            } catch (InterruptedException e1) {
+                setChargingEvent(null);
+                System.out.println(name + " stopped");
+            } catch (NullPointerException e2) {
+                System.out.println("not processed");
+            }
         });
-        if(station.getDeamon())
-            ch.setDaemon(true);
-        ch.setName("ExchangeHandler: " + String.valueOf(id));
-        ch.start();
+        if (station.getDeamon())
+            running.setDaemon(true);
+        running.setName("ExchangeHandler" + String.valueOf(id));
+        running.start();
     }
 
     /**
@@ -114,13 +115,5 @@ public class ExchangeHandler
             e.preProcessing();
             e.execution();
         }
-    }
-
-    /**
-     * Stops the operation of the ExchangeHandler.
-     */
-    public void stopExchangeHandler()
-    {
-        running = false;
     }
 }

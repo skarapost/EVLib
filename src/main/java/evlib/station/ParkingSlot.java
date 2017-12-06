@@ -5,10 +5,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ParkingSlot {
     private int id;
     private ParkingEvent e;
-    private final ChargingStation station;
+    private ChargingStation station;
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
     private boolean inSwitch;
-    private volatile boolean running = true;
+    private volatile Thread running;
     private String name;
 
     /**
@@ -20,7 +20,7 @@ public class ParkingSlot {
         this.id = idGenerator.incrementAndGet();
         this.station = station;
         inSwitch = true;
-        this.name = "ParkingSlot " + String.valueOf(id);
+        this.name = "ParkingSlot" + String.valueOf(id);
     }
 
     /**
@@ -47,20 +47,13 @@ public class ParkingSlot {
      * is set "finished", the event is recorded in the history. The last thing to do is the method for the
      * management of the waiting list.
      */
-    void parkingVehicle() {
-        running = true;
-        Thread ch = new Thread(new Runnable()
-        {
-            @Override
-            public void run() {
+    public void startParkingSlot() {
+        running = new Thread(() -> {
+            try {
                 e.setParkingTime(e.getParkingTime());
                 if (e.getCondition().equals("charging")) {
                     e.setChargingTime(e.getChargingTime());
-                    long timestamp1 = System.currentTimeMillis();
-                    long timestamp2;
-                    do {
-                        timestamp2 = System.currentTimeMillis();
-                    } while (running && (timestamp2 - timestamp1 < e.getChargingTime()));
+                    Thread.sleep(e.getChargingTime());
                     synchronized (this) {
                         e.getElectricVehicle().getBattery().setRemAmount(e.getEnergyToBeReceived() + e.getElectricVehicle().getBattery().getRemAmount());
                         if (e.getElectricVehicle().getDriver() != null)
@@ -73,11 +66,7 @@ public class ParkingSlot {
                 }
                 e.setCondition("parking");
                 long diff = e.getParkingTime() - e.getChargingTime();
-                long timestamp1 = System.currentTimeMillis();
-                long timestamp2;
-                do {
-                    timestamp2 = System.currentTimeMillis();
-                } while (running && (timestamp2 - timestamp1 < diff));
+                Thread.sleep(diff);
                 synchronized (this) {
                     if (e.getElectricVehicle().getDriver() == null && e.getElectricVehicle().getBrand() == null)
                         System.out.println("Parking " + e.getId() + ", " + e.getChargingStationName() + ", OK");
@@ -86,12 +75,17 @@ public class ParkingSlot {
                     e.setCondition("finished");
                     setParkingEvent(null);
                 }
+            } catch (InterruptedException e1) {
+                setParkingEvent(null);
+                System.out.println(name + " stopped");
+            } catch (NullPointerException e2) {
+                System.out.println("not processed");
             }
         });
-        if(station.getDeamon())
-            ch.setDaemon(true);
-        ch.setName("ParkingSlot: " + String.valueOf(id));
-        ch.start();
+        if (station.getDeamon())
+            running.setDaemon(true);
+        running.setName("ParkingSlot" + String.valueOf(id));
+        running.start();
     }
 
     /**
@@ -140,12 +134,4 @@ public class ParkingSlot {
      * @param id The id to be set.
      */
     public void setId(int id) { this.id = id; }
-
-    /**
-     * Stops the operation of the ParkingSlot.
-     */
-    public void stopParkingSlot()
-    {
-        running = false;
-    }
 }

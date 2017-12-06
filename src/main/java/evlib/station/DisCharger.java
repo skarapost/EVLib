@@ -8,7 +8,7 @@ public class DisCharger
     private int id;
     private DisChargingEvent e;
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
-    private volatile boolean running = true;
+    private volatile Thread running;
     private String name;
 
     /**
@@ -19,7 +19,7 @@ public class DisCharger
     {
         this.id = idGenerator.incrementAndGet();
         this.station = station;
-        this.name = "DisCharger " + String.valueOf(id);
+        this.name = "Discharger" + String.valueOf(id);
     }
 
     /**
@@ -28,34 +28,35 @@ public class DisCharger
      * In the end if the queue's handling is automatic, the DisCharger calls the method for the
      * management of the waiting list.
      */
-    void executeDisChargingEvent()
-    {
-        running = true;
-        Thread dsch = new Thread(() -> {
-            e.setDisChargingTime(e.getDisChargingTime());
-            long timestamp1 = System.currentTimeMillis();
-            long timestamp2;
-            do {
-                timestamp2 = System.currentTimeMillis();
-            } while (running && (timestamp2 - timestamp1 < e.getDisChargingTime()));
-            e.getElectricVehicle().getBattery().setRemAmount(e.getElectricVehicle().getBattery().getRemAmount() - e.getAmountOfEnergy());
-            if (e.getElectricVehicle().getDriver() != null)
-                e.getElectricVehicle().getDriver().setProfit(e.getElectricVehicle().getDriver().getProfit() + e.getProfit());
-            double energy = station.getMap().get("DisCharging") + e.getAmountOfEnergy();
-            station.setSpecificAmount("DisCharging", energy);
-            if (e.getElectricVehicle().getDriver() == null && e.getElectricVehicle().getBrand() == null)
-                System.out.println("Discharging " + e.getId() + ", " + e.getChargingStationName() + ", OK");
-            else
-                System.out.println("Discharging " + e.getId() + ", " + e.getElectricVehicle().getDriver().getName() + ", " + e.getElectricVehicle().getBrand() + ", " + e.getChargingStationName() + ", OK");
-            e.setCondition("finished");
-            setDisChargingEvent(null);
-            if (station.getQueueHandling())
-                handleQueueEvents();
+    public void startDisCharger() {
+        running = new Thread(() -> {
+            try {
+                e.setDisChargingTime(e.getDisChargingTime());
+                Thread.sleep(e.getDisChargingTime());
+                e.getElectricVehicle().getBattery().setRemAmount(e.getElectricVehicle().getBattery().getRemAmount() - e.getAmountOfEnergy());
+                if (e.getElectricVehicle().getDriver() != null)
+                    e.getElectricVehicle().getDriver().setProfit(e.getElectricVehicle().getDriver().getProfit() + e.getProfit());
+                double energy = station.getMap().get("Discharging") + e.getAmountOfEnergy();
+                station.setSpecificAmount("Discharging", energy);
+                if (e.getElectricVehicle().getDriver() == null && e.getElectricVehicle().getBrand() == null)
+                    System.out.println("Discharging " + e.getId() + ", " + e.getChargingStationName() + ", OK");
+                else
+                    System.out.println("Discharging " + e.getId() + ", " + e.getElectricVehicle().getDriver().getName() + ", " + e.getElectricVehicle().getBrand() + ", " + e.getChargingStationName() + ", OK");
+                e.setCondition("finished");
+                setDisChargingEvent(null);
+                if (station.getQueueHandling())
+                    handleQueueEvents();
+            } catch(InterruptedException e1) {
+                System.out.println(name + " stopped");
+                setDisChargingEvent(null);
+            } catch(NullPointerException e2) {
+                System.out.println("not processed");
+            }
         });
         if(station.getDeamon())
-            dsch.setDaemon(true);
-        dsch.setName("DisCharger: " + String.valueOf(id));
-        dsch.start();
+            running.setDaemon(true);
+        running.setName("Discharger" + String.valueOf(id));
+        running.start();
     }
 
     /**
@@ -101,14 +102,6 @@ public class DisCharger
      * @param id The id to be set.
      */
     public void setId(int id) { this.id = id; }
-
-    /**
-     * Stops the operation of the DisCharger.
-     */
-    public void stopDisCharger()
-    {
-        running = false;
-    }
 
     /**
      * Sets a name for the DisCharger.

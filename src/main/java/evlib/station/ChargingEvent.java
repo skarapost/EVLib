@@ -188,24 +188,14 @@ public class ChargingEvent
     public synchronized void execution()
     {
         if (condition.equals("ready"))
-            if (!kindOfCharging.equalsIgnoreCase("exchange"))
-            {
+            if (!kindOfCharging.equalsIgnoreCase("exchange")) {
                 setCondition("charging");
                 vehicle.getBattery().addCharging();
-                try {
-                    charger.executeChargingEvent(false);
-                } catch (NullPointerException ex) {
-                    System.out.println("No processed");
-                }
+                charger.startCharger();
             }
-            else
-            {
+            else {
                 setCondition("swapping");
-                try {
-                    exchange.executeExchange();
-                } catch (NullPointerException ex) {
-                    System.out.println("No processed");
-                }
+                exchange.startExchangeHandler();
             }
     }
 

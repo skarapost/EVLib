@@ -21,7 +21,7 @@ class DisChargerTest {
         DisChargingEvent disEvent = new DisChargingEvent(station, vehicle, 15);
         disEvent.preProcessing();
 
-        disCharger.executeDisChargingEvent();
+        disCharger.startDisCharger();
 
         Thread.sleep(2000);
 
