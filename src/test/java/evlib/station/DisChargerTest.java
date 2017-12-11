@@ -15,6 +15,7 @@ class DisChargerTest {
     @Test
     void executeDisChargingEvent() throws InterruptedException {
         station.addDisCharger(disCharger);
+        station.setDisChargingRate(0.01);
         ElectricVehicle vehicle = new ElectricVehicle("Fiat");
         vehicle.setDriver(new Driver("Petros"));
         vehicle.setBattery(new Battery(150, 500));

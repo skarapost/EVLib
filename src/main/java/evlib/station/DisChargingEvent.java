@@ -12,7 +12,6 @@ public class DisChargingEvent
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
     private ElectricVehicle vehicle;
     private final ChargingStation station;
-    private final String chargingStationName;
     DisCharger disCharger;
     private double amountOfEnergy;
     private long disChargingTime;
@@ -37,7 +36,6 @@ public class DisChargingEvent
         this.station = station;
         this.vehicle = vehicle;
         this.condition = "arrived";
-        this.chargingStationName = station.getName();
         this.dischargingLog.add(this);
     }
 
@@ -83,7 +81,7 @@ public class DisChargingEvent
             if ((condition.equals("arrived")) || (condition.equals("wait"))) {
                 station.assignDisCharger(this);
                 if (disCharger != null) {
-                    disChargingTime = (long) (amountOfEnergy / station.getDisChargingRatio());
+                    disChargingTime = (long) (amountOfEnergy / station.getDisChargingRate());
                     setCondition("ready");
                     profit = amountOfEnergy * station.getDisUnitPrice();
                 }
@@ -133,13 +131,6 @@ public class DisChargingEvent
     }
 
     /**
-     * @return The name of the ChargingStation.
-     */
-    public String getChargingStationName() {
-        return chargingStationName;
-    }
-
-    /**
      * @return The amount of energy to be given.
      */
     public double getAmountOfEnergy()
@@ -162,7 +153,7 @@ public class DisChargingEvent
     }
 
     /**
-     * @return The remaining discharging time.
+     * @return The remaining discharging time in milliseconds.
      */
     public long getRemainingDisChargingTime()
     {
@@ -175,8 +166,8 @@ public class DisChargingEvent
     }
 
     /**
-     * Sets the time of the discharging.
-     * @param disChargingTime The time of discharging.
+     * Sets the time of the discharging in milliseconds.
+     * @param disChargingTime The time of discharging in milliseconds.
      */
     public void setDisChargingTime(long disChargingTime){
         timestamp = System.currentTimeMillis();
@@ -184,18 +175,18 @@ public class DisChargingEvent
     }
 
     /**
-     * @return The time the ElectricVehicle should wait in the waiting list.
+     * @return The time the ElectricVehicle should wait in the waiting list in milliseconds.
      */
     public long getMaxWaitingTime() { return maxWaitingTime; }
 
     /**
-     * Sets the maximum time the DisChargingEvent should wait to be discharged.
-     * @param maxWaitingTime The waiting time to be set.
+     * Sets the maximum time the DisChargingEvent should wait to be discharged in milliseconds.
+     * @param maxWaitingTime The waiting time to be set in milliseconds.
      */
     public void setMaxWaitingTime(long maxWaitingTime) { this.maxWaitingTime = maxWaitingTime; }
 
     /**
-     * @return The discharging time of the DisChargingEvent.
+     * @return The discharging time of the DisChargingEvent in milliseconds.
      */
     public long getDisChargingTime()
     {
@@ -204,7 +195,7 @@ public class DisChargingEvent
 
     /**
      * @return The time the ElectricVehicle should wait or -1 if the ChargingStation
-     * has no available DisCharger.
+     * has no available DisCharger. The result is measured in milliseconds.
      */
     private long calDisWaitingTime()
     {
@@ -227,7 +218,7 @@ public class DisChargingEvent
         for(int i = 0; i < o.getSize() ;i++)
         {
             e = (DisChargingEvent) o.get(i);
-            counter1[index] = counter1[index] + ((long) (e.getAmountOfEnergy()/station.getDisChargingRatio()));
+            counter1[index] = counter1[index] + ((long) (e.getAmountOfEnergy()/station.getDisChargingRate()));
             for(int j=0; j<station.getDisChargers().length; j++)
                 if ((counter1[j]<counter1[index])&&(counter1[j]!=0))
                     index = j;

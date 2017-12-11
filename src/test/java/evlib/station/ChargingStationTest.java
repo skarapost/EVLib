@@ -208,6 +208,7 @@ class ChargingStationTest {
         Thread.sleep(500);
 
         Battery bat = new Battery(1450, 1500);
+        station.setChargingRateFast(0.01);
         station.joinBattery(bat);
         station.batteriesCharging("fast");
 

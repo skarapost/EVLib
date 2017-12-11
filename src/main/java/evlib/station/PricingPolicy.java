@@ -12,8 +12,8 @@ public class PricingPolicy {
     private final short option;
 
     /**
-     * Creates a new PricingPolicy instance. The time frame for each price is steady.
-     * @param space The time space each price we desire to last.
+     * Creates a new PricingPolicy instance. The time frame for each price is fixed.
+     * @param space The time space each price we desire to endure.
      * @param prices An array of prices for the PricingPolicy object.
      */
     public PricingPolicy(long space, double[] prices) {
@@ -28,7 +28,7 @@ public class PricingPolicy {
     /**
      * Creates a new PricingPolicy object. The time space for each price may change.
      * The constructor takes two arrays as parameters. Both arrays' sizes need to be equal.
-     * @param spaces The time spaces for which the prices will endure.
+     * @param spaces The time spaces for which the prices will endure measured in milliseconds.
      * @param prices An array with the prices of the PricingPolicy object.
      */
     public PricingPolicy(long[] spaces, double[] prices) {
@@ -43,8 +43,8 @@ public class PricingPolicy {
     }
 
     /**
-     * @param position The time frame for which we want the price to last.
-     * @return The price in this time space of the PricingPolicy.
+     * @param position The time frame for which we want the price to last in milliseconds.
+     * @return The price for this time space of the PricingPolicy.
      */
     public double getSpecificPrice(int position) {
         try {
@@ -56,7 +56,7 @@ public class PricingPolicy {
 
     /**
      * @param position The time space we want.
-     * @return The duration of the time space.
+     * @return The duration of the time space in milliseconds.
      */
     public long getSpecificTimeSpace(int position)
     {
@@ -73,7 +73,7 @@ public class PricingPolicy {
     /**
      * Sets the time space the price will be valid and the value of the price.
      * @param position The time space of the PricingPolicy.
-     * @param timeSpace The time space which the price stands.
+     * @param timeSpace The time space for which the price is valid in milliseconds.
      * @param price The value of the price.
      */
     public void setSpecificSpacePrice(int position, long timeSpace, double price) {
@@ -108,14 +108,14 @@ public class PricingPolicy {
     }
 
     /**
-     * @return The time space for every different price.
+     * @return The time space for every different price in milliseconds.
      */
     public long getSpace() {
         return space;
     }
 
     /**
-     * @return The time duration of the PricingPolicy.
+     * @return The time duration of the PricingPolicy in milliseconds.
      */
     public long getDurationOfPolicy()
     {

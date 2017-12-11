@@ -20,7 +20,7 @@ class ParkingSlotTest {
         solar.insertAmount(1500);
         station.updateStorage();
         station.setInductivePrice(10);
-        station.setInductiveChargingRatio(0.1);
+        station.setInductiveChargingRate(0.1);
         Driver driver = new Driver("Petros");
         Battery battery = new Battery(150, 500);
         ElectricVehicle vehicle = new ElectricVehicle("Fiat");

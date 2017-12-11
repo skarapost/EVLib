@@ -86,9 +86,9 @@ public class ExchangeHandler
                 if (e.getElectricVehicle().getDriver() != null)
                     e.getElectricVehicle().getDriver().setDebt(e.getElectricVehicle().getDriver().getDebt() + station.calculatePrice(e));
                 if (e.getElectricVehicle().getDriver() == null && e.getElectricVehicle().getBrand() == null)
-                    System.out.println("Battery exchange " + e.getId() + ", " + e.getChargingStationName() + ", OK");
+                    System.out.println("Battery exchange " + e.getId() + ", " + e.getStation().getName() + ", OK");
                 else
-                    System.out.println("Battery exchange " + e.getId() + ", " + e.getElectricVehicle().getDriver().getName() + ", " + e.getElectricVehicle().getBrand() + ", " + e.getChargingStationName() + ", OK");
+                    System.out.println("Battery exchange " + e.getId() + ", " + e.getElectricVehicle().getDriver().getName() + ", " + e.getElectricVehicle().getBrand() + ", " + e.getStation().getName() + ", OK");
                 e.setCondition("finished");
                 setChargingEvent(null);
                 if (station.getQueueHandling())

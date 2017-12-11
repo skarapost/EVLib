@@ -22,7 +22,7 @@ class ParkingEventTest {
         station.updateStorage();
         station.addParkingSlot(new ParkingSlot(station));
         station.setInductivePrice(100);
-        station.setInductiveChargingRatio(0.1);
+        station.setInductiveChargingRate(0.1);
 
         Driver driver = new Driver("Petros");
         Battery battery = new Battery(150, 500);
@@ -66,7 +66,7 @@ class ParkingEventTest {
         station.updateStorage();
         station.addParkingSlot(new ParkingSlot(station));
         station.setInductivePrice(100);
-        station.setInductiveChargingRatio(0.1);
+        station.setInductiveChargingRate(0.1);
 
         Driver driver = new Driver("Petros");
         Battery battery = new Battery(150, 500);
@@ -90,7 +90,7 @@ class ParkingEventTest {
         station.updateStorage();
         station.addParkingSlot(new ParkingSlot(station));
         station.setInductivePrice(100);
-        station.setInductiveChargingRatio(0.1);
+        station.setInductiveChargingRate(0.1);
 
         Driver driver = new Driver("Petros");
         Battery battery = new Battery(150, 500);
@@ -117,7 +117,7 @@ class ParkingEventTest {
         station.updateStorage();
         station.addParkingSlot(new ParkingSlot(station));
         station.setInductivePrice(100);
-        station.setInductiveChargingRatio(0.1);
+        station.setInductiveChargingRate(0.1);
 
         Driver driver = new Driver("Petros");
         Battery battery = new Battery(150, 500);

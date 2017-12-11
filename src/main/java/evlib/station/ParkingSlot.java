@@ -59,9 +59,9 @@ public class ParkingSlot {
                         if (e.getElectricVehicle().getDriver() != null)
                             e.getElectricVehicle().getDriver().setDebt(e.getElectricVehicle().getDriver().getDebt() + e.getEnergyToBeReceived() * station.getInductivePrice());
                         if (e.getElectricVehicle().getDriver() == null && e.getElectricVehicle().getBrand() == null)
-                            System.out.println("Charging " + e.getId() + ", " + e.getChargingStationName() + ", OK");
+                            System.out.println("Charging " + e.getId() + ", " + e.getStation().getName() + ", OK");
                         else
-                            System.out.println("Charging " + e.getId() + ", " + e.getElectricVehicle().getDriver().getName() + ", " + e.getElectricVehicle().getBrand() + ", " + e.getChargingStationName() + ", OK");
+                            System.out.println("Charging " + e.getId() + ", " + e.getElectricVehicle().getDriver().getName() + ", " + e.getElectricVehicle().getBrand() + ", " + e.getStation().getName() + ", OK");
                     }
                 }
                 e.setCondition("parking");
@@ -69,9 +69,9 @@ public class ParkingSlot {
                 Thread.sleep(diff);
                 synchronized (this) {
                     if (e.getElectricVehicle().getDriver() == null && e.getElectricVehicle().getBrand() == null)
-                        System.out.println("Parking " + e.getId() + ", " + e.getChargingStationName() + ", OK");
+                        System.out.println("Parking " + e.getId() + ", " + e.getStation().getName() + ", OK");
                     else
-                        System.out.println("Parking " + e.getId() + ", " + e.getElectricVehicle().getDriver().getName() + ", " + e.getElectricVehicle().getBrand() + ", " + e.getChargingStationName() + ", OK");
+                        System.out.println("Parking " + e.getId() + ", " + e.getElectricVehicle().getDriver().getName() + ", " + e.getElectricVehicle().getBrand() + ", " + e.getStation().getName() + ", OK");
                     e.setCondition("finished");
                     setParkingEvent(null);
                 }

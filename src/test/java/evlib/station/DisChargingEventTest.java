@@ -17,7 +17,7 @@ class DisChargingEventTest {
     void preProcessing() throws InterruptedException {
         station.addDisCharger(disCharger);
         station.setDisUnitPrice(100);
-        station.setDisChargingRatio(0.1);
+        station.setDisChargingRate(0.1);
         ElectricVehicle vehicle = new ElectricVehicle("Fiat");
         vehicle.setDriver(new Driver("Petros"));
         vehicle.setBattery(new Battery(150, 500));
@@ -71,7 +71,7 @@ class DisChargingEventTest {
     @Test
     void getRemainingDisChargingTime() {
         station.addDisCharger(disCharger);
-        station.setDisChargingRatio(0.1);
+        station.setDisChargingRate(0.1);
         ElectricVehicle vehicle = new ElectricVehicle("Fiat");
         vehicle.setDriver(new Driver("Petros"));
         vehicle.setBattery(new Battery(150, 500));

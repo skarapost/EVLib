@@ -12,7 +12,6 @@ public class ParkingEvent {
     private int id;
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
     private long parkingTime;
-    private final String chargingStationName;
     private ElectricVehicle vehicle;
     private final ChargingStation station;
     ParkingSlot parkingSlot;
@@ -40,7 +39,6 @@ public class ParkingEvent {
         this.vehicle = vehicle;
         this.condition = "arrived";
         this.parkingTime = parkingTime;
-        this.chargingStationName = station.getName();
         this.parkLog.add(this);
     }
 
@@ -62,7 +60,6 @@ public class ParkingEvent {
         this.amountOfEnergy = amountOfEnergy;
         this.condition = "arrived";
         this.parkingTime = parkingTime;
-        this.chargingStationName = station.getName();
         this.parkLog.add(this);
     }
 
@@ -102,9 +99,9 @@ public class ParkingEvent {
                         else
                             energyToBeReceived = vehicle.getBattery().getCapacity() - vehicle.getBattery().getRemAmount();
                     }
-                    chargingTime = (long) ((energyToBeReceived) / station.getInductiveRatio());
+                    chargingTime = (long) ((energyToBeReceived) / station.getInductiveRate());
                     if (chargingTime > parkingTime) {
-                        energyToBeReceived = parkingTime * station.getInductiveRatio();
+                        energyToBeReceived = parkingTime * station.getInductiveRate();
                         chargingTime = parkingTime;
                     }
                     setCondition("ready");
@@ -156,13 +153,6 @@ public class ParkingEvent {
     }
 
     /**
-     * @return The name of the ChargingStation.
-     */
-    public String getChargingStationName() {
-        return chargingStationName;
-    }
-
-    /**
      * @return The energy to be given to the ElectricVehicle.
      */
     public double getEnergyToBeReceived()
@@ -177,7 +167,7 @@ public class ParkingEvent {
     public void setEnergyToBeReceived(double energyToBeReceived) { this.energyToBeReceived = energyToBeReceived; }
 
     /**
-     * @return The remaining charging time of the ParkingEvent.
+     * @return The remaining charging time of the ParkingEvent in milliseconds.
      */
     public long getRemainingChargingTime()
     {
@@ -190,7 +180,7 @@ public class ParkingEvent {
     }
 
     /**
-     * @return The charging time.
+     * @return The charging time in milliseconds.
      */
     public long getChargingTime()
     {
@@ -198,7 +188,7 @@ public class ParkingEvent {
     }
 
     /**
-     * @return The parking time.
+     * @return The parking time in milliseconds.
      */
     public long getParkingTime()
     {
@@ -206,8 +196,8 @@ public class ParkingEvent {
     }
 
     /**
-     * Sets the charging time of the ParkingEvent.
-     * @param time The charging time.
+     * Sets the charging time of the ParkingEvent in milliseconds.
+     * @param time The charging time in milliseconds.
      */
     public void setChargingTime(long time)
     {
@@ -233,7 +223,7 @@ public class ParkingEvent {
     }
 
     /**
-     * @return The remaining time the vehicle will be parked.
+     * @return The remaining time the vehicle will be parked measured in milliseconds.
      */
     public long getRemainingParkingTime()
     {
@@ -247,8 +237,8 @@ public class ParkingEvent {
     }
 
     /**
-     * Sets the parking time for the ElectricVehicle.
-     * @param parkingTime The parking time.
+     * Sets the parking time for the ElectricVehicle in milliseconds.
+     * @param parkingTime The parking time in milliseconds.
      */
     public void setParkingTime(long parkingTime)
     {

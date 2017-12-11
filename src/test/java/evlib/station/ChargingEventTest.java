@@ -21,7 +21,7 @@ class ChargingEventTest {
         station.addCharger(charger);
         station.updateStorage();
         station.setUnitPrice(100);
-        station.setChargingRatioSlow(0.01);
+        station.setChargingRateSlow(0.01);
         Driver driver = new Driver("Petros");
         Battery battery = new Battery(150, 500);
         ElectricVehicle vehicle = new ElectricVehicle("Fiat");
@@ -71,7 +71,7 @@ class ChargingEventTest {
         station.addCharger(charger);
         station.updateStorage();
         station.setUnitPrice(100);
-        station.setChargingRatioSlow(0.01);
+        station.setChargingRateSlow(0.01);
         Driver driver = new Driver("Petros");
         Battery battery = new Battery(150, 500);
         ElectricVehicle vehicle = new ElectricVehicle("Fiat");
@@ -94,7 +94,7 @@ class ChargingEventTest {
         station.addCharger(charger);
         station.updateStorage();
         station.setUnitPrice(100);
-        station.setChargingRatioSlow(0.01);
+        station.setChargingRateSlow(0.01);
         Driver driver = new Driver("Petros");
         Battery battery = new Battery(150, 500);
         ElectricVehicle vehicle = new ElectricVehicle("Fiat");

@@ -20,6 +20,7 @@ class ChargerTest {
         solar.insertAmount(1500);
         station.addCharger(charger);
         station.updateStorage();
+        station.setChargingRateFast(0.01);
         Driver driver = new Driver("Petros");
         Battery battery = new Battery(150, 500);
         ElectricVehicle vehicle = new ElectricVehicle("Fiat");

@@ -17,13 +17,13 @@ import java.util.function.Consumer;
 public class ChargingStation {
     private int id;
     private String name;
-    private final WaitList slow;
     private final WaitList fast;
+    private final WaitList slow;
     private final WaitList discharging;
     private final WaitList exchange;
-    private double chargingRatioSlow;
-    private double chargingRatioFast;
-    private double disChargingRatio;
+    private double chargingRateFast;
+    private double chargingRateSlow;
+    private double disChargingRate;
     private final ArrayList<Charger> chargers;
     private final ArrayList<EnergySource> n;
     private ArrayList<DisCharger> dischargers;
@@ -39,7 +39,7 @@ public class ChargingStation {
     private boolean automaticQueueHandling;
     private int updateSpace;
     private long timeOfExchange;
-    private double inductiveChargingRatio;
+    private double inductiveChargingRate;
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
     private long timestamp;
     private PricingPolicy policy;
@@ -69,13 +69,13 @@ public class ChargingStation {
     }
 
     /**
-     * Creates a new ChargingStation instance. It also sets the handling of the queue to automatic,
-     * sets the slow charging ratio to 0.001, the fast charging ratio to 0.01, the discharging ratio
-     * to 0.01 and the inductive ratio to 0.0001. Regarding the energy sources, creates all the desired
-     * energy objects, assigning the energy packages to them. Finally, initializes all the waiting lists.
+     * Creates a new ChargingStation instance. It sets the handling of the queue to automatic, as well. The fast charging rate,
+     * slow charging rate, discharging rate and inductive charging rate are set to 0.01 Watt/millisecond. The battery duration is set to 1000 milliseconds.
+     * Regarding the energy sources, creates all the desired energy objects, assigning the energy packages to them.
+     * Finally, initializes all the waiting lists.
      * @param name The name of the Charging Station.
-     * @param kinds An array with the initial kind of chargers. The value "slow" means a charger for slow charging,
-     * while "fast" signifies a Charger for fast charging.
+     * @param kinds An array with the initial kind of chargers. The value "fast" means a charger charging with fast rate,
+     * while "slow" signifies a Charger charging with slow rate.
      * @param source An array with the desired EnergySource objects. The values need to be exactly as the names
      * of the sources package, in order to be created an object.
      * @param energyAmounts A two-dimension array with all the initial energy packages for the station's source.
@@ -87,8 +87,8 @@ public class ChargingStation {
         this.id = idGenerator.incrementAndGet();
         this.name = name;
         this.automaticQueueHandling = true;
-        this.slow = new WaitList<ChargingEvent>();
         this.fast = new WaitList<ChargingEvent>();
+        this.slow = new WaitList<ChargingEvent>();
         this.exchange = new WaitList<ChargingEvent>();
         this.discharging = new WaitList<DisChargingEvent>();
         this.chargers = new ArrayList<>();
@@ -98,13 +98,14 @@ public class ChargingStation {
         this.n = new ArrayList<>();
         this.sources = new ArrayList<>();
         this.batteries = new ArrayList<>();
+        this.chargingRateFast = 0.01;
+        this.chargingRateSlow = 0.01;
+        this.disChargingRate = 0.01;
+        this.inductiveChargingRate = 0.01;
+        this.timeOfExchange = 1000;
         Collections.addAll(sources, source);
         this.sources.add("Discharging");
         setSpecificAmount("Discharging", 0.0);
-        this.chargingRatioSlow = 0.001;
-        this.chargingRatioFast = 0.01;
-        this.disChargingRatio = 0.01;
-        this.inductiveChargingRatio = 0.0001;
         for (int i = 0; i < source.length; i++) {
             if (source[i].equalsIgnoreCase("Solar")) {
                 n.add(i, new Solar(energyAmounts[i]));
@@ -133,12 +134,12 @@ public class ChargingStation {
             }
         }
         for (String kind : kinds) {
-            if (kind.equalsIgnoreCase("slow")) {
-                chargers.add(new Charger(this, "slow"));
-                ++SLOW_CHARGERS;
-            } else if (kind.equalsIgnoreCase("fast")) {
+            if (kind.equalsIgnoreCase("fast")) {
                 chargers.add(new Charger(this, "fast"));
                 ++FAST_CHARGERS;
+            } else if (kind.equalsIgnoreCase("slow")) {
+                chargers.add(new Charger(this, "slow"));
+                ++SLOW_CHARGERS;
             } else if (kind.equals("exchange")) {
                 exchangeHandlers.add(new ExchangeHandler(this));
             } else if (kind.equals("park")) {
@@ -148,13 +149,13 @@ public class ChargingStation {
     }
 
     /**
-     * Creates a new ChargingStation instance. It also sets the handling of the queue to automatic,
-     * sets the slow charging ratio to 0.001, the fast charging ratio to 0.01, the discharging ratio
-     * to 0.01 and the inductive ratio to 0.0001. Regarding the energy sources, creates all the desired
+     * Creates a new ChargingStation instance. It also sets the handling of the queue to automatic. The fast charging rate,
+     * slow charging rate, discharging rate and inductive charging rate are set to 0.01 Watt/millisecond. The battery
+     * duration is set to 1000 milliseconds. Regarding the energy sources, creates all the desired
      * energy objects, assigning the energy packages to them. Finally, initializes all the waiting lists.
      * @param name The name of the ChargingStation object.
-     * @param kinds An array with the initial kind of chargers. The value "slow" means a charger for slow charging,
-     * while "fast" signifies a Charger for fast charging.
+     * @param kinds An array with the initial kind of chargers. The value "fast" means a charger for fast charging,
+     * while "slow" signifies a Charger for slow charging.
      * @param source An array with the desired EnergySource objects. The values need to be exactly as the names
      * of the sources package, in order to be created an object.
      */
@@ -162,8 +163,8 @@ public class ChargingStation {
         this.amounts = new HashMap<>();
         this.id = idGenerator.incrementAndGet();
         this.name = name;
-        this.slow = new WaitList<ChargingEvent>();
         this.fast = new WaitList<ChargingEvent>();
+        this.slow = new WaitList<ChargingEvent>();
         this.exchange = new WaitList<ChargingEvent>();
         this.discharging = new WaitList<DisChargingEvent>();
         this.automaticQueueHandling = true;
@@ -176,11 +177,12 @@ public class ChargingStation {
         this.sources = new ArrayList<>();
         Collections.addAll(sources, source);
         this.sources.add("Discharging");
+        this.chargingRateFast = 0.01;
+        this.chargingRateSlow = 0.01;
+        this.disChargingRate = 0.01;
+        this.inductiveChargingRate = 0.01;
+        this.timeOfExchange = 1000;
         setSpecificAmount("Discharging", 0.0);
-        this.chargingRatioSlow = 0.001;
-        this.chargingRatioFast = 0.01;
-        this.disChargingRatio = 0.01;
-        this.inductiveChargingRatio = 0.0001;
         for (int i = 0; i < source.length; i++) {
             switch (source[i]) {
                 case "Solar":
@@ -211,8 +213,8 @@ public class ChargingStation {
         }
         for (String kind : kinds) {
             switch (kind) {
-                case "slow":
                 case "fast":
+                case "slow":
                     chargers.add(new Charger(this, kind));
                     break;
                 case "exchange":
@@ -226,17 +228,17 @@ public class ChargingStation {
     }
 
     /**
-     * Creates a new ChargingStation instance. It also sets the handling of the queue to automatic,
-     * sets the slow charging ratio to 0.001, the fast charging ratio to 0.01, the discharging ratio
-     * to 0.01 and the inductive ratio to 0.0001. Regarding the energy sources, creates all the desired
+     * Creates a new ChargingStation instance. It also sets the handling of the queue to automatic. The fast charging rate,
+     * slow charging rate, discharging rate and inductive charging rate are set to 0.01 Watt/millisecond. The battery duration
+     * is set to 1000 milliseconds. Regarding the energy sources, creates all the desired
      * energy objects, assigning the energy packages to them. Finally, initializes all the waiting lists.
      * @param name The name of the ChargingStation.
      */
     public ChargingStation(String name) {
         this.id = idGenerator.incrementAndGet();
         this.name = name;
-        this.slow = new WaitList<ChargingEvent>();
         this.fast = new WaitList<ChargingEvent>();
+        this.slow = new WaitList<ChargingEvent>();
         this.exchange = new WaitList<ChargingEvent>();
         this.discharging = new WaitList<DisChargingEvent>();
         this.parkingSlots = new ArrayList<>();
@@ -251,10 +253,11 @@ public class ChargingStation {
         this.sources.add("Discharging");
         setSpecificAmount("Discharging", 0.0);
         this.automaticQueueHandling = true;
-        this.chargingRatioSlow = 0.001;
-        this.chargingRatioFast = 0.01;
-        this.disChargingRatio = 0.01;
-        this.inductiveChargingRatio = 0.0001;
+        this.chargingRateFast = 0.01;
+        this.chargingRateSlow = 0.01;
+        this.disChargingRate = 0.01;
+        this.inductiveChargingRate = 0.01;
+        this.timeOfExchange = 1000;
     }
 
     /**
@@ -292,11 +295,11 @@ public class ChargingStation {
                 case "exchange":
                     exchange.add(event);
                     break;
-                case "slow":
-                    slow.add(event);
-                    break;
                 case "fast":
                     fast.add(event);
+                    break;
+                case "slow":
+                    slow.add(event);
                     break;
             }
         } finally {
@@ -506,10 +509,10 @@ public class ChargingStation {
      */
     public void addCharger(Charger charger) {
         chargers.add(charger);
-        if (charger.getKindOfCharging().equalsIgnoreCase("slow"))
-            ++SLOW_CHARGERS;
-        else if (charger.getKindOfCharging().equalsIgnoreCase("fast"))
+        if (charger.getKindOfCharging().equalsIgnoreCase("fast"))
             ++FAST_CHARGERS;
+        else if (charger.getKindOfCharging().equalsIgnoreCase("slow"))
+            ++SLOW_CHARGERS;
     }
 
     /**
@@ -603,10 +606,10 @@ public class ChargingStation {
     {
 
         chargers.remove(charger);
-        if (charger.getKindOfCharging().equalsIgnoreCase("slow"))
-            SLOW_CHARGERS--;
-        else
+        if (charger.getKindOfCharging().equalsIgnoreCase("fast"))
             FAST_CHARGERS--;
+        else
+            SLOW_CHARGERS--;
     }
 
     /**
@@ -752,64 +755,64 @@ public class ChargingStation {
     }
 
     /**
-     * @return The slow charging ratio of the ChargingStation.
+     * @return The fast charging rate of the ChargingStation.
      */
-    public double getChargingRatioSlow() {
-        return chargingRatioSlow;
+    public double getChargingRateFast() {
+        return chargingRateFast;
     }
 
     /**
-     * Sets the charging ratio of the fast charging.
-     * @param chargingRatio The fast charging ratio.
+     * Sets the charging rate of the fast charging.
+     * @param chargingRate The fast charging rate.
      */
-    public void setChargingRatioFast(double chargingRatio) {
-        chargingRatioFast = chargingRatio;
+    public void setChargingRateFast(double chargingRate) {
+        chargingRateFast = chargingRate;
     }
 
     /**
-     * Sets a charging ratio for the slow charging.
+     * Sets a charging rate for the slow charging.
      *
-     * @param chargingRatio The charging ratio.
+     * @param chargingRate The slow charging rate.
      */
-    public void setChargingRatioSlow(double chargingRatio) {
-        chargingRatioSlow = chargingRatio;
+    public void setChargingRateSlow(double chargingRate) {
+        chargingRateSlow = chargingRate;
     }
 
     /**
-     * Sets a discharging ratio.
-     * @param disChargingRatio The discharging ratio.
+     * Sets a discharging rate.
+     * @param disChargingRate The discharging rate.
      */
-    public void setDisChargingRatio(double disChargingRatio) {
-        this.disChargingRatio = disChargingRatio;
+    public void setDisChargingRate(double disChargingRate) {
+        this.disChargingRate = disChargingRate;
     }
 
     /**
-     * @return The fast charging ratio of the ChargingStation.
+     * @return The slow charging rate of the ChargingStation.
      */
-    public double getChargingRatioFast() {
-        return chargingRatioFast;
+    public double getChargingRateSlow() {
+        return chargingRateSlow;
     }
 
     /**
-     * Sets the ratio of inductive charging.
-     * @param inductiveChargingRatio The ratio of charging during inductive charging.
+     * Sets the rate of inductive charging.
+     * @param inductiveChargingRate The rate of charging during inductive charging.
      */
-    public void setInductiveChargingRatio(double inductiveChargingRatio) {
-        this.inductiveChargingRatio = inductiveChargingRatio;
+    public void setInductiveChargingRate(double inductiveChargingRate) {
+        this.inductiveChargingRate = inductiveChargingRate;
     }
 
     /**
-     * @return The ratio of charging during inductive charging.
+     * @return The rate of charging during inductive charging.
      */
-    public double getInductiveRatio() {
-        return inductiveChargingRatio;
+    public double getInductiveRate() {
+        return inductiveChargingRate;
     }
 
     /**
-     * @return The discharging ratio of the ChargingStation.
+     * @return The discharging rate of the ChargingStation.
      */
-    public double getDisChargingRatio() {
-        return disChargingRatio;
+    public double getDisChargingRate() {
+        return disChargingRate;
     }
 
     /**
@@ -932,7 +935,7 @@ public class ChargingStation {
     }
 
     /**
-     * @return The time among each energy storage update.
+     * @return The time among each energy storage update in milliseconds.
      */
     public int getUpdateSpace() {
         return updateSpace;
@@ -940,7 +943,7 @@ public class ChargingStation {
 
     /**
      * Sets the space for the next energy storage update.
-     * @param updateSpace The time space.
+     * @param updateSpace The time space in milliseconds.
      */
     public void setUpdateSpace(int updateSpace) {
         if(timer != null) {
@@ -976,11 +979,11 @@ public class ChargingStation {
     }
 
     /**
-     * Calculates the waiting time the ElectricVehicle should wait.
-     * @param kind The kind of operation for which the waiting time should be calculated. The acceptable values are: "slow" for
-     * slow charging, "fast" for fast charging, "exchange" for battery exchange function and "discharging" for
+     * Calculates the waiting time the ElectricVehicle should wait and returning it in milliseconds.
+     * @param kind The kind of operation for which the waiting time should be calculated. The acceptable values are: "fast" for
+     * fast charging, "slow" for slow charging, "exchange" for battery exchange function and "discharging" for
      * the discharging function.
-     * @return The time an ElectricVehicle should wait, to be executed.
+     * @return The time an ElectricVehicle should wait, to be executed in milliseconds.
      */
     public long getWaitingTime(String kind) {
         long[] counter1 = new long[chargers.size()];
@@ -1042,22 +1045,22 @@ public class ChargingStation {
             return 0;
         ChargingEvent e;
         DisChargingEvent ey;
-        if ("slow".equalsIgnoreCase(kind)) {
-            WaitList o = this.slow;
+        if ("fast".equalsIgnoreCase(kind)) {
+            WaitList o = this.fast;
             for (int i = 0; i < o.getSize() ; i++) {
                 e = (ChargingEvent) o.get(i);
-                counter1[index] = counter1[index] + ((long) (e.getAmountOfEnergy()/chargingRatioSlow));
+                counter1[index] = counter1[index] + ((long) (e.getAmountOfEnergy()/chargingRateFast));
                 for(int j=0; j<chargers.size(); j++)
                     if ((counter1[j]<counter1[index])&&(counter1[j]!=0))
                         index = j;
             }
             return counter1[index];
         }
-        if ("fast".equalsIgnoreCase(kind)) {
-            WaitList o = this.fast;
+        if ("slow".equalsIgnoreCase(kind)) {
+            WaitList o = this.slow;
             for(int i = 0; i < o.getSize() ; i++) {
                 e = (ChargingEvent) o.get(i);
-                counter1[index] = counter1[index] + ((long) (e.getAmountOfEnergy()/chargingRatioFast));
+                counter1[index] = counter1[index] + ((long) (e.getAmountOfEnergy()/chargingRateSlow));
                 for(int j=0; j<chargers.size(); j++)
                     if ((counter1[j]<counter1[index])&&(counter1[j]!=0))
                         index = j;
@@ -1077,7 +1080,7 @@ public class ChargingStation {
             WaitList o = this.discharging;
             for(int i = 0; i < o.getSize() ; i++) {
                 ey = (DisChargingEvent) o.get(i);
-                counter3[index] = counter3[index] + ((long) (ey.getAmountOfEnergy()/disChargingRatio));
+                counter3[index] = counter3[index] + ((long) (ey.getAmountOfEnergy()/disChargingRate));
                 for(int j=0; j<dischargers.size(); j++)
                     if ((counter3[j]<counter3[index])&&(counter3[j]!=0))
                         index = j;
@@ -1098,15 +1101,15 @@ public class ChargingStation {
     }
 
     /**
-     * Sets the time a battery exchange function endures.
-     * @param time The time the battery exchange endures.
+     * Sets the time a battery exchange function endures in milliseconds.
+     * @param time The time the battery exchange endures in milliseconds.
      */
     public void setTimeofExchange(long time) {
         timeOfExchange = time;
     }
 
     /**
-     * @return The duration of the battery exchange.
+     * @return The duration of the battery exchange in milliseconds.
      */
     public long getTimeOfExchange() {
         return timeOfExchange;
@@ -1245,11 +1248,9 @@ public class ChargingStation {
      * @param update The way the update will become. False means manually, true means automatic.
      */
     public void setAutomaticUpdateMode(boolean update) {
-        if (!update && !this.automaticUpdate)
-            this.automaticUpdate = false;
-        else if(!update)
-        {
-            this.automaticUpdate = false;
+        if (!update) {
+            this.automaticUpdate = update;
+            this.updateSpace = 0;
             if(timer != null) {
                 timer.cancel();
                 timer.purge();
@@ -1403,34 +1404,34 @@ public class ChargingStation {
             content.add("Id: " + id);
             content.add("Name: " + name);
             content.add("Remaining energy: " + getTotalEnergy());
-            content.add("Slow chargers: " + SLOW_CHARGERS);
             content.add("Fast chargers: " + FAST_CHARGERS);
+            content.add("Slow chargers: " + SLOW_CHARGERS);
             content.add("Dischargers: " + dischargers.size());
             content.add("Exchange handlers: " + exchangeHandlers.size());
             content.add("Parking slots: " + parkingSlots.size());
             Consumer<ChargingEvent> consumer1 = e -> {
-                if (e.getChargingStationName().equals(name))
+                if (e.getStation().getName().equals(name))
                     counter.incrementAndGet();
             };
             ChargingEvent.chargingLog.forEach(consumer1);
             content.add("Completed chargings: " + counter);
             counter.set(0);
             Consumer<DisChargingEvent> consumer2 = e -> {
-                if (e.getChargingStationName().equals(name))
+                if (e.getStation().getName().equals(name))
                     counter.incrementAndGet();
             };
             DisChargingEvent.dischargingLog.forEach(consumer2);
             content.add("Completed dischargings: " + counter);
             counter.set(0);
             Consumer<ChargingEvent> consumer3 = e -> {
-                if (e.getChargingStationName().equals(name))
+                if (e.getStation().getName().equals(name))
                     counter.incrementAndGet();
             };
             ChargingEvent.exchangeLog.forEach(consumer3);
             content.add("Completed battery swappings: " + counter);
             counter.set(0);
             Consumer<ParkingEvent> consumer4 = e -> {
-                if (e.getChargingStationName().equals(name))
+                if (e.getStation().getName().equals(name))
                     counter.incrementAndGet();
             };
             ParkingEvent.parkLog.forEach(consumer4);
@@ -1445,10 +1446,10 @@ public class ChargingStation {
             content.add("");
             content.add("***Charging events***");
             for (ChargingEvent ev : ChargingEvent.chargingLog) {
-                if (ev.getChargingStationName().equals(name)) {
+                if (ev.getStation().getName().equals(name)) {
                     content.add("");
                     content.add("Id: " + ev.getId());
-                    content.add("Station name: " + ev.getChargingStationName());
+                    content.add("Station name: " + ev.getStation().getName());
                     content.add("Asking energy: " + ev.getAmountOfEnergy());
                     content.add("Received energy: " + ev.getEnergyToBeReceived());
                     content.add("Charging time: " + ev.getChargingTime());
@@ -1460,10 +1461,10 @@ public class ChargingStation {
             content.add("");
             content.add("***Discharging events***");
             for (DisChargingEvent ev : DisChargingEvent.dischargingLog) {
-                if (ev.getChargingStationName().equals(name)) {
+                if (ev.getStation().getName().equals(name)) {
                     content.add("");
                     content.add("Id: " + ev.getId());
-                    content.add("Station name: " + ev.getChargingStationName());
+                    content.add("Station name: " + ev.getStation().getName());
                     content.add("Asking energy: " + ev.getAmountOfEnergy());
                     content.add("Discharging time: " + ev.getDisChargingTime());
                     content.add("Waiting time: " + ev.getWaitingTime());
@@ -1474,10 +1475,10 @@ public class ChargingStation {
             content.add("");
             content.add("***Exchange events***");
             for (ChargingEvent ev : ChargingEvent.exchangeLog) {
-                if (ev.getChargingStationName().equals(name)) {
+                if (ev.getStation().getName().equals(name)) {
                     content.add("");
                     content.add("Id: " + ev.getId());
-                    content.add("Station name: " + ev.getChargingStationName());
+                    content.add("Station name: " + ev.getStation().getName());
                     content.add("Waiting time: " + ev.getWaitingTime());
                     content.add("Maximum waiting time: " + ev.getMaxWaitingTime());
                     content.add("Cost: " + ev.getCost());
@@ -1486,10 +1487,10 @@ public class ChargingStation {
             content.add("");
             content.add("***Parking events***");
             for (ParkingEvent ev : ParkingEvent.parkLog) {
-                if (ev.getChargingStationName().equals(name)) {
+                if (ev.getStation().getName().equals(name)) {
                     content.add("");
                     content.add("Id: " + ev.getId());
-                    content.add("Station name: " + ev.getChargingStationName());
+                    content.add("Station name: " + ev.getStation().getName());
                     content.add("Amount of energy: " + ev.getAmountOfEnergy());
                     content.add("Received energy: " + ev.getEnergyToBeReceived());
                     content.add("Parking time: " + ev.getParkingTime());

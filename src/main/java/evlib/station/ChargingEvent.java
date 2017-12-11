@@ -13,7 +13,6 @@ public class ChargingEvent
     private int id;
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
     private final ChargingStation station;
-    private final String chargingStationName;
     private double amountOfEnergy;
     private String kindOfCharging;
     private long waitingTime;
@@ -47,7 +46,6 @@ public class ChargingEvent
         this.kindOfCharging = kindOfCharging;
         this.vehicle = vehicle;
         this.condition = "arrived";
-        this.chargingStationName = station.getName();
         this.chargingLog.add(this);
     }
 
@@ -70,7 +68,6 @@ public class ChargingEvent
             this.amountOfEnergy = money/station.getUnitPrice();
         else
             this.amountOfEnergy = station.getTotalEnergy();
-        this.chargingStationName = station.getName();
         this.chargingLog.add(this);
     }
 
@@ -89,7 +86,6 @@ public class ChargingEvent
         this.vehicle = vehicle;
         this.chargingTime = station.getTimeOfExchange();
         this.condition = "arrived";
-        this.chargingStationName = station.getName();
         this.exchangeLog.add(this);
     }
 
@@ -119,12 +115,14 @@ public class ChargingEvent
                         }
                         if (energyToBeReceived == 0) {
                             condition = "nonExecutable";
+                            charger.setChargingEvent(null);
+                            charger = null;
                             return;
                         }
                         if ("fast".equalsIgnoreCase(kindOfCharging))
-                            chargingTime = ((long) (energyToBeReceived / station.getChargingRatioFast()));
+                            chargingTime = ((long) (energyToBeReceived / station.getChargingRateFast()));
                         else
-                            chargingTime = ((long) (energyToBeReceived / station.getChargingRatioSlow()));
+                            chargingTime = ((long) (energyToBeReceived / station.getChargingRateSlow()));
                         this.cost = station.calculatePrice(this);
                         setCondition("ready");
                         double sdf;
@@ -239,13 +237,6 @@ public class ChargingEvent
     }
 
     /**
-     * @return The name of the ChargingStation.
-     */
-    public String getChargingStationName() {
-        return chargingStationName;
-    }
-
-    /**
      * @return The energy to be received by ElectricVehicle.
      */
     public double getEnergyToBeReceived()
@@ -261,14 +252,14 @@ public class ChargingEvent
     }
 
     /**
-     * Sets the maximum time a ChargingEvent has to wait in the waiting list.
-     * @param maxWaitingTime The time to be set.
+     * Sets the maximum time a ChargingEvent has to wait in the waiting list. The time has to be in milliseconds
+     * @param maxWaitingTime The time to be set in milliseconds.
      */
     public void setMaxWaitingTime(long maxWaitingTime) { this.maxWaitingTime = maxWaitingTime; }
 
     /**
-     * Sets the waiting time the Driver can wait.
-     * @param w The waiting time.
+     * Sets the waiting time the Driver can wait in milliseconds.
+     * @param w The waiting time in milliseconds.
      */
     public void setWaitingTime(long w) {
         this.waitingTime = w;
@@ -291,7 +282,7 @@ public class ChargingEvent
     }
 
     /**
-     * @return The waiting time of the ChargingEvent.
+     * @return The waiting time of the ChargingEvent in milliseconds.
      */
     public long getWaitingTime()
     {
@@ -299,7 +290,7 @@ public class ChargingEvent
     }
 
     /**
-     * @return The remaining charging time of the ChargingEvent.
+     * @return The remaining charging time of the ChargingEvent in milliseconds.
      */
     public long getRemainingChargingTime()
     {
@@ -320,7 +311,7 @@ public class ChargingEvent
     }
 
     /**
-     * @return The maximum time the vehicle should wait.
+     * @return The maximum time the vehicle should wait in milliseconds.
      */
     public long getMaxWaitingTime()
     {
@@ -328,16 +319,16 @@ public class ChargingEvent
     }
 
     /**
-     * @return The charging time of the ChargingEvent.
+     * @return The charging time of the ChargingEvent in milliseconds.
      */
     public long getChargingTime() {
         return chargingTime;
     }
 
     /**
-     * Sets the charging time of the ChargingEvent. It also starts counting the reamining time of the charging.
+     * Sets the charging time of the ChargingEvent in milliseconds. It also starts counting the reamining time of the charging.
      *
-     * @param time The charging time.
+     * @param time The charging time in milliseconds.
      */
     public void setChargingTime(long time) {
         timestamp = System.currentTimeMillis();
@@ -348,7 +339,7 @@ public class ChargingEvent
      * Calculates the amount of time a Driver has to wait until his ElectricVehicle
      * will be charged. This calculation happens in case an ElectricVehicle should
      * be added in the WaitingList.
-     * @return The waiting time.
+     * @return The waiting time in milliseconds.
      */
     private long calWaitingTime()
     {
@@ -385,7 +376,7 @@ public class ChargingEvent
             for (int i = 0;i < o.getSize() ;i++)
             {
                 e = (ChargingEvent) o.get(i);
-                counter1[index] = counter1[index] + ((long) (e.getAmountOfEnergy()/station.getChargingRatioSlow()));
+                counter1[index] = counter1[index] + ((long) (e.getAmountOfEnergy()/station.getChargingRateSlow()));
                 for(int j=0; j<station.getChargers().length; j++)
                     if ((counter1[j]<counter1[index])&&(counter1[j]!=0))
                         index = j;
@@ -398,7 +389,7 @@ public class ChargingEvent
             for(int i = 0; i < o.getSize() ;i++)
             {
                 e = (ChargingEvent) o.get(i);
-                counter1[index] = counter1[index] + ((long) (e.getAmountOfEnergy()/station.getChargingRatioFast()));
+                counter1[index] = counter1[index] + ((long) (e.getAmountOfEnergy()/station.getChargingRateFast()));
                 for(int j=0; j<station.getChargers().length; j++)
                     if ((counter1[j]<counter1[index])&&(counter1[j]!=0))
                         index = j;

@@ -39,9 +39,9 @@ public class DisCharger
                 double energy = station.getMap().get("Discharging") + e.getAmountOfEnergy();
                 station.setSpecificAmount("Discharging", energy);
                 if (e.getElectricVehicle().getDriver() == null && e.getElectricVehicle().getBrand() == null)
-                    System.out.println("Discharging " + e.getId() + ", " + e.getChargingStationName() + ", OK");
+                    System.out.println("Discharging " + e.getId() + ", " + e.getStation().getName() + ", OK");
                 else
-                    System.out.println("Discharging " + e.getId() + ", " + e.getElectricVehicle().getDriver().getName() + ", " + e.getElectricVehicle().getBrand() + ", " + e.getChargingStationName() + ", OK");
+                    System.out.println("Discharging " + e.getId() + ", " + e.getElectricVehicle().getDriver().getName() + ", " + e.getElectricVehicle().getBrand() + ", " + e.getStation().getName() + ", OK");
                 e.setCondition("finished");
                 setDisChargingEvent(null);
                 if (station.getQueueHandling())
