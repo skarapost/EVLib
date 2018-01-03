@@ -1410,28 +1410,35 @@ public class ChargingStation {
             content.add("Exchange handlers: " + exchangeHandlers.size());
             content.add("Parking slots: " + parkingSlots.size());
             Consumer<ChargingEvent> consumer1 = e -> {
-                if (e.getStation().getName().equals(name))
+                if ((e.getStation().getName().equals(name)) && (e.getCondition().equals("finished")) && (e.getKindOfCharging().equals("fast")))
                     counter.incrementAndGet();
             };
             ChargingEvent.chargingLog.forEach(consumer1);
-            content.add("Completed chargings: " + counter);
+            content.add("Completed fast chargings: " + counter);
+            counter.set(0);
+            consumer1 = e -> {
+                if ((e.getStation().getName().equals(name)) && (e.getCondition().equals("finished")) && (e.getKindOfCharging().equals("slow")))
+                    counter.incrementAndGet();
+            };
+            ChargingEvent.chargingLog.forEach(consumer1);
+            content.add("Completed slow chargings: " + counter);
             counter.set(0);
             Consumer<DisChargingEvent> consumer2 = e -> {
-                if (e.getStation().getName().equals(name))
+                if ((e.getStation().getName().equals(name)) && (e.getCondition().equals("finished")))
                     counter.incrementAndGet();
             };
             DisChargingEvent.dischargingLog.forEach(consumer2);
             content.add("Completed dischargings: " + counter);
             counter.set(0);
             Consumer<ChargingEvent> consumer3 = e -> {
-                if (e.getStation().getName().equals(name))
+                if ((e.getStation().getName().equals(name)) && (e.getCondition().equals("finished")))
                     counter.incrementAndGet();
             };
             ChargingEvent.exchangeLog.forEach(consumer3);
             content.add("Completed battery swappings: " + counter);
             counter.set(0);
             Consumer<ParkingEvent> consumer4 = e -> {
-                if (e.getStation().getName().equals(name))
+                if ((e.getStation().getName().equals(name)) && (e.getCondition().equals("finished")))
                     counter.incrementAndGet();
             };
             ParkingEvent.parkLog.forEach(consumer4);
@@ -1452,6 +1459,7 @@ public class ChargingStation {
                     content.add("Station name: " + ev.getStation().getName());
                     content.add("Asking energy: " + ev.getAmountOfEnergy());
                     content.add("Received energy: " + ev.getEnergyToBeReceived());
+                    content.add("Condition: " + ev.getCondition());
                     content.add("Charging time: " + ev.getChargingTime());
                     content.add("Waiting time: " + ev.getWaitingTime());
                     content.add("Maximum waiting time: " + ev.getMaxWaitingTime());
@@ -1466,6 +1474,7 @@ public class ChargingStation {
                     content.add("Id: " + ev.getId());
                     content.add("Station name: " + ev.getStation().getName());
                     content.add("Asking energy: " + ev.getAmountOfEnergy());
+                    content.add("Condition: " + ev.getCondition());
                     content.add("Discharging time: " + ev.getDisChargingTime());
                     content.add("Waiting time: " + ev.getWaitingTime());
                     content.add("Maximum waiting time: " + ev.getMaxWaitingTime());
@@ -1479,6 +1488,7 @@ public class ChargingStation {
                     content.add("");
                     content.add("Id: " + ev.getId());
                     content.add("Station name: " + ev.getStation().getName());
+                    content.add("Condition: " + ev.getCondition());
                     content.add("Waiting time: " + ev.getWaitingTime());
                     content.add("Maximum waiting time: " + ev.getMaxWaitingTime());
                     content.add("Cost: " + ev.getCost());
@@ -1493,6 +1503,7 @@ public class ChargingStation {
                     content.add("Station name: " + ev.getStation().getName());
                     content.add("Amount of energy: " + ev.getAmountOfEnergy());
                     content.add("Received energy: " + ev.getEnergyToBeReceived());
+                    content.add("Condition: " + ev.getCondition());
                     content.add("Parking time: " + ev.getParkingTime());
                     content.add("Charging time: " + ev.getChargingTime());
                     content.add("Cost: " + ev.getCost());
