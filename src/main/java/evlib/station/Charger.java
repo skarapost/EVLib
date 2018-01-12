@@ -16,23 +16,23 @@ public class Charger {
 
     /**
      * Creates a new Charger instance.
-     * @param station The ChargingStation object the Charger is linked with.
-     * @param kindOfCharging The kind of charging the Charger supports.
+     * @param stat The ChargingStation object the Charger is linked with.
+     * @param kindOfChar The kind of charging the Charger supports.
      */
-    public Charger(ChargingStation station, String kindOfCharging) {
+    public Charger(final ChargingStation stat, final String kindOfChar) {
         this.id = idGenerator.incrementAndGet();
-        this.kindOfCharging = kindOfCharging;
-        this.station = station;
+        this.kindOfCharging = kindOfChar;
+        this.station = stat;
         this.name = "Charger" + String.valueOf(id);
     }
 
     /**
      * Sets a name for the Charger.
-     * @param name The name to be set.
+     * @param nam The name to be set.
      */
-    public void setName(String name)
+    public void setName(final String nam)
     {
-        this.name = name;
+        this.name = nam;
     }
 
     /**
@@ -64,7 +64,9 @@ public class Charger {
                     else
                         System.out.println("Charging " + e.getId() + ", " + e.getElectricVehicle().getDriver().getName() + ", " + e.getElectricVehicle().getBrand() + ", " + e.getStation().getName() + ", OK");
                     e.setCondition("finished");
-                    setChargingEvent(null);
+                    synchronized(this) {
+                        setChargingEvent(null);
+                    }
                     if (station.getQueueHandling())
                         handleQueueEvents();
                 } else {
@@ -76,17 +78,23 @@ public class Charger {
                             e.setCondition("interrupted");
                     if (planEvent.size() != 0) {
                         if (planEvent.get(0) != -1) {
-                            setChargingEvent(station.events.get(planEvent.remove(0) - 1));
+                            synchronized(this) {
+                                setChargingEvent(station.events.get(planEvent.remove(0) - 1));
+                            }
                             e.setChargingTime(planTime.remove(0));
                             e.accumulatorOfChargingTime += e.getChargingTime();
                         } else {
                             ChargingEvent e = new ChargingEvent(station, null, 0, null);
                             e.setChargingTime(planTime.remove(0));
                             planEvent.remove(0);
-                            setChargingEvent(e);
+                            synchronized(this) {
+                                setChargingEvent(e);
+                            }
                         }
                     } else {
-                        setChargingEvent(null);
+                        synchronized(this) {
+                            setChargingEvent(null);
+                        }
                         planTime.clear();
                         planEvent.clear();
                         System.out.println(name + " plan, OK");
@@ -103,7 +111,9 @@ public class Charger {
                     }
                 }
             } catch (InterruptedException e1) {
-                setChargingEvent(null);
+                synchronized(this) {
+                    setChargingEvent(null);
+                }
                 System.out.println(name + " stopped");
             } catch (NullPointerException e2) {
                 System.out.println("not processed");
@@ -126,18 +136,18 @@ public class Charger {
      * Handles the waiting list. It executes (if any) the first element of the list.
      */
     private void handleQueueEvents() {
-        ChargingEvent e;
+        ChargingEvent ev;
         if ("fast".equalsIgnoreCase(getKindOfCharging())) {
             if (station.getFast().getSize() != 0) {
-                e = (ChargingEvent) station.getFast().moveFirst();
-                e.preProcessing();
-                e.execution();
+                ev = (ChargingEvent) station.getFast().moveFirst();
+                ev.preProcessing();
+                ev.execution();
             }
         } else if ("slow".equalsIgnoreCase(getKindOfCharging())) {
             if (station.getSlow().getSize() != 0) {
-                e = (ChargingEvent) station.getSlow().moveFirst();
-                e.preProcessing();
-                e.execution();
+                ev = (ChargingEvent) station.getSlow().moveFirst();
+                ev.preProcessing();
+                ev.execution();
             }
         }
     }
@@ -145,7 +155,7 @@ public class Charger {
     /**
      * @return The ChargingEvent that is linked with the Charger.
      */
-    public ChargingEvent getChargingEvent() {
+    public synchronized ChargingEvent getChargingEvent() {
         return e;
     }
 
@@ -154,7 +164,7 @@ public class Charger {
      *
      * @param ev The ChargingEvent to be linked with the Charger.
      */
-    void setChargingEvent(ChargingEvent ev) {
+    synchronized void setChargingEvent(final ChargingEvent ev) {
         this.e = ev;
     }
 
@@ -167,7 +177,7 @@ public class Charger {
 
     /**
      * Sets the id for this Charger.
-     * @param id The id to be set.
+     * @param d The id to be set.
      */
-    public void setId(int id) { this.id = id; }
+    public void setId(final int d) { this.id = d; }
 }

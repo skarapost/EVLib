@@ -27,7 +27,7 @@ class DisChargerTest {
         Thread.sleep(2000);
 
         assertEquals("finished", disEvent.getCondition());
-        assertTrue(DisChargingEvent.dischargingLog.contains(disEvent));
+        assertTrue(DisChargingEvent.getDischargingLog().contains(disEvent));
         assertNull(disCharger.getDisChargingEvent());
         assertEquals(disEvent.getElectricVehicle().getDriver().getProfit(), 0);
         assertEquals(disEvent.getDisChargingTime(), 1500);

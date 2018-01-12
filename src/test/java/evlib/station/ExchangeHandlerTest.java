@@ -33,7 +33,7 @@ class ExchangeHandlerTest {
         Thread.sleep(150);
 
         assertEquals("finished", event.getCondition());
-        assertEquals(ChargingEvent.exchangeLog.get(0), event);
+        assertEquals(ChargingEvent.getExchangeLog().get(0), event);
         assertNull(station.getExchangeHandlers()[0].getChargingEvent());
         assertEquals(driver.getDebt(), 0);
         assertEquals(event.getElectricVehicle().getBattery().getRemAmount(), 1500);

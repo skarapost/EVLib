@@ -14,7 +14,7 @@ public class ParkingEvent {
     private long parkingTime;
     private ElectricVehicle vehicle;
     private final ChargingStation station;
-    ParkingSlot parkingSlot;
+    private ParkingSlot parkingSlot;
     private long remainingParkingTime;
     private long chargingTime;
     private long remainingChargingTime;
@@ -24,22 +24,22 @@ public class ParkingEvent {
     private long timestamp2;
     private String condition;
     private double cost;
-    public static final List<ParkingEvent> parkLog = new ArrayList<>();
+    private static final List<ParkingEvent> parkLog = new ArrayList<>();
 
     /**
      * Constructs a new ParkingEvent object. It sets the condition of the event to "arrived".
-     * @param station The ChargingStation object the event visited.
-     * @param vehicle The ElectricVehicle of the event.
-     * @param parkingTime The time the event wants to park. It is counted in milliseconds.
+     * @param stat The ChargingStation object the event visited.
+     * @param veh The ElectricVehicle of the event.
+     * @param parkTime The time the event wants to park. It is counted in milliseconds.
      */
-    public ParkingEvent(ChargingStation station, ElectricVehicle vehicle, long parkingTime)
-    {
+    public ParkingEvent(final ChargingStation stat, final ElectricVehicle veh, final long parkTime) {
         this.id = idGenerator.incrementAndGet();
-        this.station = station;
-        this.vehicle = vehicle;
+        this.station = stat;
+        this.vehicle = veh;
         this.condition = "arrived";
-        this.parkingTime = parkingTime;
+        this.parkingTime = parkTime;
         this.parkLog.add(this);
+        this.parkingSlot = null;
     }
 
     /**
@@ -47,19 +47,19 @@ public class ParkingEvent {
      * This constructor is for the objects that desire to charge inductively, as well. If the energy
      * demands greater time than the parking time, then the vehicle will charge until the end of the parking time,
      * taking the respective amount of energy.
-     * @param station The ChargingStation object the event visited.
-     * @param vehicle The ElectricVehicle of the event.
-     * @param parkingTime The time the event wants to park. It is counted in milliseconds.
-     * @param amountOfEnergy The amount of energy the event wants to take inductively.
+     * @param stat The ChargingStation object the event visited.
+     * @param veh The ElectricVehicle of the event.
+     * @param parkTime The time the event wants to park. It is counted in milliseconds.
+     * @param amountOfEnerg The amount of energy the event wants to take inductively.
      */
-    public ParkingEvent(ChargingStation station, ElectricVehicle vehicle, long parkingTime, double amountOfEnergy)
+    public ParkingEvent(final ChargingStation stat, final ElectricVehicle veh, final long parkTime, final double amountOfEnerg)
     {
         this.id = idGenerator.incrementAndGet();
-        this.vehicle = vehicle;
-        this.station = station;
-        this.amountOfEnergy = amountOfEnergy;
+        this.vehicle = veh;
+        this.station = stat;
+        this.amountOfEnergy = amountOfEnerg;
         this.condition = "arrived";
-        this.parkingTime = parkingTime;
+        this.parkingTime = parkTime;
         this.parkLog.add(this);
     }
 
@@ -73,16 +73,16 @@ public class ParkingEvent {
 
     /**
      * Sets the vehicle of the ParkingEvent.
-     * @param vehicle The vehicle to be set.
+     * @param veh The vehicle to be set.
      */
-    public void setElectricVehicle(ElectricVehicle vehicle) { this.vehicle = vehicle; }
+    public void setElectricVehicle(final ElectricVehicle veh) { this.vehicle = veh; }
 
     /**
      * Executes the pre-processing phase. Checks for any ParkingSLot and assignes to it if any.
      * It calculates the energy to be given to the ElectricVehicle and calculates the charging time.
      * If there is not any empty ParkingSlot the ParkingEvent's condition is set "nonExecutable".
      **/
-    public synchronized void preProcessing()
+    public void preProcessing()
     {
         if (vehicle.getBattery().getActive()) {
             if (condition.equals("arrived")) {
@@ -130,10 +130,10 @@ public class ParkingEvent {
     /**
      * The condition of the ParkingEvent is set to "charging" or "parking". Then, it executes the parking/charging of the ElectricVehicle.
      */
-    public synchronized void execution()
+    public void execution()
     {
         if (condition.equals("ready"))
-            if(chargingTime != 0 ) {
+            if (chargingTime != 0) {
                 setCondition("charging");
                 vehicle.getBattery().addCharging();
                 parkingSlot.startParkingSlot();
@@ -162,15 +162,14 @@ public class ParkingEvent {
 
     /**
      * Sets the energy to be received by the ParkingEvent.It also calculates the charging time.
-     * @param energyToBeReceived The energy to be received.
+     * @param energy The energy to be received.
      */
-    public void setEnergyToBeReceived(double energyToBeReceived) { this.energyToBeReceived = energyToBeReceived; }
+    public void setEnergyToBeReceived(final double energy) { this.energyToBeReceived = energy; }
 
     /**
      * @return The remaining charging time of the ParkingEvent in milliseconds.
      */
-    public long getRemainingChargingTime()
-    {
+    public long getRemainingChargingTime() {
         long diff = System.currentTimeMillis() - timestamp1;
         if ((chargingTime - diff >= 0) && (condition.equals("charging")))
             this.remainingChargingTime = chargingTime - diff;
@@ -199,19 +198,18 @@ public class ParkingEvent {
      * Sets the charging time of the ParkingEvent in milliseconds.
      * @param time The charging time in milliseconds.
      */
-    public void setChargingTime(long time)
-    {
+    public void setChargingTime(final long time) {
         timestamp1 = System.currentTimeMillis();
         this.chargingTime = time;
     }
 
     /**
      * Sets the condition of ParkingEvent.
-     * @param condition Value of the condition.
+     * @param cond Value of the condition.
      */
-    public void setCondition(String condition)
+    public void setCondition(final String cond)
     {
-        this.condition = condition;
+        this.condition = cond;
     }
 
     /**
@@ -225,9 +223,7 @@ public class ParkingEvent {
     /**
      * @return The remaining time the vehicle will be parked measured in milliseconds.
      */
-    public long getRemainingParkingTime()
-    {
-
+    public long getRemainingParkingTime() {
         long diff = System.currentTimeMillis() - timestamp2;
         if ((parkingTime - diff >= 0) && (condition.equals("parking")))
             remainingParkingTime = parkingTime - diff;
@@ -238,12 +234,11 @@ public class ParkingEvent {
 
     /**
      * Sets the parking time for the ElectricVehicle in milliseconds.
-     * @param parkingTime The parking time in milliseconds.
+     * @param parkTime The parking time in milliseconds.
      */
-    public void setParkingTime(long parkingTime)
-    {
+    public void setParkingTime(final long parkTime) {
         timestamp2 = System.currentTimeMillis();
-        this.parkingTime = parkingTime;
+        this.parkingTime = parkTime;
     }
 
     /**
@@ -266,15 +261,15 @@ public class ParkingEvent {
      * Sets the amount of energy the ParkingEvent demands.
      * @param energy The energy to be set.
      */
-    public void setAmountOfEnergy(double energy){
+    public void setAmountOfEnergy(final double energy){
         this.amountOfEnergy = energy;
     }
 
     /**
      * Sets the cost for the ParkingEvent.
-     * @param cost The cost to be set.
+     * @param cos The cost to be set.
      */
-    public void setCost(double cost) { this.cost = cost; }
+    public void setCost(final double cos) { this.cost = cos; }
 
     /**
      * @return The cost of this ParkingEvent.
@@ -286,7 +281,23 @@ public class ParkingEvent {
 
     /**
      * Sets the id for the ParkingEvent.
-     * @param id The id to be set.
+     * @param d The id to be set.
      */
-    public void setId(int id) { this.id = id; }
+    public void setId(final int d) { this.id = d; }
+
+    /**
+     * Returns the list with created parking events.
+     * @return The list with created parking events.
+     */
+    public static List<ParkingEvent> getParkLog() {
+        return parkLog;
+    }
+
+    /**
+     * Sets a parking slot for the event.
+     * @param slot The parkign slot to be assigned.
+     */
+    void setParkingSlot(ParkingSlot slot) {
+        this.parkingSlot = slot;
+    }
 }

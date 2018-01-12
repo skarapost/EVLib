@@ -33,7 +33,7 @@ class ChargerTest {
         Thread.sleep(2500);
 
         assertEquals("finished", event.getCondition());
-        assertTrue(ChargingEvent.chargingLog.contains(event));
+        assertTrue(ChargingEvent.getChargingLog().contains(event));
         assertNull(charger.getChargingEvent());
         assertEquals(driver.getDebt(), 0);
         assertEquals(battery.getRemAmount(), 170);

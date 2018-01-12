@@ -1,7 +1,6 @@
 package evlib.sources;
 
-public class Wave extends EnergySource
-{
+public class Wave extends EnergySource {
     /**
      * Constructs a new Wave object.
      */
@@ -11,7 +10,7 @@ public class Wave extends EnergySource
      * Constructor of a new Wave instance attached with energy packages.
      * @param energyAmoun An array with energy packages.
      */
-    public Wave(double[] energyAmoun) {
+    public Wave(final double[] energyAmoun) {
         super(energyAmoun);
     }
 }

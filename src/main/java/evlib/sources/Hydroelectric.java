@@ -10,7 +10,7 @@ public class Hydroelectric extends EnergySource {
      * Constructor of a new Hydroelectric object with attached energy packages.
      * @param energyAmoun An array with energy packages.
      */
-    public Hydroelectric(double[] energyAmoun) {
+    public Hydroelectric(final double[] energyAmoun) {
         super(energyAmoun);
     }
 }

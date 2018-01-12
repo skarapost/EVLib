@@ -11,7 +11,7 @@ public class Nonrenewable extends EnergySource{
      * Constructor of a new Nonrenewable object attached with energy packages.
      * @param energyAmoun An array with energy packages.
      */
-    public Nonrenewable(double[] energyAmoun) {
+    public Nonrenewable(final double[] energyAmoun) {
         super(energyAmoun);
     }
 }

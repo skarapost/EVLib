@@ -13,23 +13,24 @@ public class ParkingSlot {
 
     /**
      * Creates a new ParkingSlot object. It also activates the switch for inductive charging.
-     * @param station The ChargingStation object the ParkingSlot is linked with.
+     * @param stat The ChargingStation object the ParkingSlot is linked with.
      */
-    public ParkingSlot(ChargingStation station)
+    public ParkingSlot(final ChargingStation stat)
     {
         this.id = idGenerator.incrementAndGet();
-        this.station = station;
+        this.station = stat;
         inSwitch = true;
         this.name = "ParkingSlot" + String.valueOf(id);
+        this.e = null;
     }
 
     /**
      * Sets a name for the ParkingSlot.
-     * @param name The name to be set.
+     * @param nam The name to be set.
      */
-    public void setName(String name)
+    public void setName(final String nam)
     {
-        this.name = name;
+        this.name = nam;
     }
 
     /**
@@ -54,7 +55,6 @@ public class ParkingSlot {
                 if (e.getCondition().equals("charging")) {
                     e.setChargingTime(e.getChargingTime());
                     Thread.sleep(e.getChargingTime());
-                    synchronized (this) {
                         e.getElectricVehicle().getBattery().setRemAmount(e.getEnergyToBeReceived() + e.getElectricVehicle().getBattery().getRemAmount());
                         if (e.getElectricVehicle().getDriver() != null)
                             e.getElectricVehicle().getDriver().setDebt(e.getElectricVehicle().getDriver().getDebt() + e.getEnergyToBeReceived() * station.getInductivePrice());
@@ -62,21 +62,22 @@ public class ParkingSlot {
                             System.out.println("Charging " + e.getId() + ", " + e.getStation().getName() + ", OK");
                         else
                             System.out.println("Charging " + e.getId() + ", " + e.getElectricVehicle().getDriver().getName() + ", " + e.getElectricVehicle().getBrand() + ", " + e.getStation().getName() + ", OK");
-                    }
                 }
                 e.setCondition("parking");
                 long diff = e.getParkingTime() - e.getChargingTime();
                 Thread.sleep(diff);
-                synchronized (this) {
-                    if (e.getElectricVehicle().getDriver() == null && e.getElectricVehicle().getBrand() == null)
-                        System.out.println("Parking " + e.getId() + ", " + e.getStation().getName() + ", OK");
-                    else
-                        System.out.println("Parking " + e.getId() + ", " + e.getElectricVehicle().getDriver().getName() + ", " + e.getElectricVehicle().getBrand() + ", " + e.getStation().getName() + ", OK");
-                    e.setCondition("finished");
+                if (e.getElectricVehicle().getDriver() == null && e.getElectricVehicle().getBrand() == null)
+                    System.out.println("Parking " + e.getId() + ", " + e.getStation().getName() + ", OK");
+                else
+                    System.out.println("Parking " + e.getId() + ", " + e.getElectricVehicle().getDriver().getName() + ", " + e.getElectricVehicle().getBrand() + ", " + e.getStation().getName() + ", OK");
+                e.setCondition("finished");
+                synchronized(this) {
                     setParkingEvent(null);
                 }
             } catch (InterruptedException e1) {
-                setParkingEvent(null);
+                synchronized(this) {
+                    setParkingEvent(null);
+                }
                 System.out.println(name + " stopped");
             } catch (NullPointerException e2) {
                 System.out.println("not processed");
@@ -100,26 +101,24 @@ public class ParkingSlot {
     /**
      * Sets if the ParkingSlot is able to charge a vehicle inductively.
      *
-     * @param inSwitch The value to be set. True, means the ParkingSlot supports the inductive charging, false
+     * @param inSwit The value to be set. True, means the ParkingSlot supports the inductive charging, false
      *                 means not.
      */
-    public void setInSwitch(boolean inSwitch) {
-        this.inSwitch = inSwitch;
+    public void setInSwitch(final boolean inSwit) {
+        this.inSwitch = inSwit;
     }
 
     /**
      * @return The ParkingEvent which is linked with the ParkingSlot.
      */
-    public ParkingEvent getParkingEvent() {
-        return e;
-    }
+    public synchronized ParkingEvent getParkingEvent() { return e; }
 
     /**
      * Sets a ParkingEvent to the ParkingSlot.
-     * @param event The ParkingEvent to be linked with the ParkingSlot.
+     * @param ev The ParkingEvent to be linked with the ParkingSlot.
      */
-    void setParkingEvent(ParkingEvent event) {
-        this.e = event;
+    synchronized void setParkingEvent(final ParkingEvent ev) {
+        this.e = ev;
     }
 
     /**
@@ -131,7 +130,7 @@ public class ParkingSlot {
 
     /**
      * Sets the id for the ParkingSlot.
-     * @param id The id to be set.
+     * @param d The id to be set.
      */
-    public void setId(int id) { this.id = id; }
+    public void setId(final int d) { this.id = d; }
 }

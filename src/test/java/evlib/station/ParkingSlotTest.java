@@ -34,7 +34,7 @@ class ParkingSlotTest {
         Thread.sleep(16000);
 
         assertEquals("finished", event.getCondition());
-        assertTrue(ParkingEvent.parkLog.contains(event));
+        assertTrue(ParkingEvent.getParkLog().contains(event));
         assertNull(slot.getParkingEvent());
         assertEquals(driver.getDebt(), 2500);
         assertEquals(battery.getRemAmount(), 400);

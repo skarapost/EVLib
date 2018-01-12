@@ -26,7 +26,7 @@ public class WaitList<T>
      * @param index The place of the object in the list.
      * @return The asked object.
      */
-    public T get(int index)
+    public T get(final int index)
     {
         return list.get(index);
     }
@@ -103,7 +103,7 @@ public class WaitList<T>
 
     /**
      * Sets the id for the WaitingList.
-     * @param id The id to be set.
+     * @param d The id to be set.
      */
-    public void setId(int id) { this.id = id; }
+    public void setId(final int d) { this.id = d; }
 }

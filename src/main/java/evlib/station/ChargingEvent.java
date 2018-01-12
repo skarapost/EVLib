@@ -20,73 +20,76 @@ public class ChargingEvent
     private long chargingTime;
     private long remainingChargingTime;
     private String condition;
-    Battery givenBattery;
-    Charger charger;
+    private Battery givenBattery;
+    private Charger charger;
     private double energyToBeReceived;
     private long maxWaitingTime;
     private long timestamp;
     private double cost;
-    ExchangeHandler exchange;
+    private ExchangeHandler exchange;
     long accumulatorOfChargingTime = 0;
-    public static final List<ChargingEvent> chargingLog = new ArrayList<>();
-    public static final List<ChargingEvent> exchangeLog = new ArrayList<>();
+    private static final List<ChargingEvent> chargingLog = new ArrayList<>();
+    private static final List<ChargingEvent> exchangeLog = new ArrayList<>();
 
     /**
      * Constructs a new ChargingEvent object. It sets the condition of the event to "arrived".
-     * @param station The ChargingStation object the event visited.
-     * @param vehicle The ElectricVehicle of the event.
+     * @param stat The ChargingStation object the event visited.
+     * @param veh The ElectricVehicle of the event.
      * @param amEnerg The amount of energy the events asks.
-     * @param kindOfCharging The kind of charging the event demands.
+     * @param kindOfCharg The kind of charging the event demands.
      */
-    public ChargingEvent(ChargingStation station, ElectricVehicle vehicle, double amEnerg, String kindOfCharging)
-    {
+    public ChargingEvent(final ChargingStation stat, final ElectricVehicle veh, final double amEnerg, final String kindOfCharg) {
         this.id = idGenerator.incrementAndGet();
-        this.station = station;
+        this.station = stat;
         this.amountOfEnergy = amEnerg;
-        this.kindOfCharging = kindOfCharging;
-        this.vehicle = vehicle;
+        this.kindOfCharging = kindOfCharg;
+        this.vehicle = veh;
         this.condition = "arrived";
         this.chargingLog.add(this);
+        this.charger = null;
+        this.exchange = null;
     }
 
     /**
      * Constructs a new ChargingEvent object. It sets the condition of the event
      *  to "arrived". Calculates the amount of energy the event will take.
-     * @param station The charging station the event visited.
-     * @param vehicle The electric vehicle of the event.
-     * @param kindOfCharging The kind of charging the event demands.
+     * @param stat The charging station the event visited.
+     * @param veh The electric vehicle of the event.
+     * @param kindOfCharg The kind of charging the event demands.
      * @param money The monetary fee the event desires to give for energy.
      */
-    public ChargingEvent(ChargingStation station, ElectricVehicle vehicle, String kindOfCharging, double money)
-    {
+    public ChargingEvent(final ChargingStation stat, final ElectricVehicle veh, final String kindOfCharg, final double money) {
         this.id = idGenerator.incrementAndGet();
-        this.station = station;
-        this.vehicle = vehicle;
-        this.kindOfCharging = kindOfCharging;
+        this.station = stat;
+        this.vehicle = veh;
+        this.kindOfCharging = kindOfCharg;
         this.condition = "arrived";
-        if (money/station.getUnitPrice() <= station.getTotalEnergy())
-            this.amountOfEnergy = money/station.getUnitPrice();
+        if (money / station.getUnitPrice() <= station.getTotalEnergy())
+            this.amountOfEnergy = money / station.getUnitPrice();
         else
             this.amountOfEnergy = station.getTotalEnergy();
         this.chargingLog.add(this);
+        this.charger = null;
+        this.exchange = null;
     }
 
     /**
      * Constructs a new ChargingEvent object. This constructor is for the events
      *  wanting battery swapping. It sets the condition of the event
      *  to "arrived".
-     * @param station The charging station the event visited.
-     * @param vehicle The electric vehicle of the event.
+     * @param stat The charging station the event visited.
+     * @param veh The electric vehicle of the event.
      */
-    public ChargingEvent(ChargingStation station, ElectricVehicle vehicle)
-    {
+    public ChargingEvent(final ChargingStation stat, final ElectricVehicle veh) {
         this.id = idGenerator.incrementAndGet();
-        this.station = station;
+        this.station = stat;
         this.kindOfCharging = "exchange";
-        this.vehicle = vehicle;
+        this.vehicle = veh;
         this.chargingTime = station.getTimeOfExchange();
         this.condition = "arrived";
         this.exchangeLog.add(this);
+        this.charger = null;
+        this.exchange = null;
     }
 
     /**
@@ -95,7 +98,7 @@ public class ChargingEvent
      * If there is not any empty Charger or exchange slot the ChargingEvent is inserted
      * in the respectively waiting list, if the waiting time is less than the set waiting time of the Driver.
      **/
-    public synchronized void preProcessing()
+    public void preProcessing()
     {
         if (vehicle.getBattery().getActive()) {
             if ((condition.equals("arrived")) || (condition.equals("wait"))) {
@@ -139,7 +142,7 @@ public class ChargingEvent
                         }
                     }
                     else
-                        if(!condition.equals("wait")) {
+                        if (!condition.equals("wait")) {
                             maxWaitingTime = calWaitingTime();
                             if ((maxWaitingTime < waitingTime) && (maxWaitingTime > -1)) {
                                 if (!condition.equals("wait"))
@@ -163,7 +166,7 @@ public class ChargingEvent
                         setCondition("ready");
                     }
                     else
-                        if(!condition.equals("wait"))
+                        if (!condition.equals("wait"))
                         {
                             maxWaitingTime = calWaitingTime();
                             if (maxWaitingTime < waitingTime && maxWaitingTime > -1) {
@@ -183,7 +186,7 @@ public class ChargingEvent
      * It starts the execution of the ChargingEvent. Increases the number of chargings of the Battery by one.
      * The pre-condition for the execution is the condition of the event to be "ready".
      */
-    public synchronized void execution()
+    public void execution()
     {
         if (condition.equals("ready"))
             if (!kindOfCharging.equalsIgnoreCase("exchange")) {
@@ -200,16 +203,15 @@ public class ChargingEvent
     /**
      * @return The ElectricVehicle of the event.
      */
-    public ElectricVehicle getElectricVehicle()
-    {
+    public ElectricVehicle getElectricVehicle() {
         return vehicle;
     }
 
     /**
      * Sets an ElectricVehicle to the ChargingEvent.
-     * @param vehicle The ElectricVehicle to be set.
+     * @param veh The ElectricVehicle to be set.
      */
-    public void setElectricVehicle(ElectricVehicle vehicle) { this.vehicle = vehicle; }
+    public void setElectricVehicle(final ElectricVehicle veh) { this.vehicle = veh; }
 
     /**
      * @return The kind of charging of the ChargingEvent.
@@ -229,11 +231,10 @@ public class ChargingEvent
 
     /**
      * Sets the energy to be received by the vehicle.
-     *
-     * @param energyToBeReceived The energy to be set.
+     * @param energy The energy to be set.
      */
-    public void setEnergyToBeReceived(double energyToBeReceived) {
-        this.energyToBeReceived = energyToBeReceived;
+    public void setEnergyToBeReceived(final double energy) {
+        this.energyToBeReceived = energy;
     }
 
     /**
@@ -253,24 +254,23 @@ public class ChargingEvent
 
     /**
      * Sets the maximum time a ChargingEvent has to wait in the waiting list. The time has to be in milliseconds
-     * @param maxWaitingTime The time to be set in milliseconds.
+     * @param max The time to be set in milliseconds.
      */
-    public void setMaxWaitingTime(long maxWaitingTime) { this.maxWaitingTime = maxWaitingTime; }
+    public void setMaxWaitingTime(final long max) { this.maxWaitingTime = max; }
 
     /**
      * Sets the waiting time the Driver can wait in milliseconds.
      * @param w The waiting time in milliseconds.
      */
-    public void setWaitingTime(long w) {
+    public void setWaitingTime(final long w) {
         this.waitingTime = w;
     }
 
     /**
      * Sets the amount of energy the ChargingEvent demands.
-     *
      * @param energy The energy to be set.
      */
-    public void setAmountOfEnergy(double energy) {
+    public void setAmountOfEnergy(final double energy) {
         this.amountOfEnergy = energy;
     }
 
@@ -304,10 +304,10 @@ public class ChargingEvent
 
     /**
      * Sets the condition of the ChargingEvent.
-     * @param condition The condition to be set.
+     * @param cond The condition to be set.
      */
-    public void setCondition(String condition) {
-        this.condition = condition;
+    public void setCondition(final String cond) {
+        this.condition = cond;
     }
 
     /**
@@ -330,7 +330,7 @@ public class ChargingEvent
      *
      * @param time The charging time in milliseconds.
      */
-    public void setChargingTime(long time) {
+    public void setChargingTime(final long time) {
         timestamp = System.currentTimeMillis();
         this.chargingTime = time;
     }
@@ -373,12 +373,12 @@ public class ChargingEvent
         if ("slow".equalsIgnoreCase(getKindOfCharging()))
         {
             WaitList o = station.getSlow();
-            for (int i = 0;i < o.getSize() ;i++)
+            for (int i = 0;i < o.getSize(); i++)
             {
                 e = (ChargingEvent) o.get(i);
-                counter1[index] = counter1[index] + ((long) (e.getAmountOfEnergy()/station.getChargingRateSlow()));
-                for(int j=0; j<station.getChargers().length; j++)
-                    if ((counter1[j]<counter1[index])&&(counter1[j]!=0))
+                counter1[index] = counter1[index] + ((long) (e.getAmountOfEnergy() / station.getChargingRateSlow()));
+                for (int j = 0; j < station.getChargers().length; j++)
+                    if ((counter1[j] < counter1[index]) && (counter1[j] != 0))
                         index = j;
             }
             return counter1[index];
@@ -386,23 +386,23 @@ public class ChargingEvent
         if ("fast".equalsIgnoreCase(getKindOfCharging()))
         {
             WaitList o = station.getFast();
-            for(int i = 0; i < o.getSize() ;i++)
+            for (int i = 0; i < o.getSize(); i++)
             {
                 e = (ChargingEvent) o.get(i);
-                counter1[index] = counter1[index] + ((long) (e.getAmountOfEnergy()/station.getChargingRateFast()));
-                for(int j=0; j<station.getChargers().length; j++)
-                    if ((counter1[j]<counter1[index])&&(counter1[j]!=0))
+                counter1[index] = counter1[index] + ((long) (e.getAmountOfEnergy() / station.getChargingRateFast()));
+                for (int j = 0; j < station.getChargers().length; j++)
+                    if ((counter1[j] < counter1[index]) && (counter1[j] != 0))
                         index = j;
             }
             return counter1[index];
         }
         if ("exchange".equalsIgnoreCase(getKindOfCharging()))
         {
-            for(int i = 0; i < station.getExchange().getSize();i++)
+            for (int i = 0; i < station.getExchange().getSize(); i++)
             {
                 counter2[index] = counter2[index] + station.getTimeOfExchange();
-                for(int j=0; j < station.getChargers().length; j++)
-                    if ((counter2[j]<counter2[index])&&(counter2[j]!=0))
+                for (int j = 0; j < station.getChargers().length; j++)
+                    if ((counter2[j] < counter2[index]) && (counter2[j] != 0))
                         index = j;
             }
             return counter2[index];
@@ -421,26 +421,69 @@ public class ChargingEvent
     /**
      * Sets the id for the ChargingEvent.
      *
-     * @param id The id to be set.
+     * @param d The id to be set.
      */
-    public void setId(int id) {
-        this.id = id;
+    public void setId(final int d) {
+        this.id = d;
     }
 
     /**
      * @return The cost of the ChargingEvent.
      */
-    public double getCost()
-    {
+    public double getCost() {
         return this.cost;
     }
 
     /**
      * Sets the cost for the ChargingEvent.
-     * @param cost The cost to be set.
+     * @param c The cost to be set.
      */
-    public void setCost(double cost)
+    public void setCost(final double c)
     {
-        this.cost = cost;
+        this.cost = c;
+    }
+
+    /**
+     * Returns the list with all created charging events.
+     * @return The list with all created charging events.
+     */
+    public static List<ChargingEvent> getChargingLog() {
+        return chargingLog;
+    }
+
+    /**
+     * Returns the list with all created battery exchange events.
+     * @return The list with all created battery exchange events.
+     */
+    public static List<ChargingEvent> getExchangeLog() {
+        return exchangeLog;
+    }
+
+    /**
+     * Sets a charger to the event for charging.
+     * @param ch The charger to be assigned.
+     */
+    void setCharger(Charger ch) {
+        this.charger = ch;
+    }
+
+    /**
+     * Sets an exchange handler to the event for the battery exchange function.
+     * @param exch The exchange handler to be assigned.
+     */
+    void setExchange(ExchangeHandler exch) {
+        this.exchange = exch;
+    }
+
+    /**
+     * Sets a battery to the event for the battery exchange function.
+     * @param bat The battery to be assigned.
+     */
+    void setBattery(Battery bat) {
+        this.givenBattery = bat;
+    }
+
+    Battery getGivenBattery() {
+        return givenBattery;
     }
 }

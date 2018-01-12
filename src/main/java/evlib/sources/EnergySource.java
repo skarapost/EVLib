@@ -21,7 +21,7 @@ public abstract class EnergySource
      * Constructor of EnergySource with attached energy packages.
      * @param energyAmoun An array with energy packages.
      */
-    public EnergySource(double[] energyAmoun) {
+    public EnergySource(final double[] energyAmoun) {
       this.id = idGenerator.incrementAndGet();
       this.energyAmount = new ArrayList<>();
       for (double anEnergyAmoun : energyAmoun)
@@ -32,7 +32,7 @@ public abstract class EnergySource
      * @return The first package of energy to be given to the EnergySource.
      */
     public double popAmount() {
-         if ((energyAmount == null)||(energyAmount.size() == 0))
+         if ((energyAmount == null) || (energyAmount.size() == 0))
              return 0;
          else
              return energyAmount.remove(0);
@@ -42,7 +42,7 @@ public abstract class EnergySource
      * Inserts a package of energy to the queue for update of the storage.
      * @param am The package's amount of energy.
      */
-    public void insertAmount(double am) {
+    public void insertAmount(final double am) {
          energyAmount.add(am);
     }
 
@@ -55,9 +55,9 @@ public abstract class EnergySource
 
     /**
      * Sets the id for the EnergySource.
-     * @param id The id to be set.
+     * @param d The id to be set.
      */
-    public void setId(int id) {
-      this.id = id;
+    public void setId(final int d) {
+      this.id = d;
     }
 }

@@ -12,12 +12,12 @@ public class Driver
 
     /**
      * Creates a new Driver object, asking only for the name.
-     * @param name The name of the Driver.
+     * @param nam The name of the Driver.
      */
-    public Driver(String name)
+    public Driver(final String nam)
     {
         this.id = idGenerator.incrementAndGet();
-        this.name = name;
+        this.name = nam;
     }
 
     /**
@@ -31,11 +31,11 @@ public class Driver
 
     /**
      * Sets a profit for the Driver.
-     * @param profit The profit to be set.
+     * @param prof The profit to be set.
      */
-    public void setProfit(double profit)
+    public void setProfit(final double prof)
     {
-        this.profit = profit;
+        this.profit = prof;
     }
 
     /**
@@ -48,11 +48,11 @@ public class Driver
 
     /**
      * Sets the debt of a Driver.
-     * @param debt The debt to be set.
+     * @param deb The debt to be set.
      */
-    public void setDebt(double debt)
+    public void setDebt(final double deb)
     {
-        this.debt = debt;
+        this.debt = deb;
     }
 
     /**
@@ -73,9 +73,9 @@ public class Driver
 
     /**
      * Sets a name for the Driver.
-     * @param name The name to be set.
+     * @param nam The name to be set.
      */
-    public void setName(String name) { this.name = name; }
+    public void setName(final String nam) { this.name = nam; }
 
     /**
      * @return The id of the Driver.
@@ -87,7 +87,7 @@ public class Driver
 
     /**
      * Sets the id of the Driver.
-     * @param id The id to be set.
+     * @param d The id to be set.
      */
-    public void setId(int id) { this.id = id; }
+    public void setId(final int d) { this.id = d; }
 }

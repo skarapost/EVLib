@@ -11,7 +11,7 @@ public class Geothermal extends EnergySource
      * Constructor of a new Geothermal object with attached energy packages.
      * @param energyAmoun An array with energy packages.
      */
-    public Geothermal(double[] energyAmoun) {
+    public Geothermal(final double[] energyAmoun) {
         super(energyAmoun);
     }
 }

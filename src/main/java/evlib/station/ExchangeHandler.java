@@ -13,22 +13,22 @@ public class ExchangeHandler
 
     /**
      * Creates a new ExchangeHandler object.
-     * @param station The ChargingStation object the ExchangeHandler is linked with.
+     * @param stat The ChargingStation object the ExchangeHandler is linked with.
      */
-    public ExchangeHandler(ChargingStation station)
-    {
+    public ExchangeHandler(final ChargingStation stat) {
         this.id = idGenerator.incrementAndGet();
-        this.station = station;
+        this.station = stat;
         this.name = "ExchangeHandler" + String.valueOf(id);
+        this.e = null;
     }
 
     /**
      * Sets a name for the ExchangeHandler.
-     * @param name The name to be set.
+     * @param nam The name to be set.
      */
-    public void setName(String name)
+    public void setName(final String nam)
     {
-        this.name = name;
+        this.name = nam;
     }
 
     /**
@@ -49,15 +49,15 @@ public class ExchangeHandler
 
     /**
      * Sets the id for the ExchangeHandler.
-     * @param id The id to be set.
+     * @param d The id to be set.
      */
-    public void setId(int id) { this.id = id; }
+    public void setId(final int d) { this.id = d; }
 
     /**
      * Links a ChargingEvent with the ExchangeHandler.
      * @param event The ChargingEvent to be linked.
      */
-    void setChargingEvent(ChargingEvent event)
+    synchronized void setChargingEvent(final ChargingEvent event)
     {
         this.e = event;
     }
@@ -65,7 +65,7 @@ public class ExchangeHandler
     /**
      * @return The ChargingEvent of the ExchangeHandler.
      */
-    public ChargingEvent getChargingEvent()
+    public synchronized ChargingEvent getChargingEvent()
     {
         return e;
     }
@@ -82,7 +82,7 @@ public class ExchangeHandler
                 e.setChargingTime(station.getTimeOfExchange());
                 Thread.sleep(e.getChargingTime());
                 station.joinBattery(e.getElectricVehicle().getBattery());
-                e.getElectricVehicle().setBattery(e.givenBattery);
+                e.getElectricVehicle().setBattery(e.getGivenBattery());
                 if (e.getElectricVehicle().getDriver() != null)
                     e.getElectricVehicle().getDriver().setDebt(e.getElectricVehicle().getDriver().getDebt() + station.calculatePrice(e));
                 if (e.getElectricVehicle().getDriver() == null && e.getElectricVehicle().getBrand() == null)
@@ -90,11 +90,15 @@ public class ExchangeHandler
                 else
                     System.out.println("Battery exchange " + e.getId() + ", " + e.getElectricVehicle().getDriver().getName() + ", " + e.getElectricVehicle().getBrand() + ", " + e.getStation().getName() + ", OK");
                 e.setCondition("finished");
-                setChargingEvent(null);
+                synchronized(this) {
+                    setChargingEvent(null);
+                }
                 if (station.getQueueHandling())
                     handleQueueEvents();
             } catch (InterruptedException e1) {
-                setChargingEvent(null);
+                synchronized(this) {
+                    setChargingEvent(null);
+                }
                 System.out.println(name + " stopped");
             } catch (NullPointerException e2) {
                 System.out.println("not processed");

@@ -12,12 +12,12 @@ public class ElectricVehicle
 
     /**
      * Constructs a new ElectricVehicle object, asking only for the brand.
-     * @param brand The brand of the ElectricVehicle.
+     * @param bran The brand of the ElectricVehicle.
      */
-    public ElectricVehicle(String brand)
+    public ElectricVehicle(final String bran)
     {
         this.id = idGenerator.incrementAndGet();
-        this.brand = brand;
+        this.brand = bran;
         this.battery = null;
         this.driver = null;
     }
@@ -32,20 +32,20 @@ public class ElectricVehicle
 
     /**
     * Links the ElectricVehicle with a Battery.
-     * @param battery The Battery to be set.
+     * @param batter The Battery to be set.
     */
-    public void setBattery(Battery battery)
+    public void setBattery(final Battery batter)
     {
-        this.battery = battery;
+        this.battery = batter;
     }
 
     /**
     * Links the ElectricVehicle with a Driver.
-     * @param driver The Driver to be linked with.
+     * @param driv The Driver to be linked with.
      */
-    public void setDriver(Driver driver)
+    public void setDriver(final Driver driv)
     {
-        this.driver = driver;
+        this.driver = driv;
     }
 
     /**
@@ -66,10 +66,10 @@ public class ElectricVehicle
 
     /**
      * Sets the brand for the ElectricVehicle.
-     * @param brand The brand of the ElectricVehicle.
+     * @param bran The brand of the ElectricVehicle.
      */
-    public void setBrand(String brand) {
-        this.brand = brand;
+    public void setBrand(final String bran) {
+        this.brand = bran;
     }
 
     /**
@@ -82,8 +82,8 @@ public class ElectricVehicle
 
     /**
      * Sets the id for the ElectricVehicle.
-     * @param id The id to be set.
+     * @param d The id to be set.
      */
-    public void setId(int id) { this.id = id; }
+    public void setId(final int d) { this.id = d; }
 
 }

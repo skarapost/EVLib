@@ -13,13 +13,14 @@ public class DisCharger
 
     /**
      * Creates a new DisCharger instance.
-     * @param station The ChargingStation instance linked with.
+     * @param stat The ChargingStation instance linked with.
      */
-    public DisCharger(ChargingStation station)
+    public DisCharger(final ChargingStation stat)
     {
         this.id = idGenerator.incrementAndGet();
-        this.station = station;
+        this.station = stat;
         this.name = "Discharger" + String.valueOf(id);
+        this.e = null;
     }
 
     /**
@@ -43,17 +44,21 @@ public class DisCharger
                 else
                     System.out.println("Discharging " + e.getId() + ", " + e.getElectricVehicle().getDriver().getName() + ", " + e.getElectricVehicle().getBrand() + ", " + e.getStation().getName() + ", OK");
                 e.setCondition("finished");
-                setDisChargingEvent(null);
+                synchronized(this) {
+                    setDisChargingEvent(null);
+                }
                 if (station.getQueueHandling())
                     handleQueueEvents();
-            } catch(InterruptedException e1) {
+            } catch (InterruptedException e1) {
                 System.out.println(name + " stopped");
-                setDisChargingEvent(null);
-            } catch(NullPointerException e2) {
+                synchronized(this) {
+                    setDisChargingEvent(null);
+                }
+            } catch (NullPointerException e2) {
                 System.out.println("not processed");
             }
         });
-        if(station.getDeamon())
+        if (station.getDeamon())
             running.setDaemon(true);
         running.setName("Discharger" + String.valueOf(id));
         running.start();
@@ -62,18 +67,17 @@ public class DisCharger
     /**
      * @return The DisChargingEvent linked with the DisCharger.
      */
-    public DisChargingEvent getDisChargingEvent()
+    public synchronized DisChargingEvent getDisChargingEvent()
     {
         return e;
     }
 
     /**
      * Sets a DisChargingEvent to the DisCharger.
-     *
-     * @param event The DisChargingEvent to be linked with the DisCharger.
+     * @param ev The DisChargingEvent to be linked with the DisCharger.
      */
-    void setDisChargingEvent(DisChargingEvent event) {
-        this.e = event;
+    synchronized void setDisChargingEvent(final DisChargingEvent ev) {
+        this.e = ev;
     }
 
     /**
@@ -99,17 +103,17 @@ public class DisCharger
 
     /**
      * Sets the id for the DisCharger.
-     * @param id The id to be set.
+     * @param d The id to be set.
      */
-    public void setId(int id) { this.id = id; }
+    public void setId(final int d) { this.id = d; }
 
     /**
      * Sets a name for the DisCharger.
-     * @param name The name to be set.
+     * @param nam The name to be set.
      */
-    public void setName(String name)
+    public void setName(final String nam)
     {
-        this.name = name;
+        this.name = nam;
     }
 
     /**

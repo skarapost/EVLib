@@ -13,14 +13,14 @@ public class PricingPolicy {
 
     /**
      * Creates a new PricingPolicy instance. The time frame for each price is fixed.
-     * @param space The time space each price we desire to endure.
-     * @param prices An array of prices for the PricingPolicy object.
+     * @param spac The time space each price we desire to endure.
+     * @param pric An array of prices for the PricingPolicy object.
      */
-    public PricingPolicy(long space, double[] prices) {
+    public PricingPolicy(final long spac, final double[] pric) {
         this.id = idGenerator.incrementAndGet();
-        this.space = space;
+        this.space = spac;
         this.prices = new LinkedList<>();
-        for (double price : prices)
+        for (double price : pric)
             this.prices.add(price);
         this.option = 1;
     }
@@ -28,16 +28,16 @@ public class PricingPolicy {
     /**
      * Creates a new PricingPolicy object. The time space for each price may change.
      * The constructor takes two arrays as parameters. Both arrays' sizes need to be equal.
-     * @param spaces The time spaces for which the prices will endure measured in milliseconds.
-     * @param prices An array with the prices of the PricingPolicy object.
+     * @param spac The time spaces for which the prices will endure measured in milliseconds.
+     * @param pric An array with the prices of the PricingPolicy object.
      */
-    public PricingPolicy(long[] spaces, double[] prices) {
+    public PricingPolicy(final long[] spac, final double[] pric) {
         this.id = idGenerator.incrementAndGet();
         this.prices = new LinkedList<>();
         this.spaces = new LinkedList<>();
-        for (int i=0; i<prices.length; i++) {
-            this.spaces.add(spaces[i]);
-            this.prices.add(prices[i]);
+        for (int i = 0; i < pric.length; i++) {
+            this.spaces.add(spac[i]);
+            this.prices.add(pric[i]);
         }
         this.option = 2;
     }
@@ -46,7 +46,7 @@ public class PricingPolicy {
      * @param position The time frame for which we want the price to last in milliseconds.
      * @return The price for this time space of the PricingPolicy.
      */
-    public double getSpecificPrice(int position) {
+    public double getSpecificPrice(final int position) {
         try {
             return this.prices.get(position);
         }
@@ -58,7 +58,7 @@ public class PricingPolicy {
      * @param position The time space we want.
      * @return The duration of the time space in milliseconds.
      */
-    public long getSpecificTimeSpace(int position)
+    public long getSpecificTimeSpace(final int position)
     {
         try {
             if (option == 2) {
@@ -67,7 +67,7 @@ public class PricingPolicy {
             else
                 return space;
         }
-        catch(Exception ex) { return 0; }
+        catch (Exception ex) { return 0; }
     }
 
     /**
@@ -76,7 +76,7 @@ public class PricingPolicy {
      * @param timeSpace The time space for which the price is valid in milliseconds.
      * @param price The value of the price.
      */
-    public void setSpecificSpacePrice(int position, long timeSpace, double price) {
+    public void setSpecificSpacePrice(final int position, final long timeSpace, final double price) {
         if (option == 2) {
             this.spaces.remove(position);
             this.spaces.add(position, timeSpace);
@@ -90,7 +90,7 @@ public class PricingPolicy {
      * @param position The price we want to change.
      * @param price The price of the time space.
      */
-    public void setSpecificPrice(int position, double price)
+    public void setSpecificPrice(final int position, final double price)
     {
         if (option == 1) {
             this.prices.remove(position);
@@ -102,7 +102,7 @@ public class PricingPolicy {
      * Sets the time space between each change in price.
      * @param timeSpace The time space in milliseconds.
      */
-    public void setTimeSpace(long timeSpace) {
+    public void setTimeSpace(final long timeSpace) {
         if (option == 1)
             this.space = timeSpace;
     }
@@ -120,9 +120,9 @@ public class PricingPolicy {
     public long getDurationOfPolicy()
     {
         long counter = 0;
-        if(option == 2)
-            for (long space : spaces)
-                counter += space;
+        if (option == 2)
+            for (long spac : spaces)
+                counter += spac;
         else
             counter = prices.size() * space;
         return counter;
@@ -138,7 +138,7 @@ public class PricingPolicy {
 
     /**
      * Sets the id for the PricingPolicy.
-     * @param id The id to be set.
+     * @param d The id to be set.
      */
-    public void setId(int id) { this.id = id; }
+    public void setId(final int d) { this.id = d; }
 }
