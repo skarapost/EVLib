@@ -82,8 +82,11 @@ public class ParkingEvent {
      * It calculates the energy to be given to the ElectricVehicle and calculates the charging time.
      * If there is not any empty ParkingSlot the ParkingEvent's condition is set "nonExecutable".
      **/
-    public void preProcessing()
-    {
+    public void preProcessing() {
+        if (station.getParkingSlots().length == 0) {
+            setCondition("nonExecutable");
+            return;
+        }
         if (vehicle.getBattery().getActive()) {
             if (condition.equals("arrived")) {
                 station.assignParkingSlot(this);

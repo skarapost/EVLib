@@ -76,6 +76,10 @@ public class DisChargingEvent {
      */
     public void preProcessing()
     {
+        if (station.getDisChargers().length == 0) {
+            setCondition("nonExecutable");
+            return;
+        }
         if (getElectricVehicle().getBattery().getActive()) {
             if ((condition.equals("arrived")) || (condition.equals("wait"))) {
                 station.assignDisCharger(this);
@@ -192,21 +196,27 @@ public class DisChargingEvent {
         if (station.getDisChargers().length == 0)
             return -1;
         long[] counter1 = new long[station.getDisChargers().length];
-        long min = 1000000000;
-        int index = 1000000000;
-        for (int i = 0; i < station.getDisChargers().length; i++)
-        {
-            long diff = station.getDisChargers()[i].getDisChargingEvent().getRemainingDisChargingTime();
-            if (min > diff) {
-                min = diff;
-                index = i;
+        long min = -1;
+        int index = -1;
+        for (int i = 0; i < station.getDisChargers().length; i++) {
+            if (station.getDisChargers()[i].getDisChargingEvent() != null) {
+                if (min == -1) {
+                    min = station.getDisChargers()[i].getDisChargingEvent().getRemainingDisChargingTime();
+                    index = i;
+                }
+                long diff = station.getDisChargers()[i].getDisChargingEvent().getRemainingDisChargingTime();
+                if (min > diff) {
+                    min = diff;
+                    index = i;
+                }
+                counter1[i] = diff;
             }
-            counter1[i] = diff;
+            else
+                return 0;
         }
         WaitList o = station.getDischarging();
         DisChargingEvent e;
-        for (int i = 0; i < o.getSize(); i++)
-        {
+        for (int i = 0; i < o.getSize(); i++) {
             e = (DisChargingEvent) o.get(i);
             counter1[index] = counter1[index] + ((long) (e.getAmountOfEnergy() / station.getDisChargingRate()));
             for (int j = 0; j < station.getDisChargers().length; j++)

@@ -987,21 +987,24 @@ public class ChargingStation {
     /**
      * Calculates the waiting time the ElectricVehicle should wait and returning it in milliseconds.
      * @param kind The kind of operation for which the waiting time should be calculated. The acceptable values are: "fast" for
-     * fast charging, "slow" for slow charging, "exchange" for battery exchange function and "discharging" for
-     * the discharging function.
-     * @return The time an ElectricVehicle should wait, to be executed in milliseconds.
+     * fast charging, "slow" for slow charging, "exchange" for battery exchange function, "discharging" for
+     * the discharging function and "parking" for the parking/inductive charging function.
+     * @return The time an ElectricVehicle should wait, to be executed in milliseconds, or -1 if the asked function is not supported.
      */
     public long getWaitingTime(final String kind) {
         long[] counter1 = new long[chargers.size()];
         long[] counter2 = new long[exchangeHandlers.size()];
         long[] counter3 = new long[dischargers.size()];
-        long min = 1000000000;
-        int index = 1000000000;
-        boolean accessed = false;
-        if ("slow".equalsIgnoreCase(kind) || "fast".equalsIgnoreCase(kind))
+        long min = -1;
+        int index = -1;
+        if ("slow".equalsIgnoreCase(kind) || "fast".equalsIgnoreCase(kind)) {
             for (int i = 0; i < chargers.size(); i++) {
                 if (Objects.equals(kind, chargers.get(i).getKindOfCharging())) {
                     if (chargers.get(i).getChargingEvent() != null) {
+                        if (min == -1) {
+                            min = chargers.get(i).getChargingEvent().getRemainingChargingTime();
+                            index = i;
+                        }
                         long diff = chargers.get(i).getChargingEvent().getRemainingChargingTime();
                         long counter = 0;
                         if (chargers.get(i).planTime.size() != 0) {
@@ -1012,21 +1015,24 @@ public class ChargingStation {
                         if (min > diff) {
                             min = diff;
                             index = i;
-                            accessed = true;
                         }
                         counter1[i] = diff;
                     } else
                         return 0;
                 }
             }
+        }
         else if ("exchange".equalsIgnoreCase(kind))
             for (int i = 0; i < exchangeHandlers.size(); i++) {
                 if (exchangeHandlers.get(i).getChargingEvent() != null) {
+                    if (min == -1) {
+                        min = exchangeHandlers.get(i).getChargingEvent().getRemainingChargingTime();
+                        index = i;
+                    }
                     long diff = exchangeHandlers.get(i).getChargingEvent().getRemainingChargingTime();
                     if (min > diff) {
                         min = diff;
                         index = i;
-                        accessed = true;
                     }
                     counter2[i] = diff;
                 } else
@@ -1035,20 +1041,36 @@ public class ChargingStation {
         else if ("discharging".equalsIgnoreCase(kind))
             for (int i = 0; i < dischargers.size(); i++) {
                 if (dischargers.get(i).getDisChargingEvent() != null) {
+                    if (min == -1) {
+                        min = dischargers.get(i).getDisChargingEvent().getRemainingDisChargingTime();
+                        index = i;
+                    }
                     long diff = dischargers.get(i).getDisChargingEvent().getRemainingDisChargingTime();
                     if (min > diff) {
                         min = diff;
                         index = i;
-                        accessed = true;
                     }
                     counter3[i] = diff;
                 } else
                     return 0;
             }
+        else if ("parking".equalsIgnoreCase(kind)) {
+            for (int i = 0; i < parkingSlots.size(); i++) {
+                if (parkingSlots.get(i).getParkingEvent() != null) {
+                    if (min == -1)
+                        min = parkingSlots.get(i).getParkingEvent().getRemainingParkingTime();
+                    if (min > parkingSlots.get(i).getParkingEvent().getRemainingParkingTime())
+                        min = parkingSlots.get(i).getParkingEvent().getRemainingParkingTime();
+                }
+                else
+                    return 0;
+            }
+            return min;
+        }
         else
-            return 0;
-        if (!accessed)
-            return 0;
+            return -1;
+        if (min == -1)
+            return min;
         ChargingEvent e;
         DisChargingEvent ey;
         if ("fast".equalsIgnoreCase(kind)) {

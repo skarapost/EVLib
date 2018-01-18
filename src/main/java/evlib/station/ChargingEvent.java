@@ -98,8 +98,13 @@ public class ChargingEvent
      * If there is not any empty Charger or exchange slot the ChargingEvent is inserted
      * in the respectively waiting list, if the waiting time is less than the set waiting time of the Driver.
      **/
-    public void preProcessing()
-    {
+    public void preProcessing() {
+        if ((kindOfCharging.equals("fast") && station.FAST_CHARGERS == 0) ||
+        (kindOfCharging.equals("slow") && station.SLOW_CHARGERS == 0) ||
+        (kindOfCharging.equals("exchange") && station.getExchangeHandlers().length == 0)) {
+            setCondition("nonExecutable");
+            return;
+        }
         if (vehicle.getBattery().getActive()) {
             if ((condition.equals("arrived")) || (condition.equals("wait"))) {
                 if (!"exchange".equalsIgnoreCase(kindOfCharging)) {
@@ -347,27 +352,41 @@ public class ChargingEvent
             return -1;
         long[] counter1 = new long[station.getChargers().length];
         long[] counter2 = new long[station.getExchangeHandlers().length];
-        long min = 1000000000;
-        int index = 1000000000;
+        long min = -1;
+        int index = -1;
         if (!"exchange".equalsIgnoreCase(getKindOfCharging()))
             for (int i = 0; i < station.getChargers ().length; i++) {
                 if (Objects.equals(getKindOfCharging(), station.getChargers()[i].getKindOfCharging())) {
-                    long diff = station.getChargers()[i].getChargingEvent().getRemainingChargingTime();
-                    if (min > diff) {
-                        min = diff;
-                        index = i;
-                    }
-                    counter1[i] = diff;
+                    if (station.getChargers()[i].getChargingEvent() != null) {
+                        if (min == -1) {
+                            min = station.getChargers()[i].getChargingEvent().getRemainingChargingTime();
+                            index = i;
+                        }
+                        long diff = station.getChargers()[i].getChargingEvent().getRemainingChargingTime();
+                        if (min > diff) {
+                            min = diff;
+                            index = i;
+                        }
+                        counter1[i] = diff;
+                    } else
+                        return 0;
                 }
             }
         else
             for (int i = 0; i < station.getExchangeHandlers().length; i++) {
-                long diff = station.getExchangeHandlers()[i].getChargingEvent().getRemainingChargingTime();
-                if (min > diff) {
-                    min = diff;
-                    index = i;
-                }
-                counter2[i] = diff;
+                if (station.getExchangeHandlers()[i].getChargingEvent() != null) {
+                    if (min == -1) {
+                        min = station.getExchangeHandlers()[i].getChargingEvent().getRemainingChargingTime();
+                        index = i;
+                    }
+                    long diff = station.getExchangeHandlers()[i].getChargingEvent().getRemainingChargingTime();
+                    if (min > diff) {
+                        min = diff;
+                        index = i;
+                    }
+                    counter2[i] = diff;
+                } else
+                    return 0;
             }
         ChargingEvent e;
         if ("slow".equalsIgnoreCase(getKindOfCharging()))
