@@ -1057,9 +1057,20 @@ public class ChargingStation {
         else if ("parking".equalsIgnoreCase(kind)) {
             for (int i = 0; i < parkingSlots.size(); i++) {
                 if (parkingSlots.get(i).getParkingEvent() != null) {
-                    if (min == -1)
-                        min = parkingSlots.get(i).getParkingEvent().getRemainingParkingTime();
-                    if (min > parkingSlots.get(i).getParkingEvent().getRemainingParkingTime())
+                    if ((min == -1 && parkingSlots.get(i).getParkingEvent().getCondition().equals("charging")) ||
+                            (min > (parkingSlots.get(i).getParkingEvent().getRemainingChargingTime() +
+                                    parkingSlots.get(i).getParkingEvent().getParkingTime() -
+                            parkingSlots.get(i).getParkingEvent().getChargingTime()) &&
+                            parkingSlots.get(i).getParkingEvent().getCondition().equals("charging")))
+
+                        min = parkingSlots.get(i).getParkingEvent().getRemainingChargingTime() +
+                                parkingSlots.get(i).getParkingEvent().getParkingTime() -
+                                parkingSlots.get(i).getParkingEvent().getChargingTime();
+
+                    else if ((min == -1 && parkingSlots.get(i).getParkingEvent().getCondition().equals("parking")) ||
+                            (min > parkingSlots.get(i).getParkingEvent().getRemainingParkingTime() &&
+                            parkingSlots.get(i).getParkingEvent().getCondition().equals("parking")))
+
                         min = parkingSlots.get(i).getParkingEvent().getRemainingParkingTime();
                 }
                 else
