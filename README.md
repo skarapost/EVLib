@@ -53,8 +53,8 @@ The charging station includes 4 Charger objects(2 slow and 2 fast), 4 energy sou
 ```
   station.setAutomaticUpdateMode(false);
   station.updateStorage();
+  
   station.setTimeOfExchange(5000);
-
   station.setChargingRateFast(0.01);
   station.setDisChargingRate(0.1);
   station.setInductiveChargingRate(0.001);
@@ -132,7 +132,7 @@ Here, first we set the way each energy storage update is implemented using ```st
   ev4.preProcessing();
   ev4.execution();
 ```
-### Export of report
+### Export of a report for the corresponding charging station
 ```
   station.generateReport("~/report.txt")
 ```
