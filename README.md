@@ -2,7 +2,7 @@
 EVLib is a library for the management and the simulation of EV activities in a charging station level which makes use of a set of available energy sources. It is implemented using Java, and its main goal is to manage the charging, discharging, battery swap and parking/charging inductively functions and support their integration into a single charging station. The library supports a large number of operations to properly manage EV-related activities.
 
 ## Documentation
-The documentation of EVLib is included in the evlib-javadoc.jar file in the ```/target``` directory.
+The documentation of EVLib is included in the evlib-javadoc.jar file in the ```/target``` directory, after the build phase.
 
 ## Main Functions
 
@@ -24,23 +24,21 @@ An event is automatically inserted to a waiting list during an unsuccessful pre-
 ## Extra Functions
 The library also supports a number of secondary functions: The creation of a charging station, as well as the creation and integration of a charger, dis-charger, battery swapper or parking slot in the station. Additional operations are the recharging of batteries which are later to be swapped into EVs, as well as the ability to add new batteries to the storage in order seamless operation of the battery exchange process to be achieved. The total cost of the charging, discharging and battery swapping can be calculated based on a series of costs (e.g., energy cost) defined by the user. During the creation of the charging station, 4 waiting lists are created. A list for the charging events which want fast charging, a list for the charging events which want slow charging, a list for the discharging events, and a list for the vehicles waiting for battery exchange. The user has the capability to attach a pricing policy, as well.
 
-## Example
+## Creation of a ChargingStation 
 ```
   String[] kinds = { "slow", "fast", "fast", "slow" };
   String[] sources = { "Geothermal", "Nonrenewable", "Wind", "Wave" };
-  double[][] energyAm = new double[4][ 5];
+  double[][] energyAm = new double[4][5];
   for (int i = 0; i<4; i++)
       for (int j = 0; j<5; j++)
           energyAm [i][j] = 1500;
 
-  /* Creation of a ChargingStation with, 4 Charger objects(2 slow and 2 fast), 4
-     energy sources(Geothermal, Nonrenewable, Wind, Wave). We also 5 energy packages
-     for each energy sources. At each update storage one package from each energy source will
-     be inserted to the charging station.
-  */
   ChargingStation station = new ChargingStation("Miami", kinds, sources, energyAm);
+```
+The charging station includes 4 Charger objects(2 slow and 2 fast), 4 energy sources(Geothermal, Nonrenewable, Wind, Wave). We also 5 energy packages for each energy sources. At each update storage one package from each energy source will be inserted to the charging station.
 
-  //Creation of a Charger, a DisCharger and an ExchangeHandler
+## Addition of Discharger/ExchangeHandler/ParkingSlot
+```
   DisCharger dsc = new DisCharger(station);
   ExchangeHandler handler = new ExchangeHandler(station);
   ParkingSlot slot = new ParkingSlot(station);
@@ -48,25 +46,26 @@ The library also supports a number of secondary functions: The creation of a cha
   station.addExchangeHandler(handler);
   station.addDisCharger(dsc);
   station.addParkingSlot(slot);
-
-  //Sets the space between every update in milliseconds.
-  station.setAutomaticUpdateMode(true);
-  station.setUpdateSpace(10000);
-
-  //Stop for a half-second to be completed at least one update storage(energy transfer from energy sources to the station)
-  Thread.sleep(500);
-
+```
+## Charging station configuration
+```
+  station.setAutomaticUpdateMode(false);
+  station.updateStorage();
   station.setTimeOfExchange(5000);
 
-  station.setChargingRatioFast(0.01);
-  station.setDisChargingRatio(0.1);
-  station.setInductiveChargingRatio(0.001);
+  station.setChargingRateFast(0.01);
+  station.setDisChargingRate(0.1);
+  station.setInductiveChargingRate(0.001);
 
   station.setUnitPrice(5);
   station.setDisUnitPrice(5);
   station.setInductivePrice(3);
   station.setExchangePrice(20);
+```
+Here, first we set the way each energy storage update is implemented using ```station.setAutomaticUpdateMode(false);```. Then, we call ```station.updateStorage()``` to update energy storage. The next lines refer to the setting of the rates and prices for each function.
 
+## Creation of events
+```
   Driver a = new Driver("Tom");
   Driver b = new Driver("Ben");
 
