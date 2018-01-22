@@ -132,7 +132,7 @@ Here, first we set the way each energy storage update is implemented using ```st
   ev4.preProcessing();
   ev4.execution();
 ```
-### Export of a report for the corresponding charging station
+### Export of a report for the charging station
 ```
   station.generateReport("~/report.txt")
 ```
