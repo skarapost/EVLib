@@ -37,7 +37,7 @@ The library also supports a number of secondary functions: The creation of a cha
 ```
 The charging station includes 4 Charger objects(2 slow and 2 fast), 4 energy sources(Geothermal, Nonrenewable, Wind, Wave). We also 5 energy packages for each energy sources. At each update storage one package from each energy source will be inserted to the charging station.
 
-## Addition of Discharger/ExchangeHandler/ParkingSlot
+## Integration of Discharger/ExchangeHandler/ParkingSlot
 ```
   DisCharger dsc = new DisCharger(station);
   ExchangeHandler handler = new ExchangeHandler(station);
