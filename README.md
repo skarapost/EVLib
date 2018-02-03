@@ -91,7 +91,7 @@ Here, first we set the way each energy storage update is implemented using ```st
 ```
   station.joinBattery(bat4);
 ```
-### Setting of battery and driver for each vehicle
+### Set battery and driver for each vehicle
 ```
   vec1.setDriver(a);
   vec1.setBattery(bat1);
