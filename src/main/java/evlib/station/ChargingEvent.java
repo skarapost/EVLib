@@ -18,7 +18,6 @@ public class ChargingEvent
     private long waitingTime;
     private ElectricVehicle vehicle;
     private long chargingTime;
-    private long remainingChargingTime;
     private String condition;
     private Battery givenBattery;
     private Charger charger;
@@ -45,7 +44,7 @@ public class ChargingEvent
         this.kindOfCharging = kindOfCharg;
         this.vehicle = veh;
         this.condition = "arrived";
-        this.chargingLog.add(this);
+        chargingLog.add(this);
         this.charger = null;
         this.exchange = null;
     }
@@ -68,7 +67,7 @@ public class ChargingEvent
             this.amountOfEnergy = money / station.getUnitPrice();
         else
             this.amountOfEnergy = station.getTotalEnergy();
-        this.chargingLog.add(this);
+        chargingLog.add(this);
         this.charger = null;
         this.exchange = null;
     }
@@ -87,7 +86,7 @@ public class ChargingEvent
         this.vehicle = veh;
         this.chargingTime = station.getTimeOfExchange();
         this.condition = "arrived";
-        this.exchangeLog.add(this);
+        exchangeLog.add(this);
         this.charger = null;
         this.exchange = null;
     }
@@ -300,8 +299,9 @@ public class ChargingEvent
     public long getRemainingChargingTime()
     {
         long diff = System.currentTimeMillis() - timestamp;
+        long remainingChargingTime;
         if ((chargingTime - diff >= 0) && (condition.equals("charging") || condition.equals("swapping")))
-            this.remainingChargingTime = chargingTime - diff;
+            remainingChargingTime = chargingTime - diff;
         else
             return 0;
         return remainingChargingTime;

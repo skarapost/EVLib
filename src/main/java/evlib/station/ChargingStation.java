@@ -17,10 +17,10 @@ import java.util.function.Consumer;
 public class ChargingStation {
     private int id;
     private String name;
-    private final WaitList fast;
-    private final WaitList slow;
-    private final WaitList discharging;
-    private final WaitList exchange;
+    private final WaitList<ChargingEvent> fast;
+    private final WaitList<ChargingEvent> slow;
+    private final WaitList<DisChargingEvent> discharging;
+    private final WaitList<ChargingEvent> exchange;
     private double chargingRateFast;
     private double chargingRateSlow;
     private double disChargingRate;
@@ -47,18 +47,18 @@ public class ChargingStation {
     private final Statistics statistics = new Statistics();
     private Timer timer;
     private boolean deamon;
-    private Lock lock1 = new ReentrantLock();
-    private Lock lock2 = new ReentrantLock();
-    private Lock lock3 = new ReentrantLock();
-    private Lock lock4 = new ReentrantLock();
-    private Lock lock5 = new ReentrantLock();
-    private Lock lock6 = new ReentrantLock();
-    private Lock lock7 = new ReentrantLock();
-    private Lock lock8 = new ReentrantLock();
+    private final Lock lock1 = new ReentrantLock();
+    private final Lock lock2 = new ReentrantLock();
+    private final Lock lock3 = new ReentrantLock();
+    private final Lock lock4 = new ReentrantLock();
+    private final Lock lock5 = new ReentrantLock();
+    private final Lock lock6 = new ReentrantLock();
+    private final Lock lock7 = new ReentrantLock();
+    private final Lock lock8 = new ReentrantLock();
     public int FAST_CHARGERS;
     public int SLOW_CHARGERS;
-    ArrayList<ChargingEvent> events = new ArrayList<ChargingEvent>();
-    ArrayList<Integer> numberOfChargers = new ArrayList<Integer>();
+    final ArrayList<ChargingEvent> events = new ArrayList<>();
+    final ArrayList<Integer> numberOfChargers = new ArrayList<>();
     boolean execEvents;
 
     private class CheckUpdate extends TimerTask {
@@ -87,10 +87,10 @@ public class ChargingStation {
         this.id = idGenerator.incrementAndGet();
         this.name = nam;
         this.automaticQueueHandling = true;
-        this.fast = new WaitList<ChargingEvent>();
-        this.slow = new WaitList<ChargingEvent>();
-        this.exchange = new WaitList<ChargingEvent>();
-        this.discharging = new WaitList<DisChargingEvent>();
+        this.fast = new WaitList<>();
+        this.slow = new WaitList<>();
+        this.exchange = new WaitList<>();
+        this.discharging = new WaitList<>();
         this.chargers = new ArrayList<>();
         this.dischargers = new ArrayList<>();
         this.exchangeHandlers = new ArrayList<>();
@@ -163,10 +163,10 @@ public class ChargingStation {
         this.amounts = new HashMap<>();
         this.id = idGenerator.incrementAndGet();
         this.name = nam;
-        this.fast = new WaitList<ChargingEvent>();
-        this.slow = new WaitList<ChargingEvent>();
-        this.exchange = new WaitList<ChargingEvent>();
-        this.discharging = new WaitList<DisChargingEvent>();
+        this.fast = new WaitList<>();
+        this.slow = new WaitList<>();
+        this.exchange = new WaitList<>();
+        this.discharging = new WaitList<>();
         this.automaticQueueHandling = true;
         this.chargers = new ArrayList<>();
         this.dischargers = new ArrayList<>();
@@ -241,10 +241,10 @@ public class ChargingStation {
     public ChargingStation(final String nam) {
         this.id = idGenerator.incrementAndGet();
         this.name = nam;
-        this.fast = new WaitList<ChargingEvent>();
-        this.slow = new WaitList<ChargingEvent>();
-        this.exchange = new WaitList<ChargingEvent>();
-        this.discharging = new WaitList<DisChargingEvent>();
+        this.fast = new WaitList<>();
+        this.slow = new WaitList<>();
+        this.exchange = new WaitList<>();
+        this.discharging = new WaitList<>();
         this.parkingSlots = new ArrayList<>();
         this.amounts = new HashMap<>();
         this.chargers = new ArrayList<>();
@@ -1055,25 +1055,24 @@ public class ChargingStation {
                     return 0;
             }
         else if ("parking".equalsIgnoreCase(kind)) {
-            for (int i = 0; i < parkingSlots.size(); i++) {
-                if (parkingSlots.get(i).getParkingEvent() != null) {
-                    if ((min == -1 && parkingSlots.get(i).getParkingEvent().getCondition().equals("charging")) ||
-                            (min > (parkingSlots.get(i).getParkingEvent().getRemainingChargingTime() +
-                                    parkingSlots.get(i).getParkingEvent().getParkingTime() -
-                            parkingSlots.get(i).getParkingEvent().getChargingTime()) &&
-                            parkingSlots.get(i).getParkingEvent().getCondition().equals("charging")))
+            for (ParkingSlot parkingSlot : parkingSlots) {
+                if (parkingSlot.getParkingEvent() != null) {
+                    if ((min == -1 && parkingSlot.getParkingEvent().getCondition().equals("charging")) ||
+                            (min > (parkingSlot.getParkingEvent().getRemainingChargingTime() +
+                                    parkingSlot.getParkingEvent().getParkingTime() -
+                                    parkingSlot.getParkingEvent().getChargingTime()) &&
+                                    parkingSlot.getParkingEvent().getCondition().equals("charging")))
 
-                        min = parkingSlots.get(i).getParkingEvent().getRemainingChargingTime() +
-                                parkingSlots.get(i).getParkingEvent().getParkingTime() -
-                                parkingSlots.get(i).getParkingEvent().getChargingTime();
+                        min = parkingSlot.getParkingEvent().getRemainingChargingTime() +
+                                parkingSlot.getParkingEvent().getParkingTime() -
+                                parkingSlot.getParkingEvent().getChargingTime();
 
-                    else if ((min == -1 && parkingSlots.get(i).getParkingEvent().getCondition().equals("parking")) ||
-                            (min > parkingSlots.get(i).getParkingEvent().getRemainingParkingTime() &&
-                            parkingSlots.get(i).getParkingEvent().getCondition().equals("parking")))
+                    else if ((min == -1 && parkingSlot.getParkingEvent().getCondition().equals("parking")) ||
+                            (min > parkingSlot.getParkingEvent().getRemainingParkingTime() &&
+                                    parkingSlot.getParkingEvent().getCondition().equals("parking")))
 
-                        min = parkingSlots.get(i).getParkingEvent().getRemainingParkingTime();
-                }
-                else
+                        min = parkingSlot.getParkingEvent().getRemainingParkingTime();
+                } else
                     return 0;
             }
             return min;
@@ -1287,7 +1286,7 @@ public class ChargingStation {
      */
     public void setAutomaticUpdateMode(final boolean update) {
         if (!update) {
-            this.automaticUpdate = update;
+            this.automaticUpdate = false;
             this.updateSpace = 0;
             if (timer != null) {
                 timer.cancel();
@@ -1377,25 +1376,16 @@ public class ChargingStation {
                         for (int i = 1; i < tokens.length; i++) {
                             switch (tokens[i]) {
                                 case "ch":
-                                    if (chargers.get(j).planEvent.size() == 0) {
-                                        chargers.get(j).planEvent.add(0);
+                                    if (chargers.get(j).planEvent.size() == 0)
                                         chargers.get(j).setChargingEvent(events.get(Integer.parseInt(tokens[i + 1]) - 1));
-                                        events.get(Integer.parseInt(tokens[i + 1]) - 1).setChargingTime(Long.parseLong(tokens[i + 2]));
-                                        events.get(Integer.parseInt(tokens[i + 1]) - 1).accumulatorOfChargingTime += events.get(Integer.parseInt(tokens[i + 1]) - 1).getChargingTime();
-                                    } else {
-                                        chargers.get(j).planEvent.add(Integer.parseInt(tokens[i + 1]));
-                                        chargers.get(j).planTime.add(Long.parseLong(tokens[i + 2]));
-                                    }
+                                    chargers.get(j).planEvent.add(Integer.parseInt(tokens[i + 1]));
+                                    chargers.get(j).planTime.add(Long.parseLong(tokens[i + 2]));
                                     break;
                                 case "int":
-                                    if (chargers.get(j).planEvent.size() == 0) {
-                                        ChargingEvent e = new ChargingEvent(this, null, 0, null);
-                                        e.setChargingTime(Long.parseLong(tokens[i + 1]));
-                                        chargers.get(j).setChargingEvent(e);
-                                    } else {
-                                        chargers.get(j).planEvent.add(-1);
-                                        chargers.get(j).planTime.add(Long.parseLong(tokens[i + 1]));
-                                    }
+                                    if (chargers.get(j).planEvent.size() == 0)
+                                        chargers.get(j).setChargingEvent(new ChargingEvent(this, null, 0, null));
+                                    chargers.get(j).planEvent.add(-1);
+                                    chargers.get(j).planTime.add(Long.parseLong(tokens[i + 1]));
                                     break;
                                 default:
                                     break;
@@ -1403,8 +1393,9 @@ public class ChargingStation {
                         }
                     }
                 }
-            } catch (IOException e) {}
-            numberOfChargers.forEach(e -> chargers.get(e).planEvent.remove(0));
+            } catch (IOException e) {
+                System.out.println("Broken file");
+            }
             numberOfChargers.forEach(e -> chargers.get(e).startCharger());
         }
     }

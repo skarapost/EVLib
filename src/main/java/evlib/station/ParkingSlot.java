@@ -8,7 +8,6 @@ public class ParkingSlot {
     private ChargingStation station;
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
     private boolean inSwitch;
-    private volatile Thread running;
     private String name;
 
     /**
@@ -49,19 +48,19 @@ public class ParkingSlot {
      * management of the waiting list.
      */
     public void startParkingSlot() {
-        running = new Thread(() -> {
+        Thread running = new Thread(() -> {
             try {
                 e.setParkingTime(e.getParkingTime());
                 if (e.getCondition().equals("charging")) {
                     e.setChargingTime(e.getChargingTime());
                     Thread.sleep(e.getChargingTime());
-                        e.getElectricVehicle().getBattery().setRemAmount(e.getEnergyToBeReceived() + e.getElectricVehicle().getBattery().getRemAmount());
-                        if (e.getElectricVehicle().getDriver() != null)
-                            e.getElectricVehicle().getDriver().setDebt(e.getElectricVehicle().getDriver().getDebt() + e.getEnergyToBeReceived() * station.getInductivePrice());
-                        if (e.getElectricVehicle().getDriver() == null && e.getElectricVehicle().getBrand() == null)
-                            System.out.println("Charging " + e.getId() + ", " + e.getStation().getName() + ", OK");
-                        else
-                            System.out.println("Charging " + e.getId() + ", " + e.getElectricVehicle().getDriver().getName() + ", " + e.getElectricVehicle().getBrand() + ", " + e.getStation().getName() + ", OK");
+                    e.getElectricVehicle().getBattery().setRemAmount(e.getEnergyToBeReceived() + e.getElectricVehicle().getBattery().getRemAmount());
+                    if (e.getElectricVehicle().getDriver() != null)
+                        e.getElectricVehicle().getDriver().setDebt(e.getElectricVehicle().getDriver().getDebt() + e.getEnergyToBeReceived() * station.getInductivePrice());
+                    if (e.getElectricVehicle().getDriver() == null && e.getElectricVehicle().getBrand() == null)
+                        System.out.println("Charging " + e.getId() + ", " + e.getStation().getName() + ", OK");
+                    else
+                        System.out.println("Charging " + e.getId() + ", " + e.getElectricVehicle().getDriver().getName() + ", " + e.getElectricVehicle().getBrand() + ", " + e.getStation().getName() + ", OK");
                 }
                 e.setCondition("parking");
                 long diff = e.getParkingTime() - e.getChargingTime();
@@ -71,11 +70,11 @@ public class ParkingSlot {
                 else
                     System.out.println("Parking " + e.getId() + ", " + e.getElectricVehicle().getDriver().getName() + ", " + e.getElectricVehicle().getBrand() + ", " + e.getStation().getName() + ", OK");
                 e.setCondition("finished");
-                synchronized(this) {
+                synchronized (this) {
                     setParkingEvent(null);
                 }
             } catch (InterruptedException e1) {
-                synchronized(this) {
+                synchronized (this) {
                     setParkingEvent(null);
                 }
                 System.out.println(name + " stopped");

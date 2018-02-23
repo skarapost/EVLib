@@ -14,7 +14,7 @@ public abstract class EnergySource
      */
     public EnergySource() {
         this.id = idGenerator.incrementAndGet();
-        this.energyAmount = new ArrayList();
+        this.energyAmount = new ArrayList<>();
     }
 
     /**

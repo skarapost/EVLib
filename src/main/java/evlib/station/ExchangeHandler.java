@@ -8,7 +8,6 @@ public class ExchangeHandler
     private ChargingStation station;
     private ChargingEvent e;
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
-    private volatile Thread running;
     private String name;
 
     /**
@@ -77,7 +76,7 @@ public class ExchangeHandler
      * In the end, if the automatic queue's handling is activated the ExchangeHandler checks the WaitingList.
      */
     public void startExchangeHandler() {
-        running = new Thread(() -> {
+        Thread running = new Thread(() -> {
             try {
                 e.setChargingTime(station.getTimeOfExchange());
                 Thread.sleep(e.getChargingTime());
@@ -90,13 +89,13 @@ public class ExchangeHandler
                 else
                     System.out.println("Battery exchange " + e.getId() + ", " + e.getElectricVehicle().getDriver().getName() + ", " + e.getElectricVehicle().getBrand() + ", " + e.getStation().getName() + ", OK");
                 e.setCondition("finished");
-                synchronized(this) {
+                synchronized (this) {
                     setChargingEvent(null);
                 }
                 if (station.getQueueHandling())
                     handleQueueEvents();
             } catch (InterruptedException e1) {
-                synchronized(this) {
+                synchronized (this) {
                     setChargingEvent(null);
                 }
                 System.out.println(name + " stopped");

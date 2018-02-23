@@ -14,7 +14,6 @@ public class DisChargingEvent {
     private DisCharger disCharger;
     private double amountOfEnergy;
     private long disChargingTime;
-    private long remainingDisChargingTime;
     private String condition;
     private long waitingTime;
     private long maxWaitingTime;
@@ -34,7 +33,7 @@ public class DisChargingEvent {
         this.station = stat;
         this.vehicle = veh;
         this.condition = "arrived";
-        this.dischargingLog.add(this);
+        dischargingLog.add(this);
         this.disCharger = null;
     }
 
@@ -156,8 +155,9 @@ public class DisChargingEvent {
      */
     public long getRemainingDisChargingTime() {
         long diff = System.currentTimeMillis() - timestamp;
+        long remainingDisChargingTime;
         if ((disChargingTime - diff >= 0) && (condition.equals("discharging")))
-            this.remainingDisChargingTime = disChargingTime - diff;
+            remainingDisChargingTime = disChargingTime - diff;
         else
             return 0;
         return remainingDisChargingTime;

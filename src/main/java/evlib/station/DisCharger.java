@@ -8,7 +8,6 @@ public class DisCharger
     private int id;
     private DisChargingEvent e;
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
-    private volatile Thread running;
     private String name;
 
     /**
@@ -30,7 +29,7 @@ public class DisCharger
      * management of the waiting list.
      */
     public void startDisCharger() {
-        running = new Thread(() -> {
+        Thread running = new Thread(() -> {
             try {
                 e.setDisChargingTime(e.getDisChargingTime());
                 Thread.sleep(e.getDisChargingTime());
@@ -44,14 +43,14 @@ public class DisCharger
                 else
                     System.out.println("Discharging " + e.getId() + ", " + e.getElectricVehicle().getDriver().getName() + ", " + e.getElectricVehicle().getBrand() + ", " + e.getStation().getName() + ", OK");
                 e.setCondition("finished");
-                synchronized(this) {
+                synchronized (this) {
                     setDisChargingEvent(null);
                 }
                 if (station.getQueueHandling())
                     handleQueueEvents();
             } catch (InterruptedException e1) {
                 System.out.println(name + " stopped");
-                synchronized(this) {
+                synchronized (this) {
                     setDisChargingEvent(null);
                 }
             } catch (NullPointerException e2) {

@@ -10,7 +10,7 @@ public class WaitList<T>
     private final ArrayList<T> list;
     private int id;
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
-    private Lock lock = new ReentrantLock();
+    private final Lock lock = new ReentrantLock();
 
     /**
      * Creates a new WaitingList object.

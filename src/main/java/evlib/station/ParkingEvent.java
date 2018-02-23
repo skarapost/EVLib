@@ -15,9 +15,7 @@ public class ParkingEvent {
     private ElectricVehicle vehicle;
     private final ChargingStation station;
     private ParkingSlot parkingSlot;
-    private long remainingParkingTime;
     private long chargingTime;
-    private long remainingChargingTime;
     private double amountOfEnergy;
     private double energyToBeReceived;
     private long timestamp1;
@@ -38,7 +36,7 @@ public class ParkingEvent {
         this.vehicle = veh;
         this.condition = "arrived";
         this.parkingTime = parkTime;
-        this.parkLog.add(this);
+        parkLog.add(this);
         this.parkingSlot = null;
     }
 
@@ -60,7 +58,7 @@ public class ParkingEvent {
         this.amountOfEnergy = amountOfEnerg;
         this.condition = "arrived";
         this.parkingTime = parkTime;
-        this.parkLog.add(this);
+        parkLog.add(this);
     }
 
     /**
@@ -174,8 +172,9 @@ public class ParkingEvent {
      */
     public long getRemainingChargingTime() {
         long diff = System.currentTimeMillis() - timestamp1;
+        long remainingChargingTime;
         if ((chargingTime - diff >= 0) && (condition.equals("charging")))
-            this.remainingChargingTime = chargingTime - diff;
+            remainingChargingTime = chargingTime - diff;
         else
             return 0;
         return remainingChargingTime;
@@ -228,6 +227,7 @@ public class ParkingEvent {
      */
     public long getRemainingParkingTime() {
         long diff = System.currentTimeMillis() - timestamp2;
+        long remainingParkingTime;
         if ((parkingTime - diff >= 0) && (condition.equals("parking")))
             remainingParkingTime = parkingTime - diff;
         else

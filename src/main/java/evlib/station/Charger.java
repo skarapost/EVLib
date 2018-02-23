@@ -9,10 +9,9 @@ public class Charger {
     private String name;
     private ChargingEvent e;
     private ChargingStation station;
-    ArrayList<Integer> planEvent = new ArrayList<Integer>();
-    ArrayList<Long> planTime = new ArrayList<Long>();
+    final ArrayList<Integer> planEvent = new ArrayList<>();
+    final ArrayList<Long> planTime = new ArrayList<>();
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
-    private volatile Thread running;
 
     /**
      * Creates a new Charger instance.
@@ -51,11 +50,11 @@ public class Charger {
      * the waiting list.
      */
     public void startCharger() {
-        running = new Thread(() -> {
+        Thread running = new Thread(() -> {
             try {
-                e.setChargingTime(e.getChargingTime());
-                Thread.sleep(e.getChargingTime());
                 if ((planEvent.size() == 0) && (planTime.size() == 0)) {
+                    e.setChargingTime(e.getChargingTime());
+                    Thread.sleep(e.getChargingTime());
                     e.getElectricVehicle().getBattery().setRemAmount(e.getEnergyToBeReceived() + e.getElectricVehicle().getBattery().getRemAmount());
                     if (e.getElectricVehicle().getDriver() != null)
                         e.getElectricVehicle().getDriver().setDebt(e.getElectricVehicle().getDriver().getDebt() + e.getCost());
@@ -64,40 +63,47 @@ public class Charger {
                     else
                         System.out.println("Charging " + e.getId() + ", " + e.getElectricVehicle().getDriver().getName() + ", " + e.getElectricVehicle().getBrand() + ", " + e.getStation().getName() + ", OK");
                     e.setCondition("finished");
-                    synchronized(this) {
+                    synchronized (this) {
                         setChargingEvent(null);
                     }
                     if (station.getQueueHandling())
                         handleQueueEvents();
                 } else {
-                    if (!planEvent.contains(station.events.indexOf(e) + 1))
-                        if (e.getKindOfCharging() != null) {
-                            e.setCondition("finished");
-                            e.setChargingTime(e.accumulatorOfChargingTime);
-                        } else
-                            e.setCondition("interrupted");
+                    e.setChargingTime(planTime.get(0));
+                    Thread.sleep(e.getChargingTime());
+                    planTime.remove(0);
+                    planEvent.remove(0);
+                    if (!planEvent.contains(station.events.indexOf(e) + 1)) {
+                        e.setCondition("finished");
+                        e.setChargingTime(e.accumulatorOfChargingTime);
+                    } else
+                        e.setCondition("interrupted");
                     if (planEvent.size() != 0) {
                         if (planEvent.get(0) != -1) {
-                            synchronized(this) {
-                                setChargingEvent(station.events.get(planEvent.remove(0) - 1));
+                            synchronized (this) {
+                                setChargingEvent(station.events.get(planEvent.get(0) - 1));
                             }
-                            e.setChargingTime(planTime.remove(0));
+                            e.setChargingTime(planTime.get(0));
                             e.accumulatorOfChargingTime += e.getChargingTime();
+                            e.setCondition("charging");
+                            startCharger();
                         } else {
                             ChargingEvent e = new ChargingEvent(station, null, 0, null);
-                            e.setChargingTime(planTime.remove(0));
-                            planEvent.remove(0);
-                            synchronized(this) {
+                            synchronized (this) {
                                 setChargingEvent(e);
                             }
+                            e.setChargingTime(planTime.get(0));
+                            e.setCondition("charging");
+                            ChargingEvent.getChargingLog().remove(e);
+                            startCharger();
                         }
                     } else {
-                        synchronized(this) {
-                            setChargingEvent(null);
-                        }
                         planTime.clear();
                         planEvent.clear();
                         System.out.println(name + " plan, OK");
+                        synchronized (this) {
+                            setChargingEvent(null);
+                        }
                         boolean flag = true;
                         for (int i : station.numberOfChargers)
                             if (station.getChargers()[i].getChargingEvent() != null)
@@ -111,7 +117,7 @@ public class Charger {
                     }
                 }
             } catch (InterruptedException e1) {
-                synchronized(this) {
+                synchronized (this) {
                     setChargingEvent(null);
                 }
                 System.out.println(name + " stopped");
