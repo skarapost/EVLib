@@ -15,21 +15,21 @@ class DisChargerTest {
     @Test
     void executeDisChargingEvent() throws InterruptedException {
         station.addDisCharger(disCharger);
-        station.setDisChargingRate(0.01);
+        station.setDisChargingRate(800);
         ElectricVehicle vehicle = new ElectricVehicle("Fiat");
         vehicle.setDriver(new Driver("Petros"));
         vehicle.setBattery(new Battery(150, 500));
-        DisChargingEvent disEvent = new DisChargingEvent(station, vehicle, 15);
+        DisChargingEvent disEvent = new DisChargingEvent(station, vehicle, 20);
         disEvent.preProcessing();
 
         disCharger.startDisCharger();
 
-        Thread.sleep(2000);
+        Thread.sleep(100000);
 
         assertEquals("finished", disEvent.getCondition());
         assertTrue(DisChargingEvent.getDischargingLog().contains(disEvent));
         assertNull(disCharger.getDisChargingEvent());
         assertEquals(disEvent.getElectricVehicle().getDriver().getProfit(), 0);
-        assertEquals(disEvent.getDisChargingTime(), 1500);
+        assertEquals(disEvent.getDisChargingTime(), 90000);
     }
 }

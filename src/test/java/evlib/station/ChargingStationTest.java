@@ -208,11 +208,11 @@ class ChargingStationTest {
         Thread.sleep(500);
 
         Battery bat = new Battery(1450, 1500);
-        station.setChargingRateFast(0.01);
+        station.setChargingRateFast(800);
         station.joinBattery(bat);
         station.batteriesCharging("fast");
 
-        Thread.sleep(6000);
+        Thread.sleep(230000);
 
         assertEquals(station.getBatteries()[0].getRemAmount(), 1500);
     }
@@ -261,18 +261,18 @@ class ChargingStationTest {
 
     @Test
     void calculatePrice() throws InterruptedException {
-        ChargingEvent event = new ChargingEvent(station, null, 150, "slow");
-        event.setEnergyToBeReceived(150);
+        ChargingEvent event = new ChargingEvent(station, null, 20, "slow");
+        event.setEnergyToBeReceived(20);
 
         station.setUnitPrice(20);
 
-        assertEquals(station.calculatePrice(event), 3000);
+        assertEquals(station.calculatePrice(event), 400);
 
         double[] prices = {150, 25, 160};
         PricingPolicy policy = new PricingPolicy(2000, prices);
         station.setPricingPolicy(policy);
 
-        assertEquals(station.calculatePrice(event), 22500);
+        assertEquals(station.calculatePrice(event), 3000);
 
         long[] spaces = {2500, 6000, 9000};
         policy = new PricingPolicy(spaces, prices);
@@ -280,6 +280,6 @@ class ChargingStationTest {
 
         Thread.sleep(3500);
 
-        assertEquals(station.calculatePrice(event), 3750);
+        assertEquals(station.calculatePrice(event), 500);
     }
 }

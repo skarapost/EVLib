@@ -83,7 +83,7 @@ public class DisChargingEvent {
             if ((condition.equals("arrived")) || (condition.equals("wait"))) {
                 station.assignDisCharger(this);
                 if (disCharger != null) {
-                    disChargingTime = (long) (amountOfEnergy / station.getDisChargingRate());
+                    disChargingTime = (long) (amountOfEnergy * 3600000 / station.getDisChargingRate());
                     setCondition("ready");
                     profit = amountOfEnergy * station.getDisUnitPrice();
                 }
@@ -218,7 +218,7 @@ public class DisChargingEvent {
         DisChargingEvent e;
         for (int i = 0; i < o.getSize(); i++) {
             e = (DisChargingEvent) o.get(i);
-            counter1[index] = counter1[index] + ((long) (e.getAmountOfEnergy() / station.getDisChargingRate()));
+            counter1[index] = counter1[index] + ((long) (e.getAmountOfEnergy() * 3600000 / station.getDisChargingRate()));
             for (int j = 0; j < station.getDisChargers().length; j++)
                 if ((counter1[j] < counter1[index]) && (counter1[j] != 0))
                     index = j;

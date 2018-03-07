@@ -1087,7 +1087,7 @@ public class ChargingStation {
             WaitList o = this.fast;
             for (int i = 0; i < o.getSize() ; i++) {
                 e = (ChargingEvent) o.get(i);
-                counter1[index] = counter1[index] + ((long) (e.getAmountOfEnergy() / chargingRateFast));
+                counter1[index] = counter1[index] + ((long) (e.getAmountOfEnergy() * 3600000 / chargingRateFast));
                 for (int j = 0; j < chargers.size(); j++)
                     if ((counter1[j] < counter1[index]) && (counter1[j] != 0))
                         index = j;
@@ -1098,7 +1098,7 @@ public class ChargingStation {
             WaitList o = this.slow;
             for (int i = 0; i < o.getSize() ; i++) {
                 e = (ChargingEvent) o.get(i);
-                counter1[index] = counter1[index] + ((long) (e.getAmountOfEnergy() / chargingRateSlow));
+                counter1[index] = counter1[index] + ((long) (e.getAmountOfEnergy() * 3600000 / chargingRateSlow));
                 for (int j = 0; j < chargers.size(); j++)
                     if ((counter1[j] < counter1[index]) && (counter1[j] != 0))
                         index = j;
@@ -1118,7 +1118,7 @@ public class ChargingStation {
             WaitList o = this.discharging;
             for (int i = 0; i < o.getSize(); i++) {
                 ey = (DisChargingEvent) o.get(i);
-                counter3[index] = counter3[index] + ((long) (ey.getAmountOfEnergy() / disChargingRate));
+                counter3[index] = counter3[index] + ((long) (ey.getAmountOfEnergy() * 3600000 / disChargingRate));
                 for (int j = 0; j < dischargers.size(); j++)
                     if ((counter3[j] < counter3[index]) && (counter3[j] != 0))
                         index = j;

@@ -20,7 +20,7 @@ class ChargerTest {
         solar.insertAmount(1500);
         station.addCharger(charger);
         station.updateStorage();
-        station.setChargingRateFast(0.01);
+        station.setChargingRateFast(800);
         Driver driver = new Driver("Petros");
         Battery battery = new Battery(150, 500);
         ElectricVehicle vehicle = new ElectricVehicle("Fiat");
@@ -30,14 +30,14 @@ class ChargerTest {
         event.preProcessing();
         charger.startCharger();
 
-        Thread.sleep(2500);
+        Thread.sleep(91000);
 
         assertEquals("finished", event.getCondition());
         assertTrue(ChargingEvent.getChargingLog().contains(event));
         assertNull(charger.getChargingEvent());
         assertEquals(driver.getDebt(), 0);
         assertEquals(battery.getRemAmount(), 170);
-        assertEquals(event.getChargingTime(), 2000);
+        assertEquals(event.getChargingTime(), 90000);
     }
 
 }

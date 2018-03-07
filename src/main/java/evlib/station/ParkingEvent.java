@@ -100,9 +100,9 @@ public class ParkingEvent {
                         else
                             energyToBeReceived = vehicle.getBattery().getCapacity() - vehicle.getBattery().getRemAmount();
                     }
-                    chargingTime = (long) ((energyToBeReceived) / station.getInductiveRate());
+                    chargingTime = (long) ((energyToBeReceived)  * 3600000 / station.getInductiveRate());
                     if (chargingTime > parkingTime) {
-                        energyToBeReceived = parkingTime * station.getInductiveRate();
+                        energyToBeReceived = parkingTime * station.getInductiveRate() / 3600000;
                         chargingTime = parkingTime;
                     }
                     setCondition("ready");

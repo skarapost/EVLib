@@ -17,20 +17,20 @@ class DisChargingEventTest {
     void preProcessing() throws InterruptedException {
         station.addDisCharger(disCharger);
         station.setDisUnitPrice(100);
-        station.setDisChargingRate(0.1);
+        station.setDisChargingRate(800);
         ElectricVehicle vehicle = new ElectricVehicle("Fiat");
         vehicle.setDriver(new Driver("Petros"));
         vehicle.setBattery(new Battery(150, 500));
-        DisChargingEvent disEvent = new DisChargingEvent(station, vehicle, 1500);
+        DisChargingEvent disEvent = new DisChargingEvent(station, vehicle, 20);
         disEvent.preProcessing();
 
-        assertEquals(disEvent.getDisChargingTime(), 15000);
+        assertEquals(disEvent.getDisChargingTime(), 90000);
         assertEquals(disEvent.getCondition(), "ready");
-        assertEquals(disEvent.getProfit(), 150000);
+        assertEquals(disEvent.getProfit(), 2000);
         assertEquals(disEvent.getMaxWaitingTime(), 0);
         assertEquals(disEvent.getWaitingTime(), 0);
         assertEquals(disEvent.getRemainingDisChargingTime(), 0);
-        assertEquals(disEvent.getAmountOfEnergy(), 1500);
+        assertEquals(disEvent.getAmountOfEnergy(), 20);
         assertEquals(station.getTotalEnergy(), 0);
 
         disEvent.execution();
@@ -58,7 +58,7 @@ class DisChargingEventTest {
         ElectricVehicle vehicle = new ElectricVehicle("Fiat");
         vehicle.setDriver(new Driver("Petros"));
         vehicle.setBattery(new Battery(150, 500));
-        DisChargingEvent disEvent = new DisChargingEvent(station, vehicle, 1500);
+        DisChargingEvent disEvent = new DisChargingEvent(station, vehicle, 20);
         disEvent.execution();
         assertEquals(disEvent.getCondition(), "arrived");
 
@@ -71,21 +71,21 @@ class DisChargingEventTest {
     @Test
     void getRemainingDisChargingTime() {
         station.addDisCharger(disCharger);
-        station.setDisChargingRate(0.1);
+        station.setDisChargingRate(800);
         ElectricVehicle vehicle = new ElectricVehicle("Fiat");
         vehicle.setDriver(new Driver("Petros"));
         vehicle.setBattery(new Battery(150, 500));
 
-        DisChargingEvent event = new DisChargingEvent(station, vehicle, 1500);
+        DisChargingEvent event = new DisChargingEvent(station, vehicle, 20);
 
         assertEquals(event.getRemainingDisChargingTime(), 0);
 
-        event.setDisChargingTime(150000);
+        event.setDisChargingTime(90000);
         assertEquals(event.getRemainingDisChargingTime(), 0);
 
         event.setCondition("discharging");
-        event.setDisChargingTime(150000);
-        assertTrue(event.getRemainingDisChargingTime() > 140000);
+        event.setDisChargingTime(90000);
+        assertTrue(event.getRemainingDisChargingTime() > 14000);
     }
 
 }

@@ -21,32 +21,32 @@ class ChargingEventTest {
         station.addCharger(charger);
         station.updateStorage();
         station.setUnitPrice(100);
-        station.setChargingRateSlow(0.01);
+        station.setChargingRateSlow(800);
         Driver driver = new Driver("Petros");
         Battery battery = new Battery(150, 500);
         ElectricVehicle vehicle = new ElectricVehicle("Fiat");
         vehicle.setDriver(driver);
         vehicle.setBattery(battery);
-        ChargingEvent event = new ChargingEvent(station, vehicle, 200, "slow");
+        ChargingEvent event = new ChargingEvent(station, vehicle, 20, "slow");
         event.preProcessing();
 
-        assertEquals(event.getChargingTime(), 20000);
+        assertEquals(event.getChargingTime(), 90000);
         assertEquals(event.getCondition(), "ready");
-        assertEquals(event.getEnergyToBeReceived(), 200);
-        assertEquals(event.getCost(), 20000);
+        assertEquals(event.getEnergyToBeReceived(), 20);
+        assertEquals(event.getCost(), 2000);
         assertEquals(event.getMaxWaitingTime(), 0);
         assertEquals(event.getWaitingTime(), 0);
         assertEquals(event.getRemainingChargingTime(), 0);
-        assertEquals(event.getAmountOfEnergy(), 200);
-        assertEquals(station.getTotalEnergy(), 1300);
-        assertEquals(station.getSpecificAmount("Solar"), 1300);
+        assertEquals(event.getAmountOfEnergy(), 20);
+        assertEquals(station.getTotalEnergy(), 1480);
+        assertEquals(station.getSpecificAmount("Solar"), 1480);
         assertEquals(station.getCurrentPrice(), 100);
 
         event.execution();
 
         Thread.sleep(100);
 
-        event = new ChargingEvent(station, vehicle, 50, "slow");
+        event = new ChargingEvent(station, vehicle, 20, "slow");
         event.setWaitingTime(2000000);
         event.preProcessing();
         assertEquals(event.getChargingTime(), 0);
@@ -56,11 +56,11 @@ class ChargingEventTest {
         assertTrue(event.getMaxWaitingTime() > 19000);
         assertEquals(event.getWaitingTime(), 2000000);
         assertEquals(event.getRemainingChargingTime(), 0);
-        assertEquals(event.getAmountOfEnergy(), 50);
+        assertEquals(event.getAmountOfEnergy(), 20);
         assertEquals(station.getSlow().getSize(), 1);
         assertEquals(station.getSlow().get(0), event);
-        assertEquals(station.getTotalEnergy(), 1300);
-        assertEquals(station.getSpecificAmount("Solar"), 1300);
+        assertEquals(station.getTotalEnergy(), 1480);
+        assertEquals(station.getSpecificAmount("Solar"), 1480);
         assertEquals(station.getCurrentPrice(), 100);
     }
 
@@ -71,13 +71,13 @@ class ChargingEventTest {
         station.addCharger(charger);
         station.updateStorage();
         station.setUnitPrice(100);
-        station.setChargingRateSlow(0.01);
+        station.setChargingRateSlow(800);
         Driver driver = new Driver("Petros");
         Battery battery = new Battery(150, 500);
         ElectricVehicle vehicle = new ElectricVehicle("Fiat");
         vehicle.setDriver(driver);
         vehicle.setBattery(battery);
-        ChargingEvent event = new ChargingEvent(station, vehicle, 200, "slow");
+        ChargingEvent event = new ChargingEvent(station, vehicle, 20, "slow");
         event.execution();
         assertEquals(event.getCondition(), "arrived");
 
@@ -94,21 +94,21 @@ class ChargingEventTest {
         station.addCharger(charger);
         station.updateStorage();
         station.setUnitPrice(100);
-        station.setChargingRateSlow(0.01);
+        station.setChargingRateSlow(800);
         Driver driver = new Driver("Petros");
         Battery battery = new Battery(150, 500);
         ElectricVehicle vehicle = new ElectricVehicle("Fiat");
         vehicle.setDriver(driver);
         vehicle.setBattery(battery);
-        ChargingEvent event = new ChargingEvent(station, vehicle, 200, "slow");
+        ChargingEvent event = new ChargingEvent(station, vehicle, 20, "slow");
 
         assertEquals(event.getRemainingChargingTime(), 0);
 
-        event.setChargingTime(15000);
+        event.setChargingTime(90000);
         assertEquals(event.getRemainingChargingTime(), 0);
 
         event.setCondition("charging");
-        event.setChargingTime(15000);
+        event.setChargingTime(90000);
         assertTrue(event.getRemainingChargingTime() > 14000);
     }
 

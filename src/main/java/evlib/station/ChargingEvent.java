@@ -127,9 +127,9 @@ public class ChargingEvent
                             return;
                         }
                         if ("fast".equalsIgnoreCase(kindOfCharging))
-                            chargingTime = ((long) (energyToBeReceived / station.getChargingRateFast()));
+                            chargingTime = ((long) (energyToBeReceived * 3600000 / station.getChargingRateFast()));
                         else
-                            chargingTime = ((long) (energyToBeReceived / station.getChargingRateSlow()));
+                            chargingTime = ((long) (energyToBeReceived * 3600000 / station.getChargingRateSlow()));
                         this.cost = station.calculatePrice(this);
                         setCondition("ready");
                         double sdf;
@@ -395,7 +395,7 @@ public class ChargingEvent
             for (int i = 0;i < o.getSize(); i++)
             {
                 e = (ChargingEvent) o.get(i);
-                counter1[index] = counter1[index] + ((long) (e.getAmountOfEnergy() / station.getChargingRateSlow()));
+                counter1[index] = counter1[index] + ((long) (e.getAmountOfEnergy() * 3600000 / station.getChargingRateSlow()));
                 for (int j = 0; j < station.getChargers().length; j++)
                     if ((counter1[j] < counter1[index]) && (counter1[j] != 0))
                         index = j;
@@ -408,7 +408,7 @@ public class ChargingEvent
             for (int i = 0; i < o.getSize(); i++)
             {
                 e = (ChargingEvent) o.get(i);
-                counter1[index] = counter1[index] + ((long) (e.getAmountOfEnergy() / station.getChargingRateFast()));
+                counter1[index] = counter1[index] + ((long) (e.getAmountOfEnergy() * 3600000 / station.getChargingRateFast()));
                 for (int j = 0; j < station.getChargers().length; j++)
                     if ((counter1[j] < counter1[index]) && (counter1[j] != 0))
                         index = j;

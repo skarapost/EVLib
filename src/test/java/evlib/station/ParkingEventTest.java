@@ -22,40 +22,40 @@ class ParkingEventTest {
         station.updateStorage();
         station.addParkingSlot(new ParkingSlot(station));
         station.setInductivePrice(100);
-        station.setInductiveChargingRate(0.1);
+        station.setInductiveChargingRate(8000);
 
         Driver driver = new Driver("Petros");
         Battery battery = new Battery(150, 500);
         ElectricVehicle vehicle = new ElectricVehicle("Fiat");
         vehicle.setDriver(driver);
         vehicle.setBattery(battery);
-        ParkingEvent event = new ParkingEvent(station, vehicle, 2000, 150);
+        ParkingEvent event = new ParkingEvent(station, vehicle, 10000, 20);
         event.preProcessing();
 
-        assertEquals(event.getEnergyToBeReceived(), 150);
-        assertEquals(event.getParkingTime(), 2000);
-        assertEquals(event.getChargingTime(), 1500);
+        assertEquals(event.getEnergyToBeReceived(), 20);
+        assertEquals(event.getParkingTime(), 10000);
+        assertEquals(event.getChargingTime(), 9000);
         assertEquals(event.getCondition(), "ready");
-        assertEquals(event.getCost(), 15000);
+        assertEquals(event.getCost(), 2000);
         assertEquals(event.getRemainingChargingTime(), 0);
         assertEquals(event.getRemainingParkingTime(), 0);
-        assertEquals(event.getAmountOfEnergy(), 150);
-        assertEquals(station.getTotalEnergy(), 1350);
-        assertEquals(station.getSpecificAmount("Solar"), 1350);
+        assertEquals(event.getAmountOfEnergy(), 20);
+        assertEquals(station.getTotalEnergy(), 1480);
+        assertEquals(station.getSpecificAmount("Solar"), 1480);
 
         event.execution();
 
         Thread.sleep(100);
 
-        event = new ParkingEvent(station, vehicle, 5000, 150);
+        event = new ParkingEvent(station, vehicle, 5000, 20);
         event.preProcessing();
         assertEquals(event.getChargingTime(), 0);
         assertEquals(event.getCondition(), "nonExecutable");
         assertEquals(event.getEnergyToBeReceived(), 0);
         assertEquals(event.getCost(), 0);
         assertEquals(event.getRemainingChargingTime(), 0);
-        assertEquals(event.getAmountOfEnergy(), 150);
-        assertEquals(station.getSpecificAmount("Solar"), 1350);
+        assertEquals(event.getAmountOfEnergy(), 20);
+        assertEquals(station.getSpecificAmount("Solar"), 1480);
     }
 
     @Test
@@ -66,14 +66,14 @@ class ParkingEventTest {
         station.updateStorage();
         station.addParkingSlot(new ParkingSlot(station));
         station.setInductivePrice(100);
-        station.setInductiveChargingRate(0.1);
+        station.setInductiveChargingRate(800);
 
         Driver driver = new Driver("Petros");
         Battery battery = new Battery(150, 500);
         ElectricVehicle vehicle = new ElectricVehicle("Fiat");
         vehicle.setDriver(driver);
         vehicle.setBattery(battery);
-        ParkingEvent event = new ParkingEvent(station, vehicle, 2000, 150);
+        ParkingEvent event = new ParkingEvent(station, vehicle, 10000, 20);
         event.execution();
 
         event.preProcessing();
@@ -90,22 +90,22 @@ class ParkingEventTest {
         station.updateStorage();
         station.addParkingSlot(new ParkingSlot(station));
         station.setInductivePrice(100);
-        station.setInductiveChargingRate(0.1);
+        station.setInductiveChargingRate(8000);
 
         Driver driver = new Driver("Petros");
         Battery battery = new Battery(150, 500);
         ElectricVehicle vehicle = new ElectricVehicle("Fiat");
         vehicle.setDriver(driver);
         vehicle.setBattery(battery);
-        ParkingEvent event = new ParkingEvent(station, vehicle, 2000, 150);
+        ParkingEvent event = new ParkingEvent(station, vehicle, 10000, 20);
 
         assertEquals(event.getRemainingChargingTime(), 0);
 
-        event.setChargingTime(1500);
+        event.setChargingTime(9000);
         assertEquals(event.getRemainingChargingTime(), 0);
 
         event.setCondition("charging");
-        event.setChargingTime(1500);
+        event.setChargingTime(9000);
         assertTrue(event.getRemainingChargingTime() > 1400);
     }
 
@@ -117,22 +117,22 @@ class ParkingEventTest {
         station.updateStorage();
         station.addParkingSlot(new ParkingSlot(station));
         station.setInductivePrice(100);
-        station.setInductiveChargingRate(0.1);
+        station.setInductiveChargingRate(8000);
 
         Driver driver = new Driver("Petros");
         Battery battery = new Battery(150, 500);
         ElectricVehicle vehicle = new ElectricVehicle("Fiat");
         vehicle.setDriver(driver);
         vehicle.setBattery(battery);
-        ParkingEvent event = new ParkingEvent(station, vehicle, 2000, 150);
+        ParkingEvent event = new ParkingEvent(station, vehicle, 10000, 20);
 
         assertEquals(event.getRemainingParkingTime(), 0);
 
-        event.setParkingTime(2000);
+        event.setParkingTime(10000);
         assertEquals(event.getRemainingParkingTime(), 0);
 
         event.setCondition("parking");
-        event.setParkingTime(2000);
+        event.setParkingTime(10000);
         assertTrue(event.getRemainingParkingTime() > 1900);
     }
 }

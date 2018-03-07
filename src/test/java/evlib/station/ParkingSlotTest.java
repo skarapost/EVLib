@@ -20,13 +20,13 @@ class ParkingSlotTest {
         solar.insertAmount(1500);
         station.updateStorage();
         station.setInductivePrice(10);
-        station.setInductiveChargingRate(0.1);
+        station.setInductiveChargingRate(8000);
         Driver driver = new Driver("Petros");
         Battery battery = new Battery(150, 500);
         ElectricVehicle vehicle = new ElectricVehicle("Fiat");
         vehicle.setDriver(driver);
         vehicle.setBattery(battery);
-        ParkingEvent event = new ParkingEvent(station, vehicle, 15000, 250);
+        ParkingEvent event = new ParkingEvent(station, vehicle, 15000, 20);
         event.preProcessing();
 
         event.execution();
@@ -36,9 +36,9 @@ class ParkingSlotTest {
         assertEquals("finished", event.getCondition());
         assertTrue(ParkingEvent.getParkLog().contains(event));
         assertNull(slot.getParkingEvent());
-        assertEquals(driver.getDebt(), 2500);
-        assertEquals(battery.getRemAmount(), 400);
-        assertEquals(event.getChargingTime(), 2500);
+        assertEquals(driver.getDebt(), 200);
+        assertEquals(battery.getRemAmount(), 170);
+        assertEquals(event.getChargingTime(), 9000);
         assertEquals(event.getParkingTime(), 15000);
     }
 }
