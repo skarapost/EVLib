@@ -1330,10 +1330,9 @@ public class ChargingStation {
     }
 
     /**
-     * The method is responsible for the partial execution of a predefined plan of chargings. The plan is given through a txt file.
+     * The method is responsible for the partial execution of a predefined plan of chargings. The plan is given through a text(.txt) file.
      * There can only be only one simultaneous execution of a plan. We assume that there are adequate resources(energy and chargers)
      * for the successful completion of the plan.
-     *
      * @param filepath The file with plan of chargings.
      * @throws FileNotFoundException In case the file was not found.
      */
@@ -1345,8 +1344,11 @@ public class ChargingStation {
             try (BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(filepath), java.nio.charset.StandardCharsets.UTF_8))){
                 while ((line = in.readLine()) != null) {
                     tokens = line.split(",");
+                    ElectricVehicle vehicle;
                     if (tokens[0].equals("ev")) {
-                        ChargingEvent event = new ChargingEvent(this, null, Double.parseDouble(tokens[1]), "partial");
+                        vehicle = new ElectricVehicle("Station");
+                        vehicle.setDriver(new Driver("StationDriver"));
+                        ChargingEvent event = new ChargingEvent(this, vehicle, Double.parseDouble(tokens[1]), "partial");
                         event.setEnergyToBeReceived(Double.parseDouble(tokens[1]));
                         event.setCost(calculatePrice(event));
                         event.setCondition("interrupted");
