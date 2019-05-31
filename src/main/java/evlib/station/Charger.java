@@ -29,16 +29,14 @@ public class Charger {
      * Sets a name for the Charger.
      * @param nam The name to be set.
      */
-    public void setName(final String nam)
-    {
+    public void setName(final String nam) {
         this.name = nam;
     }
 
     /**
      * @return The name of the Charger.
      */
-    public String getName()
-    {
+    public String getName() {
         return this.name;
     }
 

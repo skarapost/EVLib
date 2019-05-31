@@ -1166,33 +1166,28 @@ public class ChargingStation {
         for (int j = 0; j < getEnergySources().length; j++) {
             energy = getEnergySources()[j].popAmount();
             if (energy != 0) {
+            	Calendar calendar = Calendar.getInstance();
                 if (getEnergySources()[j] instanceof Solar) {
-                    Calendar calendar = Calendar.getInstance();
                     statistics.addEnergy("Solar, " + energy + ", " + dateFormat.format(calendar.getTime()));
                     energy += getSpecificAmount("Solar");
                     setSpecificAmount("Solar", energy);
                 } else if (getEnergySources()[j] instanceof Geothermal) {
-                    Calendar calendar = Calendar.getInstance();
                     statistics.addEnergy("Geothermal, " + energy + ", " + dateFormat.format(calendar.getTime()));
                     energy += getSpecificAmount("Geothermal");
                     setSpecificAmount("Geothermal", energy);
                 } else if (getEnergySources()[j] instanceof Nonrenewable) {
-                    Calendar calendar = Calendar.getInstance();
                     statistics.addEnergy("Nonrenewable, " + energy + ", " + dateFormat.format(calendar.getTime()));
                     energy += getSpecificAmount("Nonrenewable");
                     setSpecificAmount("Nonrenewable", energy);
                 } else if (getEnergySources()[j] instanceof Hydroelectric) {
-                    Calendar calendar = Calendar.getInstance();
                     statistics.addEnergy("Hydroelectric, " + energy + ", " + dateFormat.format(calendar.getTime()));
                     energy += getSpecificAmount("Hydroelectric");
                     setSpecificAmount("Hydroelectric", energy);
                 } else if (getEnergySources()[j] instanceof Wave) {
-                    Calendar calendar = Calendar.getInstance();
                     statistics.addEnergy("Wave, " + energy + ", " + dateFormat.format(calendar.getTime()));
                     energy += getSpecificAmount("Wave");
                     setSpecificAmount("Wave", energy);
                 } else if (getEnergySources()[j] instanceof Wind) {
-                    Calendar calendar = Calendar.getInstance();
                     statistics.addEnergy("Wind, " + energy + ", " + dateFormat.format(calendar.getTime()));
                     energy += getSpecificAmount("Wind");
                     setSpecificAmount("Wind", energy);
@@ -1214,8 +1209,7 @@ public class ChargingStation {
         else
             if (policy.getSpace() != 0)
                 return policy.getSpecificPrice((int) (diff / policy.getSpace()));
-            else
-            {
+            else {
                 double accumulator = 0;
                 int counter = 0;
                 while (accumulator <= diff) {
@@ -1252,8 +1246,7 @@ public class ChargingStation {
             else {
                 double accumulator = 0;
                 int counter = 0;
-                while (accumulator <= diff)
-                {
+                while (accumulator <= diff) {
                     accumulator += policy.getSpecificTimeSpace(counter);
                     if (accumulator <= diff)
                         counter++;
@@ -1316,16 +1309,14 @@ public class ChargingStation {
     /**
      * @return True if the created threads are deamons, false if not.
      */
-    public boolean getDeamon()
-    {
+    public boolean getDeamon() {
         return deamon;
     }
 
     /**
      * @return The name of the ChargingStation.
      */
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
