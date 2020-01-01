@@ -5,8 +5,7 @@ import evlib.ev.Driver;
 import evlib.ev.ElectricVehicle;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ExchangeHandlerTest {
 
@@ -33,11 +32,10 @@ class ExchangeHandlerTest {
         Thread.sleep(150);
 
         assertEquals("finished", event.getCondition());
-        assertEquals(ChargingEvent.getExchangeLog().get(0), event);
+        assertTrue(ChargingEvent.getExchangeLog().contains(event));
         assertNull(station.getExchangeHandlers()[0].getChargingEvent());
         assertEquals(driver.getDebt(), 0);
         assertEquals(event.getElectricVehicle().getBattery().getRemAmount(), 1500);
-        assertEquals(station.getExchangeHandlers()[0].getName(), "ExchangeHandler1");
         assertEquals(event.getChargingTime(), 100);
     }
 
