@@ -2,7 +2,7 @@
 EVLib is a library for the management and the simulation of EV activities in a charging station level which makes use of a set of available energy sources. It is implemented using Java, and its main goal is to manage the charging, discharging, battery swap and parking/charging inductively functions and support their integration into a single charging station. The library supports a large number of operations to properly manage EV-related activities.
 
 ## Documentation
-The documentation of EVLib is included in the evlib-javadoc.jar file in the ```/target``` directory, after the build phase.
+The documentation of EVLib is included in the evlib-javadoc.jar file in the ```/target``` directory, after the build stage.
 
 ## Main Functions
 
